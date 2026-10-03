@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MozBookStore 📚 | Livraria & Central Académica Digital</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"
+    ></script>
+  </head>
+  <body>
+    <!-- Barra de Contacto Superior -->
+    <div class="top-bar">
+      <div class="top-bar-container">
+        <span>
+          💬 WhatsApp:
+          <a href="https://wa.me/258867568918" target="_blank"
+            >+258 86 756 8918</a
+          >
+          /
+          <a href="https://wa.me/258820109316" target="_blank"
+            >+258 82 010 9316</a
+          >
+          /
+          <a href="https://wa.me/27636437259" target="_blank"
+            >+27 63 643 7259</a
+          >
+        </span>
+        <!-- Grupo de botões com a dica de idioma -->
+        <div style="display: flex; gap: 12px; align-items: center">
+          <span
+            style="
+              font-size: 0.8rem;
+              color: #94a3b8;
+              display: flex;
+              align-items: center;
+              gap: 4px;
+            "
+          >
+            🌐 Mudar idioma:
+          </span>
+          <button
+            id="btnTraduzir"
+            class="btn-login-trigger"
+            onclick="alternarIdioma()"
+            style="border-color: #38bdf8; color: #38bdf8"
+          >
+            🇿🇦 English
+          </button>
+          <button
+            id="txtBtnLogin"
+            class="btn-login-trigger"
+            onclick="abrirModalLogin()"
+          >
+            🔑 Entrar / Cadastrar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cabeçalho / Navbar -->
+    <header class="main-header">
+      <div class="header-container">
+        <div class="logo">
+          <h2>MozBook<span>Store</span> 📚</h2>
+        </div>
+        <div class="search-bar" style="position: relative">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search for books, exams, sports, technology..."
+            oninput="
+              buscarLivro();
+              atualizarSugestoes();
+            "
+            autocomplete="off"
+          />
+          <!-- Caixa de Sugestões / Hints -->
+          <div
+            id="searchSuggestions"
+            class="suggestions-box"
+            style="
+              display: none;
+              position: absolute;
+              top: 100%;
+              left: 0;
+              right: 0;
+              background: white;
+              border: 1px solid #cbd5e1;
+              border-radius: 0 0 12px 12px;
+              box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.1);
+              z-index: 1000;
+              max-height: 220px;
+              overflow-y: auto;
+            "
+          ></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Banner Principal -->
+    <section class="hero-banner">
+      <div class="hero-content">
+        <h1 id="txtHeroTitulo">Your Digital Academic & Literary Hub</h1>
+        <p id="txtHeroSub">
+          Can't find the book you're looking for? Request it below and we'll add
+          it! Payment via M-Pesa, e-Mola or SA Bank Deposit/Card.
+        </p>
+      </div>
+    </section>
+
+    <!-- Secção: Pedir um Livro -->
+    <section class="request-book-section">
+      <div class="request-container">
+        <h2 id="txtPedirTitulo">
+          📑 Didn't find your book? Request it and we'll add it!
+        </h2>
+        <p id="txtPedirSub">
+          Send the details of the material you want. Our team receives the
+          notification instantly.
+        </p>
+
+        <form id="formPedirLivro" onsubmit="enviarPedidoLivro(event)">
+          <div class="request-grid">
+            <input
+              type="text"
+              id="reqTitulo"
+              placeholder="Book Name or Exam *"
+              required
+            />
+            <input
+              type="text"
+              id="reqAutor"
+              placeholder="Author / Category (Optional)"
+            />
+            <input
+              type="text"
+              id="reqContacto"
+              placeholder="Your Name and Contact (WhatsApp/Email) *"
+              required
+            />
+            <button type="submit" id="txtBtnPedir" class="btn-request">
+              🚀 Request & Notify Team
+            </button>
+          </div>
+        </form>
+        <div id="statusPedido" class="status-pedido"></div>
+      </div>
+    </section>
+
+    <!-- Prova Social / Pedidos Recentes Atendidos -->
+    <section class="recent-requests-banner">
+      <div class="recent-container">
+        <span id="txtUltimosLivros"
+          >🔥 <b>Latest Books Added by Request:</b></span
+        >
+        <div class="ticker-items">
+          <span class="badge" id="badge1">✅ Natação para Iniciantes</span>
+          <span class="badge" id="badge2"
+            >✅ Treinamento de Força para Iniciantes</span
+          >
+          <span class="badge" id="badge3">✅ Futebol para Iniciantes</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Passos de Funcionamento -->
+    <section class="how-it-works">
+      <div class="steps-container">
+        <div class="step-card">
+          <span class="step-num">1</span>
+          <h3 id="txtPasso1Tit">Request or Choose</h3>
+          <p id="txtPasso1Desc">
+            Request a book using the form or select one from the catalog.
+          </p>
+        </div>
+        <div class="step-card">
+          <span class="step-num">2</span>
+          <h3 id="txtPasso2Tit">Pay & Attach Receipt</h3>
+          <p id="txtPasso2Desc">
+            Transfer via M-Pesa, e-Mola or SA Bank/Card and upload the
+            reference.
+          </p>
+        </div>
+        <div class="step-card">
+          <span class="step-num">3</span>
+          <h3 id="txtPasso3Tit">Download PDF</h3>
+          <p id="txtPasso3Desc">
+            After a quick verification, your document will be available for
+            download.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Menu de Categorias Dinâmico -->
+    <nav class="categories-nav">
+      <div class="categories-container" id="categoriesContainer">
+        <!-- Carregado via JS -->
+      </div>
+    </nav>
+
+    <!-- Vitrine de Produtos -->
+    <main class="container">
+      <h2 id="txtCatalogoTit" class="section-title">
+        Available Books Catalogue
+      </h2>
+      <section id="catalog" class="catalog-grid">
+        <!-- Carregado via JS -->
+      </section>
+    </main>
+
+    <!-- Modal de Checkout Otimizado -->
+    <div id="checkoutModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="fecharModalCheckout()">&times;</span>
+        <h3 id="checkoutTitulo">Pay & Receive PDF</h3>
+        <p id="checkoutPreco" class="checkout-price-highlight"></p>
+
+        <form id="formCheckout" onsubmit="processarPagamentoViaWhatsApp(event)">
+          <div class="form-group">
+            <label id="lblNome" for="clienteNome">Full Name *</label>
+            <input
+              type="text"
+              id="clienteNome"
+              placeholder="Ex: Jose da Silva"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label id="lblEmail" for="clienteEmail"
+              >Your E-mail (To receive the PDF) *</label
+            >
+            <input
+              type="email"
+              id="clienteEmail"
+              placeholder="example@gmail.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label id="lblMetodo" for="metodoPagamento">Payment Method</label>
+            <select
+              id="metodoPagamento"
+              onchange="atualizarInstrucoesPagamento()"
+              required
+            >
+              <option value="mpesa">M-Pesa (Vodacom)</option>
+              <option value="emola">e-Mola (Movitel)</option>
+              <option value="sabank">South African Bank / Card (ZAR)</option>
+            </select>
+          </div>
+
+          <div id="instrucoesPagamento" class="instructions-box"></div>
+
+          <div class="form-group">
+            <label id="lblRef" for="referenciaPagamento"
+              >Transaction Code / Reference Number *</label
+            >
+            <input
+              type="text"
+              id="referenciaPagamento"
+              placeholder="Ex: PP240929.1830.A12345 / Ref Number"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            id="btnConfirmar"
+            class="btn-primary btn-success"
+            style="
+              background: #25d366;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 8px;
+            "
+          >
+            📱 Confirm & Send on WhatsApp
+          </button>
+        </form>
+        <div id="statusPagamento" class="payment-status"></div>
+      </div>
+    </div>
+
+    <!-- Modal de Preview / Introdução -->
+    <div id="previewModal" class="modal" style="display: none">
+      <div
+        class="modal-content"
+        style="max-width: 500px; padding: 24px; position: relative"
+      >
+        <span
+          onclick="fecharModalPreview()"
+          class="close-btn"
+          style="
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            cursor: pointer;
+            font-size: 1.5rem;
+          "
+          >&times;</span
+        >
+
+        <h2 id="previewTitulo" style="margin-top: 0; color: #1e293b">
+          Book Title
+        </h2>
+        <p
+          id="previewAutor"
+          style="
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: -8px;
+            margin-bottom: 16px;
+          "
+        ></p>
+
+        <div
+          style="
+            background: #f8fafc;
+            border-left: 4px solid #2563eb;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+          "
+        >
+          <h4 id="txtSinopse" style="margin: 0 0 8px 0; color: #1e293b">
+            📌 Introduction / Synopsis
+          </h4>
+          <p
+            id="previewTexto"
+            style="
+              font-size: 0.95rem;
+              color: #334155;
+              line-height: 1.6;
+              margin: 0;
+            "
+          ></p>
+        </div>
+
+        <p
+          id="txtAvisoPDF"
+          style="
+            font-size: 0.85rem;
+            color: #059669;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 16px;
+          "
+        >
+          🔒 To read the full work in PDF, please make the payment via M-Pesa,
+          e-Mola or SA Card.
+        </p>
+
+        <div style="display: flex; gap: 10px">
+          <button
+            onclick="fecharModalPreview()"
+            id="btnFecharModal"
+            style="
+              flex: 1;
+              padding: 10px;
+              background: #e2e8f0;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-weight: 600;
+            "
+          >
+            Close
+          </button>
+          <button
+            onclick="irParaCheckoutDoPreview()"
+            id="btnComprarModal"
+            style="
+              flex: 1.5;
+              padding: 10px;
+              background: #2563eb;
+              color: #fff;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-weight: 600;
+            "
+          >
+            💳 Buy Now
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Login -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="fecharModalLogin()">&times;</span>
+        <div class="modal-tabs">
+          <button
+            class="tab-btn active"
+            onclick="alternarAba('login')"
+            id="tabLoginBtn"
+          >
+            Sign In
+          </button>
+          <button
+            class="tab-btn"
+            onclick="alternarAba('registro')"
+            id="tabRegisterBtn"
+          >
+            Register
+          </button>
+        </div>
+
+        <form id="formLogin" class="auth-form active">
+          <h3 id="loginTitle">Welcome back!</h3>
+          <div class="form-group">
+            <label id="lblLoginEmail">Email or Username</label>
+            <input type="email" placeholder="your@email.com" required />
+          </div>
+          <div class="form-group">
+            <label id="lblLoginPass">Password</label>
+            <input type="password" placeholder="••••••••" required />
+          </div>
+          <button type="submit" id="btnLoginSubmit" class="btn-primary">
+            Sign In
+          </button>
+        </form>
+
+        <form id="formRegistro" class="auth-form">
+          <h3 id="regTitle">Create your account</h3>
+          <div class="form-group">
+            <label id="lblRegName">Full Name</label>
+            <input type="text" placeholder="Your Name" required />
+          </div>
+          <div class="form-group">
+            <label id="lblRegEmail">Email</label>
+            <input type="email" placeholder="your@email.com" required />
+          </div>
+          <div class="form-group">
+            <label id="lblRegPass">Password</label>
+            <input type="password" placeholder="••••••••" required />
+          </div>
+          <button type="submit" id="btnRegSubmit" class="btn-primary">
+            Create Account
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer>
+      <p id="footerCopy">&copy; 2026 MozBookStore - All rights reserved.</p>
+      <div class="footer-contacts" id="footerContacts">
+        <!-- Preenchido via JS -->
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
