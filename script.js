@@ -1,9 +1,9 @@
 // --- CONFIGURAÇÃO DE CONTACTOS & DADOS BANCÁRIOS SA ---
 const CONFIG_NOTIFICACOES = {
   numeroWhatsAppPrincipal: "258867568918",
-  emailJsPublicKey: "s6MCbfxXRNVWm1APu",
-  emailJsServiceId: "service_p8jiklc",
-  emailJsTemplateId: "template_tj5jzis",
+  emailJsPublicKey: "-ft_UtWIa-tk49VHy",
+  emailJsServiceId: "service_ldwmjo9",
+  emailJsTemplateId: "template_qgdxq0d",
 };
 
 const CONTAS_PAGAMENTO = {
