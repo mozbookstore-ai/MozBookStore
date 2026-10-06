@@ -1544,7 +1544,7 @@ async function solicitarRecuperacaoPassword() {
   try {
     const { error } = await supabaseClient.auth.resetPasswordForEmail(
       campoEmail.value.trim(),
-      { redirectTo: "https://mozbookstore.netlify.app/" },
+      { redirectTo: "https://mozbookstore-ai.github.io/MozBookStore/" },
     );
     if (error) {
       console.error("Erro ao solicitar recuperação da palavra-passe:", error);

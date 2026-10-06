@@ -20,9 +20,10 @@ estes passos:
    estar no cliente; nunca uses a `service_role`/secret key no JavaScript.
 4. Em **Authentication → URL Configuration**, registe o URL publicado do site
    como Site URL e como Redirect URL. Sirva o site por HTTP/HTTPS; não use
-   `file://`.
-   Para a recuperação de palavra-passe, inclua também
-   `https://mozbookstore.netlify.app/` na lista de Redirect URLs.
+   `file://`. Para GitHub Pages, use
+   `https://mozbookstore-ai.github.io/MozBookStore/` como Site URL e adicione
+   esse mesmo endereço à lista de Redirect URLs. O código usa esse endereço
+   para a recuperação de palavra-passe.
 5. Active a confirmação de email nas definições de autenticação. Crie e confirme
    a conta `mozbookstore@gmail.com` no site. Depois execute no SQL Editor:
    `update public.profiles set role = 'admin' where lower(email) = 'mozbookstore@gmail.com';`
@@ -75,8 +76,8 @@ estes passos:
   Compras pendentes não podem ser apagadas. Links de download já emitidos
   permanecem válidos até expirarem, no máximo após 60 segundos.
 - O link **Esqueceu-se da palavra-passe?** envia o email de recuperação e
-  redirecciona para `https://mozbookstore.netlify.app/`, onde a pessoa define a
-  nova palavra-passe.
+  redirecciona para `https://mozbookstore-ai.github.io/MozBookStore/`, onde a
+  pessoa define a nova palavra-passe.
 
 Após alterar permissões ou executar uma actualização, volte a executar
 `setup.sql` no SQL Editor para aplicar as políticas e permissões de exclusão.
