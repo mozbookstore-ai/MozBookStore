@@ -376,6 +376,25 @@ body {
   overflow-wrap: anywhere;
 }
 
+.status-pedido a,
+.feedback-status a {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #25d366, #128c7e);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 10px 22px rgba(18, 140, 126, 0.22);
+}
+
+.status-pedido a:hover,
+.feedback-status a:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
 /* Secção de Feedback */
 .feedback-section {
   padding: 36px 20px;

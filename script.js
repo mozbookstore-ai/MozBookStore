@@ -4,6 +4,7 @@ const CONFIG_NOTIFICACOES = {
   emailJsPublicKey: "-ft_UtWIa-tk49VHy",
   emailJsServiceId: "service_ldwmjo9",
   emailJsTemplateId: "template_qgdxq0d",
+  emailDestino: "mozbookstore@gmail.com",
 };
 
 const CONFIG_SUPABASE = {
@@ -1053,6 +1054,17 @@ document.addEventListener("click", function (e) {
   }
 });
 
+function abrirWhatsAppComFallback(urlWa, statusElement, mensagemFallback) {
+  const janelaWhatsApp = window.open(urlWa, "_blank");
+
+  if (janelaWhatsApp === null) {
+    statusElement.innerHTML = `${mensagemFallback} <a href="${urlWa}" target="_blank" rel="noopener">Abrir WhatsApp</a>`;
+    return false;
+  }
+
+  return true;
+}
+
 function enviarPedidoLivro(event) {
   event.preventDefault();
 
@@ -1063,7 +1075,6 @@ function enviarPedidoLivro(event) {
 
   const textoMensagem = `📚 *NOVO PEDIDO DE LIVRO (MozBookStore)*\n\n📖 *Livro/Exame:* ${titulo}\n✍ *Autor/Detalhes:* ${autor}\n👤 *Solicitante:* ${contacto}`;
   const urlWa = `https://wa.me/${CONFIG_NOTIFICACOES.numeroWhatsAppPrincipal}?text=${encodeURIComponent(textoMensagem)}`;
-  const janelaWhatsApp = window.open(urlWa, "_blank");
 
   statusDiv.innerHTML =
     idiomaAtual === "pt"
@@ -1077,11 +1088,21 @@ function enviarPedidoLivro(event) {
     console.error(
       "EmailJS não está configurado para enviar pedidos de livros.",
     );
-    statusDiv.innerHTML =
+    const mensagemFallback =
       idiomaAtual === "pt"
-        ? "⚠️ O WhatsApp foi aberto, mas não foi possível enviar o email. Tente novamente mais tarde."
-        : "⚠️ WhatsApp was opened, but the email could not be sent. Please try again later.";
+        ? "⚠️ Não foi possível enviar o email."
+        : "⚠️ The email could not be sent.";
+    abrirWhatsAppComFallback(urlWa, statusDiv, mensagemFallback);
     return;
+  }
+
+  const janelaWhatsApp = window.open(urlWa, "_blank");
+  if (janelaWhatsApp === null) {
+    statusDiv.innerHTML =
+      (idiomaAtual === "pt"
+        ? "⚠️ O navegador bloqueou a janela do WhatsApp. "
+        : "⚠️ Your browser blocked the WhatsApp tab. ") +
+      `<a href="${urlWa}" target="_blank" rel="noopener">${idiomaAtual === "pt" ? "Abrir WhatsApp" : "Open WhatsApp"}</a>`;
   }
 
   emailjs
@@ -1091,6 +1112,8 @@ function enviarPedidoLivro(event) {
       {
         cliente_nome: "Pedido de livro pelo site",
         cliente_email: contacto,
+        to_email: CONFIG_NOTIFICACOES.emailDestino,
+        reply_to: contacto,
         livro_titulo: titulo,
         referencia: autor,
         metodo: "Pedido de livro",
@@ -1138,12 +1161,19 @@ function enviarFeedback(event) {
   const email = document.getElementById("feedbackEmail").value.trim();
   const mensagem = document.getElementById("feedbackMessage").value.trim();
 
+  const textoMensagemWhatsApp = `💡 *NOVO FEEDBACK (MozBookStore)*\n\n👤 *Nome:* ${nome || "Anónimo"}\n📧 *Email:* ${email || "Não fornecido"}\n\n💬 *Sugestão:*\n${mensagem}`;
+  const urlWhatsApp = `https://wa.me/${CONFIG_NOTIFICACOES.numeroWhatsAppPrincipal}?text=${encodeURIComponent(textoMensagemWhatsApp)}`;
+  const janelaWhatsApp = window.open(urlWhatsApp, "_blank");
+
   if (
     CONFIG_NOTIFICACOES.emailJsPublicKey === "SUA_PUBLIC_KEY_AQUI" ||
     typeof emailjs === "undefined"
   ) {
     console.error("EmailJS não está configurado para receber feedback.");
-    status.innerText = t.feedbackUnavailable;
+    status.innerHTML =
+      janelaWhatsApp !== null
+        ? `${t.feedbackUnavailable} ${idiomaAtual === "pt" ? "O WhatsApp também foi aberto para confirmação." : "WhatsApp was also opened for confirmation."}`
+        : `${t.feedbackUnavailable} <a href="${urlWhatsApp}" target="_blank" rel="noopener">${idiomaAtual === "pt" ? "Abrir WhatsApp" : "Open WhatsApp"}</a>`;
     return;
   }
 
@@ -1157,7 +1187,9 @@ function enviarFeedback(event) {
       CONFIG_NOTIFICACOES.emailJsTemplateId,
       {
         cliente_nome: nome || "Utilizador anónimo",
-        cliente_email: email,
+        cliente_email: email || "Não fornecido",
+        to_email: CONFIG_NOTIFICACOES.emailDestino,
+        reply_to: email || "noreply@mozbookstore.com",
         livro_titulo: "Feedback do utilizador",
         referencia: "Sugestão para melhorias",
         metodo: "Feedback do site",
@@ -1168,12 +1200,27 @@ function enviarFeedback(event) {
       },
     )
     .then(() => {
-      status.innerText = t.feedbackSuccess;
+      const avisoWhatsApp =
+        janelaWhatsApp === null
+          ? idiomaAtual === "pt"
+            ? ` <a href="${urlWhatsApp}" target="_blank" rel="noopener">Abrir WhatsApp</a> e confirmar o envio.`
+            : ` <a href="${urlWhatsApp}" target="_blank" rel="noopener">Open WhatsApp</a> and confirm sending.`
+          : idiomaAtual === "pt"
+            ? " O WhatsApp foi aberto; confirme o envio da mensagem."
+            : " WhatsApp was opened; confirm sending the message.";
+
+      status.innerHTML =
+        (idiomaAtual === "pt"
+          ? '<span style="color: #10b981;">✅ Feedback enviado para o email e também enviado para o WhatsApp.</span>'
+          : '<span style="color: #10b981;">✅ Feedback sent by email and also sent to WhatsApp.</span>') + avisoWhatsApp;
       form.reset();
     })
     .catch((error) => {
       console.error("Erro EmailJS ao enviar feedback:", error);
-      status.innerText = t.feedbackError;
+      status.innerHTML =
+        janelaWhatsApp !== null
+          ? `${t.feedbackError} ${idiomaAtual === "pt" ? "O WhatsApp foi aberto para confirmação." : "WhatsApp was opened for confirmation."}`
+          : `${t.feedbackError} <a href="${urlWhatsApp}" target="_blank" rel="noopener">${idiomaAtual === "pt" ? "Abrir WhatsApp" : "Open WhatsApp"}</a>`;
     })
     .finally(() => {
       submitButton.disabled = false;
