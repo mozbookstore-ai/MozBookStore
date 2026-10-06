@@ -77,13 +77,28 @@
           >
             🔑 Entrar / Cadastrar
           </button>
-          <button id="btnBiblioteca" class="btn-login-trigger" onclick="mostrarBiblioteca()" hidden>
+          <button
+            id="btnBiblioteca"
+            class="btn-login-trigger"
+            onclick="mostrarBiblioteca()"
+            hidden
+          >
             📚 Minha Biblioteca
           </button>
-          <button id="btnAdmin" class="btn-login-trigger" onclick="mostrarPainelAdmin()" hidden>
+          <button
+            id="btnAdmin"
+            class="btn-login-trigger"
+            onclick="mostrarPainelAdmin()"
+            hidden
+          >
             ⚙️ Administração
           </button>
-          <button id="btnLogout" class="btn-login-trigger" onclick="terminarSessao()" hidden>
+          <button
+            id="btnLogout"
+            class="btn-login-trigger"
+            onclick="terminarSessao()"
+            hidden
+          >
             Sair
           </button>
         </div>
@@ -136,7 +151,8 @@
         <h1 id="txtHeroTitulo">A sua central académica e literária digital</h1>
         <p id="txtHeroSub">
           Não encontra o livro que procura? Peça-o no formulário abaixo e nós
-          adicionamo-lo! Pagamento via M-Pesa, e-Mola ou banco/cartão sul-africano.
+          adicionamo-lo! Pagamento via M-Pesa, e-Mola ou banco/cartão
+          sul-africano.
         </p>
       </div>
     </section>
@@ -239,12 +255,19 @@
       <section id="catalog" class="catalog-grid">
         <!-- Carregado via JS -->
       </section>
+      <div id="catalogStatus" class="account-status" role="status"></div>
     </main>
 
     <section id="librarySection" class="account-section container" hidden>
       <div class="account-heading">
         <h2 id="libraryTitle">📚 Os Meus Livros</h2>
-        <button class="btn-secondary" onclick="voltarAoCatalogo()" id="libraryBackButton">Voltar ao catálogo</button>
+        <button
+          class="btn-secondary"
+          onclick="voltarAoCatalogo()"
+          id="libraryBackButton"
+        >
+          Voltar ao catálogo
+        </button>
       </div>
       <div id="libraryStatus" class="account-status" role="status"></div>
       <div id="libraryBooks" class="account-list"></div>
@@ -253,7 +276,13 @@
     <section id="adminSection" class="account-section container" hidden>
       <div class="account-heading">
         <h2 id="adminTitle">⚙️ Aprovar pagamentos</h2>
-        <button class="btn-secondary" onclick="voltarAoCatalogo()" id="adminBackButton">Voltar ao catálogo</button>
+        <button
+          class="btn-secondary"
+          onclick="voltarAoCatalogo()"
+          id="adminBackButton"
+        >
+          Voltar ao catálogo
+        </button>
       </div>
       <div id="adminStatus" class="account-status" role="status"></div>
       <div id="adminOrders" class="account-list"></div>
@@ -293,14 +322,24 @@
 
           <div class="form-group">
             <label id="lblRegiao" for="regiaoPagamento">País / Região</label>
-            <select id="regiaoPagamento" onchange="atualizarOpcoesPagamento()" required>
-              <option value="mozambique" id="optionMozambique">Moçambique</option>
-              <option value="other" id="optionOther">África do Sul / Outros países</option>
+            <select
+              id="regiaoPagamento"
+              onchange="atualizarOpcoesPagamento()"
+              required
+            >
+              <option value="mozambique" id="optionMozambique">
+                Moçambique
+              </option>
+              <option value="other" id="optionOther">
+                África do Sul / Outros países
+              </option>
             </select>
           </div>
 
           <div class="form-group">
-            <label id="lblMetodo" for="metodoPagamento">Forma de pagamento</label>
+            <label id="lblMetodo" for="metodoPagamento"
+              >Forma de pagamento</label
+            >
             <select
               id="metodoPagamento"
               onchange="atualizarInstrucoesPagamento()"
@@ -308,7 +347,9 @@
             >
               <option value="mpesa">M-Pesa (Vodacom)</option>
               <option value="emola">e-Mola (Movitel)</option>
-              <option value="sabank" id="optionSaBank" hidden>Banco/cartão sul-africano (ZAR)</option>
+              <option value="sabank" id="optionSaBank" hidden>
+                Banco/cartão sul-africano (ZAR)
+              </option>
             </select>
           </div>
 
@@ -342,7 +383,11 @@
             📱 Confirmar e enviar pelo WhatsApp
           </button>
         </form>
-        <div id="statusPagamento" class="payment-status account-status" role="status"></div>
+        <div
+          id="statusPagamento"
+          class="payment-status account-status"
+          role="status"
+        ></div>
       </div>
     </div>
 
@@ -476,12 +521,32 @@
           <h3 id="loginTitle">Bem-vindo de volta!</h3>
           <div class="form-group">
             <label id="lblLoginEmail">Email ou utilizador</label>
-            <input type="email" id="loginEmail" autocomplete="email" placeholder="seu@email.com" required />
+            <input
+              type="email"
+              id="loginEmail"
+              autocomplete="email"
+              placeholder="seu@email.com"
+              required
+            />
           </div>
           <div class="form-group">
             <label id="lblLoginPass">Palavra-passe</label>
-            <input type="password" id="loginPassword" autocomplete="current-password" placeholder="••••••••" required />
+            <input
+              type="password"
+              id="loginPassword"
+              autocomplete="current-password"
+              placeholder="••••••••"
+              required
+            />
           </div>
+          <button
+            type="button"
+            id="btnEsqueceuPassword"
+            class="auth-link"
+            onclick="solicitarRecuperacaoPassword()"
+          >
+            Esqueceu-se da palavra-passe?
+          </button>
           <button type="submit" id="btnLoginSubmit" class="btn-primary">
             Iniciar sessão
           </button>
@@ -502,14 +567,53 @@
           </div>
           <div class="form-group">
             <label id="lblRegEmail">Email</label>
-            <input type="email" id="regEmail" autocomplete="email" placeholder="seu@email.com" required />
+            <input
+              type="email"
+              id="regEmail"
+              autocomplete="email"
+              placeholder="seu@email.com"
+              required
+            />
           </div>
           <div class="form-group">
             <label id="lblRegPass">Palavra-passe</label>
-            <input type="password" id="regPassword" autocomplete="new-password" minlength="8" placeholder="••••••••" required />
+            <input
+              type="password"
+              id="regPassword"
+              autocomplete="new-password"
+              minlength="8"
+              placeholder="••••••••"
+              required
+            />
           </div>
           <button type="submit" id="btnRegSubmit" class="btn-primary">
             Criar conta
+          </button>
+        </form>
+        <form id="formNovaPassword" class="auth-form">
+          <h3 id="novaPasswordTitle">Definir nova palavra-passe</h3>
+          <div class="form-group">
+            <label id="lblNovaPassword" for="novaPassword">Nova palavra-passe</label>
+            <input
+              type="password"
+              id="novaPassword"
+              autocomplete="new-password"
+              minlength="8"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label id="lblConfirmarPassword" for="confirmarPassword">Confirmar palavra-passe</label>
+            <input
+              type="password"
+              id="confirmarPassword"
+              autocomplete="new-password"
+              minlength="8"
+              required
+            />
+          </div>
+          <button type="submit" id="btnGuardarPassword" class="btn-primary">
+            Guardar nova palavra-passe
           </button>
         </form>
         <div id="authStatus" class="account-status" role="status"></div>
@@ -518,7 +622,9 @@
 
     <!-- Rodapé -->
     <footer>
-      <p id="footerCopy">&copy; 2026 MozBookStore - Todos os direitos reservados.</p>
+      <p id="footerCopy">
+        &copy; 2026 MozBookStore - Todos os direitos reservados.
+      </p>
       <div class="footer-contacts" id="footerContacts">
         <!-- Preenchido via JS -->
       </div>

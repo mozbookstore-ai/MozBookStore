@@ -15,6 +15,8 @@ estes passos:
 4. Em **Authentication → URL Configuration**, registe o URL publicado do site
    como Site URL e como Redirect URL. Sirva o site por HTTP/HTTPS; não use
    `file://`.
+   Para a recuperação de palavra-passe, inclua também
+   `https://mozbookstore.netlify.app/` na lista de Redirect URLs.
 5. Active a confirmação de email nas definições de autenticação. Crie e confirme
    a conta `mozbookstore@gmail.com` no site. Depois execute no SQL Editor:
    `update public.profiles set role = 'admin' where lower(email) = 'mozbookstore@gmail.com';`
@@ -36,6 +38,9 @@ estes passos:
   aprovar ou rejeitar. A aprovação concede acesso ao PDF privado.
 - **Minha Biblioteca** mostra o estado das encomendas e só apresenta o botão de
   download para livros aprovados. Os links de download expiram após 60 segundos.
+- O link **Esqueceu-se da palavra-passe?** envia o email de recuperação e
+  redirecciona para `https://mozbookstore.netlify.app/`, onde a pessoa define a
+  nova palavra-passe.
 
 Os PDFs não estão incluídos neste repositório: devem ser fornecidos e carregados
 no bucket após a criação do projecto. As instruções de pagamento e os preços

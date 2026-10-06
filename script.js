@@ -39,6 +39,7 @@ let supabaseClient = null;
 let utilizadorAtual = null;
 let perfilAtual = null;
 let produtoCompraPendente = null;
+let catalogOrderWarning = false;
 
 // --- DICIONÁRIO DE TRADUÇÕES (PT / en-ZA) ---
 const traducoes = {
@@ -66,16 +67,30 @@ const traducoes = {
     lblReferenciaAdmin: "Referência",
     authRequired: "Inicie sessão para comprar e aceder à sua biblioteca.",
     authNotConfigured: "A ligação à plataforma ainda não está configurada.",
-    orderPending: "Confirmação enviada. O acesso ao livro será libertado após a aprovação do pagamento.",
+    orderPending:
+      "Confirmação enviada. O acesso ao livro será libertado após a aprovação do pagamento.",
     noOrders: "Ainda não existem encomendas.",
     noLibrary: "Ainda não tem livros na sua biblioteca.",
     adminOnly: "Esta área está disponível apenas para a administração.",
     orderSaved: "Estado da encomenda actualizado.",
+    resetPasswordLink: "Esqueceu-se da palavra-passe?",
+    resetPasswordTitle: "Definir nova palavra-passe",
+    newPasswordLabel: "Nova palavra-passe",
+    confirmPasswordLabel: "Confirmar palavra-passe",
+    savePasswordButton: "Guardar nova palavra-passe",
+    resetPasswordSent:
+      "Se existir uma conta com este email, receberá uma ligação para repor a palavra-passe.",
+    passwordUpdated: "Palavra-passe actualizada. Já pode iniciar sessão.",
+    passwordMismatch: "As palavras-passe não coincidem.",
+    passwordResetError: "Não foi possível enviar o email de recuperação:",
+    productOrderWarning:
+      "Não foi possível obter a ordem do catálogo no Supabase; a lista está ordenada pelo ID local.",
     searchPlaceholder: "Pesquisar livros, exames, desporto, tecnologia...",
     heroTitulo: "A sua central académica e literária digital",
     heroSub:
       "Não encontra o livro que procura? Peça-o no formulário abaixo e nós adicionamo-lo! Pagamento via M-Pesa, e-Mola ou banco/cartão sul-africano.",
-    pedirTitulo: "📑 Não encontrou o livro que procura? Peça-o e nós adicionamos!",
+    pedirTitulo:
+      "📑 Não encontrou o livro que procura? Peça-o e nós adicionamos!",
     pedirSub:
       "Envie os detalhes do material pretendido. A nossa equipa recebe o pedido de imediato.",
     reqTituloPh: "Nome do livro ou exame *",
@@ -152,11 +167,24 @@ const traducoes = {
     lblReferenciaAdmin: "Reference",
     authRequired: "Sign in to purchase and access your library.",
     authNotConfigured: "The platform connection has not been configured yet.",
-    orderPending: "Confirmation submitted. Book access will be released after payment approval.",
+    orderPending:
+      "Confirmation submitted. Book access will be released after payment approval.",
     noOrders: "There are no orders yet.",
     noLibrary: "Your library is empty.",
     adminOnly: "This area is available to administrators only.",
     orderSaved: "Order status updated.",
+    resetPasswordLink: "Forgot your password?",
+    resetPasswordTitle: "Set a new password",
+    newPasswordLabel: "New password",
+    confirmPasswordLabel: "Confirm password",
+    savePasswordButton: "Save new password",
+    resetPasswordSent:
+      "If an account exists for this email, you will receive a password reset link.",
+    passwordUpdated: "Password updated. You can now sign in.",
+    passwordMismatch: "The passwords do not match.",
+    passwordResetError: "Could not send the recovery email:",
+    productOrderWarning:
+      "Could not retrieve the catalogue order from Supabase; displaying local ID order.",
     searchPlaceholder: "Search for books, exams, drama, philosophy...",
     heroTitulo: "Your Digital Academic & Literary Hub",
     heroSub:
@@ -521,6 +549,8 @@ function aplicarIdioma() {
   document.querySelector("#formLogin input[type='email']").placeholder =
     t.loginEmailPh;
   document.getElementById("lblLoginPass").innerText = t.lblLoginPass;
+  document.getElementById("btnEsqueceuPassword").innerText =
+    t.resetPasswordLink;
   document.getElementById("btnLoginSubmit").innerText = t.btnLoginSubmit;
   document.getElementById("regTitle").innerText = t.regTitle;
   document.getElementById("lblRegName").innerText = t.lblRegName;
@@ -531,6 +561,17 @@ function aplicarIdioma() {
     t.regEmailPh;
   document.getElementById("lblRegPass").innerText = t.lblRegPass;
   document.getElementById("btnRegSubmit").innerText = t.btnRegSubmit;
+  document.getElementById("novaPasswordTitle").innerText =
+    t.resetPasswordTitle;
+  document.getElementById("lblNovaPassword").innerText = t.newPasswordLabel;
+  document.getElementById("lblConfirmarPassword").innerText =
+    t.confirmPasswordLabel;
+  document.getElementById("btnGuardarPassword").innerText =
+    t.savePasswordButton;
+  if (catalogOrderWarning) {
+    document.getElementById("catalogStatus").innerText =
+      t.productOrderWarning;
+  }
   document.getElementById("footerCopy").innerHTML = t.footerCopy;
   document.getElementById("libraryTitle").innerText = t.libraryTitle;
   document.getElementById("adminTitle").innerText = t.adminTitle;
@@ -539,6 +580,9 @@ function aplicarIdioma() {
 
   renderizarCategorias();
   renderizarRodapé();
+  document.getElementById("catalogStatus").innerText = catalogOrderWarning
+    ? t.productOrderWarning
+    : "";
   if (document.getElementById("searchInput").value.trim()) {
     buscarLivro();
   } else {
@@ -726,9 +770,10 @@ function atualizarOpcoesPagamento() {
     metodoPagamento.value = "sabank";
   }
   if (produtoSelecionado) {
-    const valor = regiao === "mozambique"
-      ? produtoSelecionado.preco
-      : converterPreco(produtoSelecionado.preco);
+    const valor =
+      regiao === "mozambique"
+        ? produtoSelecionado.preco
+        : converterPreco(produtoSelecionado.preco);
     document.getElementById("checkoutPreco").innerText =
       `${idiomaAtual === "pt" ? "Valor a pagar" : "Amount to pay"}: ${valor}`;
   }
@@ -770,9 +815,7 @@ async function submeterConfirmacaoPagamento(event) {
   const t = traducoes[idiomaAtual];
 
   if (!supabaseClient || !utilizadorAtual || !produtoSelecionado) {
-    status.innerText = !supabaseClient
-      ? t.authNotConfigured
-      : t.authRequired;
+    status.innerText = !supabaseClient ? t.authNotConfigured : t.authRequired;
     status.style.display = "block";
     return;
   }
@@ -791,7 +834,9 @@ async function submeterConfirmacaoPagamento(event) {
 
   botao.disabled = true;
   status.innerText =
-    idiomaAtual === "pt" ? "A registar a confirmação..." : "Submitting confirmation...";
+    idiomaAtual === "pt"
+      ? "A registar a confirmação..."
+      : "Submitting confirmation...";
   status.style.display = "block";
 
   const { error } = await supabaseClient.from("orders").insert({
@@ -1056,7 +1101,15 @@ function inicializarSupabase() {
     CONFIG_SUPABASE.url,
     CONFIG_SUPABASE.anonKey,
   );
-  supabaseClient.auth.onAuthStateChange((_evento, sessao) => {
+  void ordenarProdutosPeloSupabase();
+  document
+    .getElementById("formNovaPassword")
+    .addEventListener("submit", guardarNovaPassword);
+  supabaseClient.auth.onAuthStateChange((evento, sessao) => {
+    if (evento === "PASSWORD_RECOVERY") {
+      window.setTimeout(mostrarFormularioNovaPassword, 0);
+      return;
+    }
     window.setTimeout(() => {
       void atualizarSessao(sessao);
     }, 0);
@@ -1069,6 +1122,51 @@ function inicializarSupabase() {
     }
     void atualizarSessao(data.session);
   });
+}
+
+async function ordenarProdutosPeloSupabase() {
+  let data;
+  let error;
+  try {
+    ({ data, error } = await supabaseClient
+      .from("products")
+      .select("id")
+      .order("id", { ascending: true }));
+  } catch (erroConsulta) {
+    error = erroConsulta;
+  }
+
+  if (error || !data?.length) {
+    catalogOrderWarning = true;
+    produtos.sort((a, b) => a.id - b.id);
+    console.error(
+      "Não foi possível obter a ordem dos produtos no Supabase:",
+      error || "A tabela products não devolveu produtos.",
+    );
+    document.getElementById("catalogStatus").innerText =
+      traducoes[idiomaAtual].productOrderWarning;
+    document.getElementById("catalogStatus").className =
+      "account-status error";
+    return;
+  }
+
+  const posicoes = new Map(
+    data.map((produto, indice) => [Number(produto.id), indice]),
+  );
+  produtos.sort(
+    (a, b) =>
+      (posicoes.get(a.id) ?? Number.MAX_SAFE_INTEGER) -
+        (posicoes.get(b.id) ?? Number.MAX_SAFE_INTEGER) ||
+      a.id - b.id,
+  );
+  catalogOrderWarning = false;
+  document.getElementById("catalogStatus").innerText = "";
+  document.getElementById("catalogStatus").className = "account-status";
+  if (document.getElementById("searchInput").value.trim()) {
+    buscarLivro();
+  } else {
+    carregarProdutos(produtos);
+  }
 }
 
 async function atualizarSessao(sessao) {
@@ -1101,7 +1199,8 @@ async function atualizarSessao(sessao) {
     fecharModalLogin();
     if (produtoCompraPendente !== null) {
       produtoSelecionado =
-        produtos.find((produto) => produto.id === produtoCompraPendente) || null;
+        produtos.find((produto) => produto.id === produtoCompraPendente) ||
+        null;
       produtoCompraPendente = null;
       abrirCheckout();
     }
@@ -1129,6 +1228,118 @@ async function iniciarSessao(event) {
     console.error("Erro ao iniciar sessão:", error);
     mostrarEstadoAutenticacao(traduzirErroSupabase(error), true);
   }
+}
+
+async function solicitarRecuperacaoPassword() {
+  if (!supabaseClient) {
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].authNotConfigured, true);
+    return;
+  }
+
+  const campoEmail = document.getElementById("loginEmail");
+  if (!campoEmail.value.trim() || !campoEmail.checkValidity()) {
+    campoEmail.reportValidity();
+    campoEmail.focus();
+    return;
+  }
+
+  const botao = document.getElementById("btnEsqueceuPassword");
+  botao.disabled = true;
+  try {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(
+      campoEmail.value.trim(),
+      { redirectTo: "https://mozbookstore.netlify.app/" },
+    );
+    if (error) {
+      console.error("Erro ao solicitar recuperação da palavra-passe:", error);
+      mostrarEstadoAutenticacao(
+        `${traducoes[idiomaAtual].passwordResetError} ${traduzirErroSupabase(error)}`,
+        true,
+      );
+      return;
+    }
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].resetPasswordSent);
+  } catch (error) {
+    console.error("Falha de rede na recuperação da palavra-passe:", error);
+    mostrarEstadoAutenticacao(
+      `${traducoes[idiomaAtual].passwordResetError} ${traduzirErroSupabase(error)}`,
+      true,
+    );
+  } finally {
+    botao.disabled = false;
+  }
+}
+
+function mostrarFormularioNovaPassword() {
+  document.querySelector(".modal-tabs").hidden = true;
+  document.getElementById("formLogin").classList.remove("active");
+  document.getElementById("formRegistro").classList.remove("active");
+  document.getElementById("formNovaPassword").classList.add("active");
+  document.getElementById("loginModal").style.display = "flex";
+  document.getElementById("authStatus").innerText = "";
+  document.getElementById("novaPassword").focus();
+}
+
+async function guardarNovaPassword(event) {
+  event.preventDefault();
+  if (!supabaseClient) {
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].authNotConfigured, true);
+    return;
+  }
+
+  const novaPassword = document.getElementById("novaPassword").value;
+  const confirmarPassword =
+    document.getElementById("confirmarPassword").value;
+  if (novaPassword !== confirmarPassword) {
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].passwordMismatch, true);
+    return;
+  }
+
+  const botao = document.getElementById("btnGuardarPassword");
+  botao.disabled = true;
+  let error;
+  try {
+    ({ error } = await supabaseClient.auth.updateUser({
+      password: novaPassword,
+    }));
+  } catch (erroActualizacao) {
+    error = erroActualizacao;
+  } finally {
+    botao.disabled = false;
+  }
+
+  if (error) {
+    console.error("Erro ao actualizar a palavra-passe:", error);
+    mostrarEstadoAutenticacao(traduzirErroSupabase(error), true);
+    return;
+  }
+
+  let signOutError;
+  try {
+    ({ error: signOutError } = await supabaseClient.auth.signOut());
+  } catch (erroSaida) {
+    signOutError = erroSaida;
+  }
+  document.getElementById("formNovaPassword").reset();
+  document.getElementById("formNovaPassword").classList.remove("active");
+  document.getElementById("formLogin").classList.add("active");
+  document.querySelector(".modal-tabs").hidden = false;
+  document.querySelectorAll(".tab-btn").forEach((botaoAba, indice) => {
+    botaoAba.classList.toggle("active", indice === 0);
+  });
+  if (signOutError) {
+    console.error(
+      "A palavra-passe foi actualizada, mas não foi possível terminar a sessão:",
+      signOutError,
+    );
+    mostrarEstadoAutenticacao(
+      `${traducoes[idiomaAtual].passwordUpdated} ${traduzirErroSupabase(signOutError)}`,
+      true,
+    );
+    return;
+  }
+  await new Promise((resolve) => window.setTimeout(resolve, 0));
+  mostrarEstadoAutenticacao(traducoes[idiomaAtual].passwordUpdated);
 }
 
 async function registarConta(event) {
@@ -1163,7 +1374,9 @@ async function registarConta(event) {
     return;
   }
   mostrarEstadoAutenticacao(
-    idiomaAtual === "pt" ? "Conta criada com sucesso." : "Account created successfully.",
+    idiomaAtual === "pt"
+      ? "Conta criada com sucesso."
+      : "Account created successfully.",
   );
 }
 
@@ -1249,7 +1462,8 @@ async function carregarBiblioteca() {
 
 async function descarregarEbook(encomenda) {
   const status = document.getElementById("libraryStatus");
-  status.innerText = idiomaAtual === "pt" ? "A preparar o PDF..." : "Preparing PDF...";
+  status.innerText =
+    idiomaAtual === "pt" ? "A preparar o PDF..." : "Preparing PDF...";
   status.className = "account-status";
 
   const { data: pedido, error: erroPedido } = await supabaseClient
@@ -1330,7 +1544,8 @@ async function carregarEncomendasAdmin() {
   encomendas.forEach((encomenda) => {
     const cartao = document.createElement("article");
     cartao.className = "account-card";
-    const cliente = encomenda.profile?.full_name || encomenda.profile?.email || "";
+    const cliente =
+      encomenda.profile?.full_name || encomenda.profile?.email || "";
     const statusEncomenda =
       encomenda.status === "pending"
         ? t.statusPendente
@@ -1406,6 +1621,8 @@ function alternarAba(aba) {
   const formLogin = document.getElementById("formLogin");
   const formRegistro = document.getElementById("formRegistro");
 
+  document.getElementById("formNovaPassword").classList.remove("active");
+  document.querySelector(".modal-tabs").hidden = false;
   btns.forEach((b) => b.classList.remove("active"));
 
   if (aba === "login") {

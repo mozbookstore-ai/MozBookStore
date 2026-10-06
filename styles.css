@@ -627,6 +627,22 @@ body {
   display: block;
 }
 
+.auth-link {
+  display: block;
+  margin: 0 0 12px auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.auth-link:hover {
+  color: var(--primary-hover);
+}
+
 button:disabled {
   cursor: wait;
   opacity: 0.65;
