@@ -58,14 +58,25 @@ estes passos:
 - A referência submetida cria uma encomenda pendente. O preço e a moeda são
   calculados no banco de dados a partir de `products.price_mzn`, não aceites do
   navegador.
+- Depois de registar uma encomenda, o site envia uma notificação de aprovação
+  pendente para `emailDestino` em `../script.js`, através do serviço e template
+  EmailJS já configurados. No template, confirme que o destinatário usa
+  `{{to_email}}` e que o conteúdo inclui `{{mensagem}}`. Se o envio falhar, a
+  encomenda continua registada e pendente, e o cliente recebe um aviso.
 - O catálogo segue a ordem numérica dos IDs (1–13), não a ordem alfabética.
 - `mozbookstore@gmail.com` vê as encomendas no botão **Administração** e pode
   aprovar ou rejeitar. A aprovação concede acesso ao PDF privado.
-- **Minha Biblioteca** mostra o estado das encomendas e só apresenta o botão de
-  download para livros aprovados. Os links de download expiram após 60 segundos.
+- **Minhas compras** mostra o histórico e só apresenta o botão de download para
+  livros aprovados. Tanto o cliente como a administração podem apagar compras
+  aprovadas ou rejeitadas; a exclusão é definitiva e remove o acesso ao PDF.
+  Compras pendentes não podem ser apagadas. Links de download já emitidos
+  permanecem válidos até expirarem, no máximo após 60 segundos.
 - O link **Esqueceu-se da palavra-passe?** envia o email de recuperação e
   redirecciona para `https://mozbookstore.netlify.app/`, onde a pessoa define a
   nova palavra-passe.
+
+Após alterar permissões ou executar uma actualização, volte a executar
+`setup.sql` no SQL Editor para aplicar as políticas e permissões de exclusão.
 
 Os PDFs não estão incluídos neste repositório: devem ser fornecidos e carregados
 no bucket após a criação do projecto. As instruções de pagamento e os preços

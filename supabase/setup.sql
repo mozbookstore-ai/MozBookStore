@@ -455,6 +455,17 @@ create policy "Admins can review orders"
   using (public.is_admin())
   with check (public.is_admin());
 
+drop policy if exists "Users and admins can delete finalized orders" on public.orders;
+create policy "Users and admins can delete finalized orders"
+  on public.orders for delete to authenticated
+  using (
+    status in ('approved', 'rejected')
+    and (
+      user_id = (select auth.uid())
+      or public.is_admin()
+    )
+  );
+
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('ebooks-private', 'ebooks-private', false, 52428800, array['application/pdf'])
 on conflict (id) do update set
@@ -499,7 +510,7 @@ create policy "Admins can delete ebooks"
 grant usage on schema public to anon, authenticated;
 grant select on public.products to anon, authenticated;
 grant select on public.profiles to authenticated;
-grant select, insert, update on public.orders to authenticated;
+grant select, insert, update, delete on public.orders to authenticated;
 
 insert into public.profiles (id, email, full_name)
 select

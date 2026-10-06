@@ -130,7 +130,7 @@
             onclick="mostrarBiblioteca()"
             hidden
           >
-            📚 Minha Biblioteca
+            🛒 Minhas compras
           </button>
           <button
             id="btnAdmin"
@@ -262,7 +262,7 @@
 
     <section id="librarySection" class="account-section container" hidden>
       <div class="account-heading">
-        <h2 id="libraryTitle">📚 Os Meus Livros</h2>
+        <h2 id="libraryTitle">🛒 As Minhas compras</h2>
         <button
           class="btn-secondary"
           onclick="voltarAoCatalogo()"
@@ -463,14 +463,50 @@
             />
           </div>
           <div class="form-group">
-            <label id="lblLoginPass">Palavra-passe</label>
-            <input
-              type="password"
-              id="loginPassword"
-              autocomplete="current-password"
-              placeholder="••••••••"
-              required
-            />
+            <label id="lblLoginPass" for="loginPassword">Palavra-passe</label>
+            <div class="password-input">
+              <input
+                type="password"
+                id="loginPassword"
+                autocomplete="current-password"
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                data-password-target="loginPassword"
+                aria-label="Mostrar palavra-passe"
+                aria-controls="loginPassword"
+                aria-pressed="false"
+                onclick="alternarVisibilidadePassword(this)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path
+                    d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="3"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    class="password-toggle-slash"
+                    d="m4 4 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    hidden
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
           <button
             type="button"
@@ -509,15 +545,51 @@
             />
           </div>
           <div class="form-group">
-            <label id="lblRegPass">Palavra-passe</label>
-            <input
-              type="password"
-              id="regPassword"
-              autocomplete="new-password"
-              minlength="8"
-              placeholder="••••••••"
-              required
-            />
+            <label id="lblRegPass" for="regPassword">Palavra-passe</label>
+            <div class="password-input">
+              <input
+                type="password"
+                id="regPassword"
+                autocomplete="new-password"
+                minlength="8"
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                data-password-target="regPassword"
+                aria-label="Mostrar palavra-passe"
+                aria-controls="regPassword"
+                aria-pressed="false"
+                onclick="alternarVisibilidadePassword(this)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path
+                    d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="3"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    class="password-toggle-slash"
+                    d="m4 4 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    hidden
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
           <button type="submit" id="btnRegSubmit" class="btn-primary">
             Criar conta
@@ -527,23 +599,95 @@
           <h3 id="novaPasswordTitle">Definir nova palavra-passe</h3>
           <div class="form-group">
             <label id="lblNovaPassword" for="novaPassword">Nova palavra-passe</label>
-            <input
-              type="password"
-              id="novaPassword"
-              autocomplete="new-password"
-              minlength="8"
-              required
-            />
+            <div class="password-input">
+              <input
+                type="password"
+                id="novaPassword"
+                autocomplete="new-password"
+                minlength="8"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                data-password-target="novaPassword"
+                aria-label="Mostrar palavra-passe"
+                aria-controls="novaPassword"
+                aria-pressed="false"
+                onclick="alternarVisibilidadePassword(this)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path
+                    d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="3"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    class="password-toggle-slash"
+                    d="m4 4 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    hidden
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
           <div class="form-group">
             <label id="lblConfirmarPassword" for="confirmarPassword">Confirmar palavra-passe</label>
-            <input
-              type="password"
-              id="confirmarPassword"
-              autocomplete="new-password"
-              minlength="8"
-              required
-            />
+            <div class="password-input">
+              <input
+                type="password"
+                id="confirmarPassword"
+                autocomplete="new-password"
+                minlength="8"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                data-password-target="confirmarPassword"
+                aria-label="Mostrar palavra-passe"
+                aria-controls="confirmarPassword"
+                aria-pressed="false"
+                onclick="alternarVisibilidadePassword(this)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path
+                    d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="3"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    class="password-toggle-slash"
+                    d="m4 4 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    hidden
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
           <button type="submit" id="btnGuardarPassword" class="btn-primary">
             Guardar nova palavra-passe

@@ -63,10 +63,10 @@ const traducoes = {
   pt: {
     idiomaLabel: "🌐 Change language / Mudar idioma:",
     btnLogin: "🔑 Entrar / Registar",
-    btnBiblioteca: "📚 Minha Biblioteca",
+    btnCompras: "🛒 Minhas compras",
     btnAdmin: "⚙️ Administração",
     btnLogout: "Sair",
-    libraryTitle: "📚 Os Meus Livros",
+    libraryTitle: "🛒 As Minhas compras",
     adminTitle: "⚙️ Aprovar pagamentos",
     backCatalog: "Voltar ao catálogo",
     lblRegiao: "País / Região",
@@ -86,11 +86,21 @@ const traducoes = {
     authNotConfigured: "A ligação à plataforma ainda não está configurada.",
     orderPending:
       "Confirmação enviada. O acesso ao livro será libertado após a aprovação do pagamento.",
+    orderNotificationFailed:
+      "A encomenda ficou registada e pendente de aprovação, mas não foi possível enviar o email de notificação à equipa.",
     noOrders: "Ainda não existem encomendas.",
-    noLibrary: "Ainda não tem livros na sua biblioteca.",
+    noPurchases: "Ainda não tem compras.",
     adminOnly: "Esta área está disponível apenas para a administração.",
     orderSaved: "Estado da encomenda actualizado.",
+    btnDeleteOrder: "Apagar compra",
+    orderDeleting: "A apagar a compra...",
+    orderDeleteError: "Não foi possível apagar a compra.",
+    confirmDeleteOrder:
+      "Apagar definitivamente a compra de “{book}”? O acesso ao livro será removido.",
+    orderDeleted: "Compra apagada e acesso removido.",
     resetPasswordLink: "Esqueceu-se da palavra-passe?",
+    showPassword: "Mostrar palavra-passe",
+    hidePassword: "Ocultar palavra-passe",
     resetPasswordTitle: "Definir nova palavra-passe",
     newPasswordLabel: "Nova palavra-passe",
     confirmPasswordLabel: "Confirmar palavra-passe",
@@ -180,10 +190,10 @@ const traducoes = {
   "en-ZA": {
     idiomaLabel: "🌐 Mudar idioma / Change language:",
     btnLogin: "🔑 Sign In / Register",
-    btnBiblioteca: "📚 My Library",
+    btnCompras: "🛒 My purchases",
     btnAdmin: "⚙️ Administration",
     btnLogout: "Sign out",
-    libraryTitle: "📚 My Books",
+    libraryTitle: "🛒 My purchases",
     adminTitle: "⚙️ Approve payments",
     backCatalog: "Back to catalogue",
     lblRegiao: "Country / Region",
@@ -203,11 +213,21 @@ const traducoes = {
     authNotConfigured: "The platform connection has not been configured yet.",
     orderPending:
       "Confirmation submitted. Book access will be released after payment approval.",
+    orderNotificationFailed:
+      "The order was recorded and is pending approval, but the notification email could not be sent to the team.",
     noOrders: "There are no orders yet.",
-    noLibrary: "Your library is empty.",
+    noPurchases: "You have no purchases yet.",
     adminOnly: "This area is available to administrators only.",
     orderSaved: "Order status updated.",
+    btnDeleteOrder: "Delete purchase",
+    orderDeleting: "Deleting purchase...",
+    orderDeleteError: "The purchase could not be deleted.",
+    confirmDeleteOrder:
+      "Permanently delete the purchase of “{book}”? Access to the book will be removed.",
+    orderDeleted: "Purchase deleted and access removed.",
     resetPasswordLink: "Forgot your password?",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
     resetPasswordTitle: "Set a new password",
     newPasswordLabel: "New password",
     confirmPasswordLabel: "Confirm password",
@@ -563,7 +583,7 @@ function aplicarIdioma() {
     idiomaAtual === "pt" ? "🇿🇦 English (SA)" : "🇲🇿 Português (MZ)";
   document.getElementById("txtIdiomaLabel").innerText = t.idiomaLabel;
   document.getElementById("txtBtnLogin").innerText = t.btnLogin;
-  document.getElementById("btnBiblioteca").innerText = t.btnBiblioteca;
+  document.getElementById("btnBiblioteca").innerText = t.btnCompras;
   document.getElementById("btnAdmin").innerText = t.btnAdmin;
   document.getElementById("btnLogout").innerText = t.btnLogout;
   document.getElementById("searchInput").placeholder = t.searchPlaceholder;
@@ -646,6 +666,13 @@ function aplicarIdioma() {
   document.querySelector("#formRegistro input[type='email']").placeholder =
     t.regEmailPh;
   document.getElementById("lblRegPass").innerText = t.lblRegPass;
+  document.querySelectorAll(".password-toggle").forEach((button) => {
+    const input = document.getElementById(button.dataset.passwordTarget);
+    button.setAttribute(
+      "aria-label",
+      input.type === "password" ? t.showPassword : t.hidePassword,
+    );
+  });
   document.getElementById("btnRegSubmit").innerText = t.btnRegSubmit;
   document.getElementById("novaPasswordTitle").innerText = t.resetPasswordTitle;
   document.getElementById("lblNovaPassword").innerText = t.newPasswordLabel;
@@ -925,16 +952,22 @@ async function submeterConfirmacaoPagamento(event) {
       : "Submitting confirmation...";
   status.style.display = "block";
 
-  const { error } = await supabaseClient.from("orders").insert({
-    user_id: utilizadorAtual.id,
-    product_id: produtoSelecionado.id,
-    region: document.getElementById("regiaoPagamento").value,
-    payment_method: document.getElementById("metodoPagamento").value,
-    transaction_reference: referencia,
-  });
+  const regiao = document.getElementById("regiaoPagamento");
+  const metodoPagamento = document.getElementById("metodoPagamento");
+  const { data: encomenda, error } = await supabaseClient
+    .from("orders")
+    .insert({
+      user_id: utilizadorAtual.id,
+      product_id: produtoSelecionado.id,
+      region: regiao.value,
+      payment_method: metodoPagamento.value,
+      transaction_reference: referencia,
+    })
+    .select("product_title,amount,currency")
+    .single();
 
-  botao.disabled = false;
   if (error) {
+    botao.disabled = false;
     console.error("Erro ao registar a confirmação de pagamento:", error);
     status.innerText =
       idiomaAtual === "pt"
@@ -943,7 +976,66 @@ async function submeterConfirmacaoPagamento(event) {
     return;
   }
 
-  status.innerText = t.orderPending;
+  let mensagemEstado = t.orderPending;
+  if (
+    CONFIG_NOTIFICACOES.emailJsPublicKey === "SUA_PUBLIC_KEY_AQUI" ||
+    typeof emailjs === "undefined"
+  ) {
+    console.error("EmailJS não está configurado para notificar novas encomendas.");
+    mensagemEstado = t.orderNotificationFailed;
+  } else {
+    const nomeCliente =
+      perfilAtual?.full_name ||
+      utilizadorAtual.user_metadata?.full_name ||
+      utilizadorAtual.email ||
+      "";
+    const detalhesEncomenda = [
+      idiomaAtual === "pt"
+        ? "NOVA COMPRA - APROVAÇÃO PENDENTE"
+        : "NEW PURCHASE - APPROVAL PENDING",
+      "",
+      `${idiomaAtual === "pt" ? "Cliente" : "Customer"}: ${nomeCliente}`,
+      `Email: ${utilizadorAtual.email || ""}`,
+      `${idiomaAtual === "pt" ? "Livro" : "Book"}: ${encomenda.product_title}`,
+      `${idiomaAtual === "pt" ? "Valor" : "Amount"}: ${encomenda.amount} ${encomenda.currency}`,
+      `${idiomaAtual === "pt" ? "Região" : "Region"}: ${regiao.selectedOptions[0].text}`,
+      `${idiomaAtual === "pt" ? "Forma de pagamento" : "Payment method"}: ${metodoPagamento.selectedOptions[0].text}`,
+      `${idiomaAtual === "pt" ? "Referência" : "Reference"}: ${referencia}`,
+      `${idiomaAtual === "pt" ? "Estado" : "Status"}: ${t.statusPendente}`,
+    ].join("\n");
+
+    try {
+      await emailjs.send(
+        CONFIG_NOTIFICACOES.emailJsServiceId,
+        CONFIG_NOTIFICACOES.emailJsTemplateId,
+        {
+          cliente_nome: nomeCliente,
+          cliente_email: utilizadorAtual.email || "",
+          to_email: CONFIG_NOTIFICACOES.emailDestino,
+          reply_to: utilizadorAtual.email || CONFIG_NOTIFICACOES.emailDestino,
+          livro_titulo: encomenda.product_title,
+          referencia,
+          metodo: metodoPagamento.selectedOptions[0].text,
+          tipo_notificacao:
+            idiomaAtual === "pt"
+              ? "Nova compra pendente de aprovação"
+              : "New purchase pending approval",
+          solicitante_contacto: utilizadorAtual.email || nomeCliente,
+          detalhes_pedido: detalhesEncomenda,
+          mensagem: detalhesEncomenda,
+        },
+      );
+    } catch (erroNotificacao) {
+      console.error(
+        "Não foi possível enviar o email da nova encomenda:",
+        erroNotificacao,
+      );
+      mensagemEstado = t.orderNotificationFailed;
+    }
+  }
+
+  botao.disabled = false;
+  status.innerText = mensagemEstado;
   document.getElementById("formCheckout").reset();
   document.getElementById("clienteNome").value =
     perfilAtual?.full_name || utilizadorAtual.user_metadata?.full_name || "";
@@ -953,8 +1045,9 @@ async function submeterConfirmacaoPagamento(event) {
   fecharModalCheckout();
   alternarVistaConta("biblioteca");
   await carregarBiblioteca();
-  document.getElementById("libraryStatus").innerText = t.orderPending;
-  document.getElementById("libraryStatus").className = "account-status success";
+  document.getElementById("libraryStatus").innerText = mensagemEstado;
+  document.getElementById("libraryStatus").className =
+    `account-status${mensagemEstado === t.orderPending ? " success" : " error"}`;
 }
 
 function fecharModalCheckout() {
@@ -1627,7 +1720,7 @@ async function carregarBiblioteca() {
 
   status.innerText = "";
   if (!encomendas.length) {
-    status.innerText = traducoes[idiomaAtual].noLibrary;
+    status.innerText = traducoes[idiomaAtual].noPurchases;
     return;
   }
 
@@ -1652,6 +1745,15 @@ async function carregarBiblioteca() {
         void descarregarEbook(encomenda);
       });
       cartao.appendChild(botao);
+    }
+    if (encomenda.status !== "pending") {
+      const botaoApagar = document.createElement("button");
+      botaoApagar.className = "btn-danger";
+      botaoApagar.innerText = traducoes[idiomaAtual].btnDeleteOrder;
+      botaoApagar.addEventListener("click", () => {
+        void apagarEncomenda(encomenda);
+      });
+      cartao.appendChild(botaoApagar);
     }
     lista.appendChild(cartao);
   });
@@ -1783,8 +1885,68 @@ async function carregarEncomendasAdmin() {
       });
       cartao.appendChild(botao);
     }
+    if (encomenda.status !== "pending") {
+      const botaoApagar = document.createElement("button");
+      botaoApagar.className = "btn-danger";
+      botaoApagar.innerText = t.btnDeleteOrder;
+      botaoApagar.addEventListener("click", () => {
+        void apagarEncomenda(encomenda, true);
+      });
+      cartao.appendChild(botaoApagar);
+    }
     lista.appendChild(cartao);
   });
+}
+
+async function apagarEncomenda(encomenda, isAdmin = false) {
+  if (encomenda.status === "pending") return;
+  if (isAdmin && perfilAtual?.role !== "admin") {
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].adminOnly, true);
+    return;
+  }
+
+  const t = traducoes[idiomaAtual];
+  const confirmacao = t.confirmDeleteOrder.replace(
+    "{book}",
+    encomenda.product_title,
+  );
+  if (!window.confirm(confirmacao)) return;
+
+  const status = document.getElementById(
+    isAdmin ? "adminStatus" : "libraryStatus",
+  );
+  status.innerText = t.orderDeleting;
+  status.className = "account-status";
+
+  let consulta = supabaseClient
+    .from("orders")
+    .delete()
+    .eq("id", encomenda.id)
+    .eq("status", encomenda.status);
+  if (!isAdmin) {
+    consulta = consulta.eq("user_id", utilizadorAtual.id);
+  }
+  const { data, error } = await consulta.select("id").single();
+
+  if (error || !data) {
+    console.error(
+      "Não foi possível apagar a encomenda:",
+      error || "A encomenda não foi encontrada ou já não pode ser apagada.",
+    );
+    status.innerText = error
+      ? `${t.orderDeleteError} ${traduzirErroSupabase(error)}`
+      : t.orderDeleteError;
+    status.className = "account-status error";
+    return;
+  }
+
+  if (isAdmin) {
+    await carregarEncomendasAdmin();
+  } else {
+    await carregarBiblioteca();
+  }
+  status.innerText = t.orderDeleted;
+  status.className = "account-status success";
 }
 
 async function reverEncomenda(id, estado) {
@@ -2026,6 +2188,20 @@ function abrirModalLogin() {
 
 function fecharModalLogin() {
   document.getElementById("loginModal").style.display = "none";
+}
+
+function alternarVisibilidadePassword(botao) {
+  const input = document.getElementById(botao.dataset.passwordTarget);
+  const mostrarPassword = input.type === "password";
+  input.type = mostrarPassword ? "text" : "password";
+  botao.setAttribute("aria-pressed", String(mostrarPassword));
+  botao.setAttribute(
+    "aria-label",
+    mostrarPassword
+      ? traducoes[idiomaAtual].hidePassword
+      : traducoes[idiomaAtual].showPassword,
+  );
+  botao.querySelector(".password-toggle-slash").hidden = mostrarPassword;
 }
 
 function alternarAba(aba) {
