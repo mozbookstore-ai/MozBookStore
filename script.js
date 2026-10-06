@@ -23,6 +23,22 @@ const CONTAS_PAGAMENTO = {
   },
 };
 
+const CAMINHOS_PDF = {
+  1: "guias/calistenia.pdf",
+  2: "guias/ciclismo-para-iniciantes.pdf",
+  3: "guias/corrida-para-iniciantes.pdf",
+  4: "guias/crossfit-para-iniciantes.pdf",
+  5: "guias/culinaria-para-iniciantes.pdf",
+  6: "guias/escalada-para-iniciantes.pdf",
+  7: "guias/futebol-para-iniciantes.pdf",
+  8: "guias/ginastica-para-iniciantes.pdf",
+  9: "guias/musculacao-para-iniciantes.pdf",
+  10: "guias/natacao-para-iniciantes.pdf",
+  11: "guias/patinagem-no-gelo.pdf",
+  12: "guias/queda-de-braco.pdf",
+  13: "guias/skate-para-iniciantes.pdf",
+};
+
 const TAXA_CAMBIO_ZAR = 3.5;
 
 function converterPreco(precoMT) {
@@ -276,7 +292,7 @@ const categoriasLista = [
 // --- CATÁLOGO DE PRODUTOS & SINOPSES BILÍNGUES ---
 const produtos = [
   {
-    id: 1,
+    id: 10,
     titulo: "Natação para Iniciantes",
     tituloEn: "Swimming for Beginners",
     autor: "MozBookStore",
@@ -292,7 +308,7 @@ const produtos = [
       "Practical guide from scratch to the first 30 days to develop water comfort, breathing control, buoyancy, propulsion, and pool safety.",
   },
   {
-    id: 2,
+    id: 9,
     titulo: "Musculação para Iniciantes",
     tituloEn: "Weight Training for Beginners",
     autor: "MozBookStore",
@@ -308,7 +324,7 @@ const produtos = [
       "Learn the fundamentals, set up your first workouts, and evolve with technique, consistency, and safety through a practical 30-day roadmap.",
   },
   {
-    id: 3,
+    id: 7,
     titulo: "Futebol para Iniciantes",
     tituloEn: "Football for Beginners",
     autor: "MozBookStore",
@@ -340,7 +356,7 @@ const produtos = [
       "Start from scratch, learn fundamental movements, master scaling, and build consistency safely with relative intensity.",
   },
   {
-    id: 5,
+    id: 2,
     titulo: "Ciclismo para Iniciantes",
     tituloEn: "Cycling for Beginners",
     autor: "MozBookStore",
@@ -356,7 +372,7 @@ const produtos = [
       "Practical guide from scratch to the first 30 days to learn how to choose, adjust, master balance, and cycle safely in the city or on the road.",
   },
   {
-    id: 6,
+    id: 8,
     titulo: "Ginástica para Iniciante",
     tituloEn: "Gymnastics for Beginners",
     autor: "MozBookStore",
@@ -372,7 +388,7 @@ const produtos = [
       "Practical guide to develop flexibility, basic body strength, balance, and coordination through fundamental gymnastic movements.",
   },
   {
-    id: 7,
+    id: 6,
     titulo: "Escalada para Iniciantes",
     tituloEn: "Climbing for Beginners",
     autor: "MozBookStore",
@@ -388,7 +404,7 @@ const produtos = [
       "Learn grip techniques, essential knots, route reading, and safety principles to take your first steps in climbing with confidence.",
   },
   {
-    id: 8,
+    id: 3,
     titulo: "Corrida para Iniciantes",
     tituloEn: "Running for Beginners",
     autor: "MozBookStore",
@@ -404,7 +420,7 @@ const produtos = [
       "A progressive program from scratch to your first continuous kilometers, focusing on posture, correct breathing, and injury prevention.",
   },
   {
-    id: 9,
+    id: 5,
     titulo: "Culinária para Iniciantes",
     tituloEn: "Cooking for Beginners",
     autor: "MozBookStore",
@@ -420,7 +436,7 @@ const produtos = [
       "Basic kitchen techniques, proper use of utensils, essential seasonings, and easy recipes to master cooking without complications.",
   },
   {
-    id: 10,
+    id: 12,
     titulo: "Queda de Braço para Iniciantes",
     tituloEn: "Arm Wrestling for Beginners",
     autor: "MozBookStore",
@@ -436,7 +452,7 @@ const produtos = [
       "Learn strength angles, wrist techniques, body positioning, and specific injury prevention care for arm wrestling.",
   },
   {
-    id: 11,
+    id: 1,
     titulo: "Calistenia para Iniciantes",
     tituloEn: "Calisthenics for Beginners",
     autor: "MozBookStore",
@@ -452,7 +468,7 @@ const produtos = [
       "Train using only your body weight. Learn progressions for push-ups, squats, pull-ups, and core exercises to build functional strength anywhere.",
   },
   {
-    id: 12,
+    id: 11,
     titulo: "Patinagem no Gelo para Iniciantes",
     tituloEn: "Ice Skating for Beginners",
     autor: "MozBookStore",
@@ -466,6 +482,23 @@ const produtos = [
       "Descubra como ajustar os patins, dominar o equilíbrio no gelo, dar as primeiras passadas com segurança e aprender a travar e cair corretamente.",
     introducaoEn:
       "Discover how to adjust skates, master balance on ice, take your first safe glides, and learn how to brake and fall correctly.",
+  },
+
+  {
+    id: 13,
+    titulo: "Skate para Iniciantes",
+    tituloEn: "Skate for Beginners",
+    autor: "MozBookStore",
+    categoria: "desporto",
+    preco: "320 MT",
+    imagem:
+      "https://img.redbull.com/images/c_crop,x_1638,y_0,h_2560,w_2048/c_fill,w_800,h_889/q_auto:low,f_auto/redbullcom/tv/FO-1YSE763FN5N11/abc-of-skateboarding-kickflip-skatepark",
+    tipo: "PDF / Desporto & Saúde",
+    tipoEn: "PDF / Sports & Health",
+    introducao:
+      "Aprenda a escolher o skate certo, dominar o equilíbrio, dar as primeiras voltas com segurança e aprender a travar e cair corretamente.",
+    introducaoEn:
+      "Learn how to choose the right skateboard, master balance, take your first safe rides, and learn how to brake and fall correctly.",
   },
 ];
 
@@ -561,16 +594,14 @@ function aplicarIdioma() {
     t.regEmailPh;
   document.getElementById("lblRegPass").innerText = t.lblRegPass;
   document.getElementById("btnRegSubmit").innerText = t.btnRegSubmit;
-  document.getElementById("novaPasswordTitle").innerText =
-    t.resetPasswordTitle;
+  document.getElementById("novaPasswordTitle").innerText = t.resetPasswordTitle;
   document.getElementById("lblNovaPassword").innerText = t.newPasswordLabel;
   document.getElementById("lblConfirmarPassword").innerText =
     t.confirmPasswordLabel;
   document.getElementById("btnGuardarPassword").innerText =
     t.savePasswordButton;
   if (catalogOrderWarning) {
-    document.getElementById("catalogStatus").innerText =
-      t.productOrderWarning;
+    document.getElementById("catalogStatus").innerText = t.productOrderWarning;
   }
   document.getElementById("footerCopy").innerHTML = t.footerCopy;
   document.getElementById("libraryTitle").innerText = t.libraryTitle;
@@ -1145,23 +1176,19 @@ async function ordenarProdutosPeloSupabase() {
     );
     document.getElementById("catalogStatus").innerText =
       traducoes[idiomaAtual].productOrderWarning;
-    document.getElementById("catalogStatus").className =
-      "account-status error";
+    document.getElementById("catalogStatus").className = "account-status error";
+    renderizarCatalogoOrdenado();
     return;
   }
 
-  const posicoes = new Map(
-    data.map((produto, indice) => [Number(produto.id), indice]),
-  );
-  produtos.sort(
-    (a, b) =>
-      (posicoes.get(a.id) ?? Number.MAX_SAFE_INTEGER) -
-        (posicoes.get(b.id) ?? Number.MAX_SAFE_INTEGER) ||
-      a.id - b.id,
-  );
+  produtos.sort((a, b) => a.id - b.id);
   catalogOrderWarning = false;
   document.getElementById("catalogStatus").innerText = "";
   document.getElementById("catalogStatus").className = "account-status";
+  renderizarCatalogoOrdenado();
+}
+
+function renderizarCatalogoOrdenado() {
   if (document.getElementById("searchInput").value.trim()) {
     buscarLivro();
   } else {
@@ -1288,8 +1315,7 @@ async function guardarNovaPassword(event) {
   }
 
   const novaPassword = document.getElementById("novaPassword").value;
-  const confirmarPassword =
-    document.getElementById("confirmarPassword").value;
+  const confirmarPassword = document.getElementById("confirmarPassword").value;
   if (novaPassword !== confirmarPassword) {
     mostrarEstadoAutenticacao(traducoes[idiomaAtual].passwordMismatch, true);
     return;
@@ -1468,7 +1494,7 @@ async function descarregarEbook(encomenda) {
 
   const { data: pedido, error: erroPedido } = await supabaseClient
     .from("orders")
-    .select("id,product_id,status")
+    .select("id,product_id,product_title,status")
     .eq("id", encomenda.id)
     .eq("user_id", utilizadorAtual.id)
     .eq("status", "approved")
@@ -1480,12 +1506,21 @@ async function descarregarEbook(encomenda) {
     return;
   }
 
-  const nomeFicheiro = `product-${pedido.product_id}.pdf`;
+  const caminhoPdf = CAMINHOS_PDF[pedido.product_id];
+  if (!caminhoPdf) {
+    console.error(`Não existe caminho de PDF configurado para o produto ${pedido.product_id}.`);
+    status.innerText =
+      idiomaAtual === "pt"
+        ? "O caminho do PDF deste livro ainda não está configurado."
+        : "The PDF path for this book has not been configured yet.";
+    status.className = "account-status error";
+    return;
+  }
+
+  const nomeDownload = `${pedido.product_id}-${pedido.product_title}.pdf`;
   const { data, error } = await supabaseClient.storage
     .from("ebooks-private")
-    .createSignedUrl(nomeFicheiro, 60, {
-      download: `${pedido.product_id}-${pedido.product_title}.pdf`,
-    });
+    .createSignedUrl(caminhoPdf, 60, { download: nomeDownload });
   if (error) {
     console.error("Não foi possível gerar o link do PDF:", error);
     status.innerText =
@@ -1499,7 +1534,7 @@ async function descarregarEbook(encomenda) {
   const link = document.createElement("a");
   link.href = data.signedUrl;
   link.rel = "noopener";
-  link.download = `${pedido.product_id}-${pedido.product_title}.pdf`;
+  link.download = nomeDownload;
   document.body.appendChild(link);
   link.click();
   link.remove();

@@ -22,10 +22,27 @@ estes passos:
    `update public.profiles set role = 'admin' where lower(email) = 'mozbookstore@gmail.com';`
    O papel administrativo não é atribuído pelo navegador nem automaticamente
    pelo email: só quem tem acesso ao SQL Editor pode concedê-lo.
-6. Em **Storage → ebooks-private**, carregue os PDFs com estes nomes exactos:
-   `product-1.pdf`, `product-2.pdf`, …, `product-12.pdf`, correspondentes aos
-   IDs e títulos semeados no SQL. O bucket é privado; as políticas permitem o
-   download apenas ao administrador e a clientes com encomenda aprovada.
+6. Em **Storage → ebooks-private**, crie a pasta `guias` e carregue os PDFs
+   com estes nomes exactos:
+   - ID 1: `calistenia.pdf`
+   - ID 2: `ciclismo-para-iniciantes.pdf`
+   - ID 3: `corrida-para-iniciantes.pdf`
+   - ID 4: `crossfit-para-iniciantes.pdf`
+   - ID 5: `culinaria-para-iniciantes.pdf`
+   - ID 6: `escalada-para-iniciantes.pdf`
+   - ID 7: `futebol-para-iniciantes.pdf`
+   - ID 8: `ginastica-para-iniciantes.pdf`
+   - ID 9: `musculacao-para-iniciantes.pdf`
+   - ID 10: `natacao-para-iniciantes.pdf`
+   - ID 11: `patinagem-no-gelo.pdf`
+   - ID 12: `queda-de-braco.pdf`
+   - ID 13: `skate-para-iniciantes.pdf`
+   O caminho, incluindo `guias/`, está configurado no JavaScript e em
+   `products.pdf_path`. Executar `setup.sql` remapeia também as encomendas
+   existentes para os novos IDs, preservando os livros comprados. Se alterar
+   qualquer nome, actualize ambos e volte a executar `setup.sql`. O bucket é
+   privado: os links assinados permitem o download apenas ao administrador e
+   a clientes com encomenda aprovada.
 
 ## Funcionamento
 
@@ -34,6 +51,7 @@ estes passos:
   apresenta transferência bancária em ZAR.
 - A referência submetida cria uma encomenda pendente. O preço e a moeda são
   calculados no banco de dados, não aceites do navegador.
+- O catálogo segue a ordem numérica dos IDs (1–13), não a ordem alfabética.
 - `mozbookstore@gmail.com` vê as encomendas no botão **Administração** e pode
   aprovar ou rejeitar. A aprovação concede acesso ao PDF privado.
 - **Minha Biblioteca** mostra o estado das encomendas e só apresenta o botão de

@@ -1,5 +1,7 @@
 -- MozBookStore Supabase schema. Safe to run again after the initial setup.
 
+begin;
+
 create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   email text not null,
@@ -11,25 +13,12 @@ create table if not exists public.profiles (
 create table if not exists public.products (
   id integer primary key,
   title text not null,
-  price_mzn integer not null check (price_mzn > 0)
+  price_mzn integer not null check (price_mzn > 0),
+  pdf_path text not null
 );
 
-insert into public.products (id, title, price_mzn) values
-  (1, 'Natação para Iniciantes', 250),
-  (2, 'Musculação para Iniciantes', 300),
-  (3, 'Futebol para Iniciantes', 250),
-  (4, 'CrossFit para Iniciantes', 300),
-  (5, 'Ciclismo para Iniciantes', 280),
-  (6, 'Ginástica para Iniciante', 270),
-  (7, 'Escalada para Iniciantes', 300),
-  (8, 'Corrida para Iniciantes', 250),
-  (9, 'Culinária para Iniciantes', 250),
-  (10, 'Queda de Braço para Iniciantes', 220),
-  (11, 'Calistenia para Iniciantes', 280),
-  (12, 'Patinagem no Gelo para Iniciantes', 300)
-on conflict (id) do update set
-  title = excluded.title,
-  price_mzn = excluded.price_mzn;
+alter table public.products
+  add column if not exists pdf_path text;
 
 create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
@@ -51,6 +40,112 @@ create table if not exists public.orders (
 create unique index if not exists orders_one_approved_product_per_user
   on public.orders (user_id, product_id)
   where status = 'approved';
+
+-- Stage changed IDs first so product swaps preserve foreign keys and existing orders.
+create temporary table mozbookstore_product_id_remap (
+  old_id integer primary key,
+  new_id integer not null,
+  staging_id integer not null unique
+) on commit drop;
+
+insert into pg_temp.mozbookstore_product_id_remap (old_id, new_id, staging_id)
+with target_products(title, new_id) as (
+  values
+    ('Calistenia para Iniciantes', 1),
+    ('Ciclismo para Iniciantes', 2),
+    ('Corrida para Iniciantes', 3),
+    ('CrossFit para Iniciantes', 4),
+    ('Culinária para Iniciantes', 5),
+    ('Escalada para Iniciantes', 6),
+    ('Futebol para Iniciantes', 7),
+    ('Ginástica para Iniciante', 8),
+    ('Musculação para Iniciantes', 9),
+    ('Natação para Iniciantes', 10),
+    ('Patinagem no Gelo para Iniciantes', 11),
+    ('Queda de Braço para Iniciantes', 12),
+    ('Skate para Iniciantes', 13)
+)
+select
+  products.id,
+  target_products.new_id,
+  (select coalesce(max(id), 0) from public.products)
+    + row_number() over (order by products.id)::integer
+from public.products
+join target_products on target_products.title = products.title
+where products.id <> target_products.new_id;
+
+insert into public.products (id, title, price_mzn, pdf_path)
+select remap.staging_id, products.title, products.price_mzn, products.pdf_path
+from pg_temp.mozbookstore_product_id_remap as remap
+join public.products on products.id = remap.old_id;
+
+do $$
+begin
+  if exists (
+    select 1
+    from pg_trigger
+    where tgrelid = 'public.orders'::regclass
+      and tgname = 'protect_order_update_before_update'
+      and not tgisinternal
+  ) then
+    execute 'alter table public.orders disable trigger protect_order_update_before_update';
+  end if;
+end;
+$$;
+
+update public.orders
+set product_id = remap.staging_id
+from pg_temp.mozbookstore_product_id_remap as remap
+where public.orders.product_id = remap.old_id;
+
+delete from public.products
+using pg_temp.mozbookstore_product_id_remap as remap
+where public.products.id = remap.old_id;
+
+insert into public.products (id, title, price_mzn, pdf_path) values
+  (1, 'Calistenia para Iniciantes', 280, 'guias/calistenia.pdf'),
+  (2, 'Ciclismo para Iniciantes', 280, 'guias/ciclismo-para-iniciantes.pdf'),
+  (3, 'Corrida para Iniciantes', 250, 'guias/corrida-para-iniciantes.pdf'),
+  (4, 'CrossFit para Iniciantes', 300, 'guias/crossfit-para-iniciantes.pdf'),
+  (5, 'Culinária para Iniciantes', 250, 'guias/culinaria-para-iniciantes.pdf'),
+  (6, 'Escalada para Iniciantes', 300, 'guias/escalada-para-iniciantes.pdf'),
+  (7, 'Futebol para Iniciantes', 250, 'guias/futebol-para-iniciantes.pdf'),
+  (8, 'Ginástica para Iniciante', 270, 'guias/ginastica-para-iniciantes.pdf'),
+  (9, 'Musculação para Iniciantes', 300, 'guias/musculacao-para-iniciantes.pdf'),
+  (10, 'Natação para Iniciantes', 250, 'guias/natacao-para-iniciantes.pdf'),
+  (11, 'Patinagem no Gelo para Iniciantes', 300, 'guias/patinagem-no-gelo.pdf'),
+  (12, 'Queda de Braço para Iniciantes', 220, 'guias/queda-de-braco.pdf'),
+  (13, 'Skate para Iniciantes', 320, 'guias/skate-para-iniciantes.pdf')
+on conflict (id) do update set
+  title = excluded.title,
+  price_mzn = excluded.price_mzn,
+  pdf_path = excluded.pdf_path;
+
+update public.orders
+set product_id = remap.new_id
+from pg_temp.mozbookstore_product_id_remap as remap
+where public.orders.product_id = remap.staging_id;
+
+delete from public.products
+using pg_temp.mozbookstore_product_id_remap as remap
+where public.products.id = remap.staging_id;
+
+do $$
+begin
+  if exists (
+    select 1
+    from pg_trigger
+    where tgrelid = 'public.orders'::regclass
+      and tgname = 'protect_order_update_before_update'
+      and not tgisinternal
+  ) then
+    execute 'alter table public.orders enable trigger protect_order_update_before_update';
+  end if;
+end;
+$$;
+
+alter table public.products
+  alter column pdf_path set not null;
 
 create or replace function public.is_admin()
 returns boolean
@@ -234,9 +329,10 @@ create policy "Approved customers and admins can download ebooks"
       or exists (
         select 1
         from public.orders
+        join public.products on products.id = orders.product_id
         where orders.user_id = (select auth.uid())
           and orders.status = 'approved'
-          and storage.objects.name = 'product-' || orders.product_id || '.pdf'
+          and storage.objects.name = products.pdf_path
       )
     )
   );
@@ -272,3 +368,5 @@ on conflict (id) do nothing;
 
 -- After the administrator account is registered and verified, run:
 -- update public.profiles set role = 'admin' where lower(email) = 'mozbookstore@gmail.com';
+
+commit;
