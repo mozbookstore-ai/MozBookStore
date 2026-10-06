@@ -104,7 +104,9 @@ const traducoes = {
     searchPlaceholder: "Pesquisar livros, exames, desporto, tecnologia...",
     heroTitulo: "A sua central académica e literária digital",
     heroSub:
-      "Não encontra o livro que procura? Peça-o no formulário abaixo e nós adicionamo-lo! Pagamento via M-Pesa, e-Mola ou banco/cartão sul-africano.",
+      "Não encontra o livro que procura? Peça-o e nós adicionamo-lo! Pagamento via M-Pesa, e-Mola ou banco/cartão sul-africano.",
+    btnIrPedido: "📚 Pedir um livro",
+    btnIrFeedback: "💡 Enviar feedback",
     pedirTitulo:
       "📑 Não encontrou o livro que procura? Peça-o e nós adicionamos!",
     pedirSub:
@@ -113,6 +115,19 @@ const traducoes = {
     reqAutorPh: "Autor / Categoria (Opcional)",
     reqContatoPh: "O seu nome e contacto (WhatsApp/email) *",
     btnPedir: "🚀 Pedir e Notificar a Equipa",
+    feedbackTitle: "💡 Ajude-nos a melhorar",
+    feedbackDescription:
+      "Partilhe sugestões ou ideias para futuras melhorias da MozBookStore.",
+    feedbackNamePh: "O seu nome (opcional)",
+    feedbackEmailPh: "O seu email (opcional)",
+    feedbackMessagePh: "Que melhoria gostaria de ver? *",
+    feedbackSubmit: "Enviar feedback",
+    feedbackSending: "A enviar o seu feedback...",
+    feedbackSuccess: "Obrigado! O seu feedback foi enviado à equipa.",
+    feedbackUnavailable:
+      "Não foi possível enviar o feedback agora. Tente novamente mais tarde.",
+    feedbackError:
+      "O envio falhou. Verifique a ligação e tente novamente.",
     ultimosLivros: "🔥 Últimos livros adicionados a pedido:",
     badge1: "✅ Natação para Iniciantes",
     badge2: "✅ Treino de Força para Iniciantes",
@@ -158,7 +173,8 @@ const traducoes = {
     lblRegPass: "Palavra-passe",
     btnRegSubmit: "Criar conta",
     footerCopy: "&copy; 2026 MozBookStore - Todos os direitos reservados.",
-    footerSocialTitle: "Siga-nos",
+    footerSocialTitle: "Siga-nos nas redes sociais para ficar a par das atualizações",
+    topBarSocialTitle: "Siga-nos para atualizações:",
   },
   "en-ZA": {
     idiomaLabel: "🌐 Mudar idioma / Change language:",
@@ -205,7 +221,9 @@ const traducoes = {
     searchPlaceholder: "Search for books, exams, drama, philosophy...",
     heroTitulo: "Your Digital Academic & Literary Hub",
     heroSub:
-      "Can't find the book you're looking for? Request it below and we'll add it! Payment via M-Pesa, e-Mola or SA Bank Deposit/Card.",
+      "Can't find the book you're looking for? Request it and we'll add it! Payment via M-Pesa, e-Mola or SA Bank Deposit/Card.",
+    btnIrPedido: "📚 Request a book",
+    btnIrFeedback: "💡 Send feedback",
     pedirTitulo: "📑 Didn't find your book? Request it and we'll add it!",
     pedirSub:
       "Send the details of the material you want. Our team receives the notification instantly.",
@@ -213,6 +231,18 @@ const traducoes = {
     reqAutorPh: "Author / Category (Optional)",
     reqContatoPh: "Your Name and Contact (WhatsApp/Email) *",
     btnPedir: "🚀 Request & Notify Team",
+    feedbackTitle: "💡 Help us improve",
+    feedbackDescription:
+      "Share suggestions or ideas for future improvements to MozBookStore.",
+    feedbackNamePh: "Your name (optional)",
+    feedbackEmailPh: "Your email (optional)",
+    feedbackMessagePh: "What improvement would you like to see? *",
+    feedbackSubmit: "Send feedback",
+    feedbackSending: "Sending your feedback...",
+    feedbackSuccess: "Thank you! Your feedback has been sent to the team.",
+    feedbackUnavailable:
+      "Feedback could not be sent right now. Please try again later.",
+    feedbackError: "Sending failed. Check your connection and try again.",
     ultimosLivros: "🔥 Latest Books Added by Request:",
     badge1: "✅ Swimming for Beginners",
     badge2: "✅ Weight Training for Beginners",
@@ -258,7 +288,8 @@ const traducoes = {
     lblRegPass: "Password",
     btnRegSubmit: "Create Account",
     footerCopy: "&copy; 2026 MozBookStore - All rights reserved.",
-    footerSocialTitle: "Follow us",
+    footerSocialTitle: "Follow us on social media for updates",
+    topBarSocialTitle: "Follow us for updates:",
   },
 };
 
@@ -537,6 +568,8 @@ function aplicarIdioma() {
   document.getElementById("searchInput").placeholder = t.searchPlaceholder;
   document.getElementById("txtHeroTitulo").innerText = t.heroTitulo;
   document.getElementById("txtHeroSub").innerText = t.heroSub;
+  document.getElementById("btnIrPedido").innerText = t.btnIrPedido;
+  document.getElementById("btnIrFeedback").innerText = t.btnIrFeedback;
   document.getElementById("txtPedirTitulo").innerText = t.pedirTitulo;
   document.getElementById("txtPedirSub").innerText = t.pedirSub;
 
@@ -544,6 +577,23 @@ function aplicarIdioma() {
   document.getElementById("reqAutor").placeholder = t.reqAutorPh;
   document.getElementById("reqContacto").placeholder = t.reqContatoPh;
   document.getElementById("txtBtnPedir").innerText = t.btnPedir;
+  document.getElementById("feedbackTitle").innerText = t.feedbackTitle;
+  document.getElementById("feedbackDescription").innerText =
+    t.feedbackDescription;
+  document.getElementById("feedbackName").placeholder = t.feedbackNamePh;
+  document
+    .getElementById("feedbackName")
+    .setAttribute("aria-label", t.feedbackNamePh);
+  document.getElementById("feedbackEmail").placeholder = t.feedbackEmailPh;
+  document
+    .getElementById("feedbackEmail")
+    .setAttribute("aria-label", t.feedbackEmailPh);
+  document.getElementById("feedbackMessage").placeholder =
+    t.feedbackMessagePh;
+  document
+    .getElementById("feedbackMessage")
+    .setAttribute("aria-label", t.feedbackMessagePh);
+  document.getElementById("feedbackSubmit").innerText = t.feedbackSubmit;
 
   document.getElementById("txtUltimosLivros").innerHTML =
     `🔥 <b>${t.ultimosLivros.replace("🔥 ", "").replace(":", "")}:</b>`;
@@ -607,6 +657,7 @@ function aplicarIdioma() {
   }
   document.getElementById("footerCopy").innerHTML = t.footerCopy;
   document.getElementById("footerSocialTitle").innerText = t.footerSocialTitle;
+  document.getElementById("topBarSocialTitle").innerText = t.topBarSocialTitle;
   document.getElementById("libraryTitle").innerText = t.libraryTitle;
   document.getElementById("adminTitle").innerText = t.adminTitle;
   document.getElementById("libraryBackButton").innerText = t.backCatalog;
@@ -1073,6 +1124,59 @@ function enviarPedidoLivro(event) {
         idiomaAtual === "pt"
           ? "⚠️ O WhatsApp foi aberto, mas o email não foi enviado. Verifique a ligação e tente novamente."
           : "⚠️ WhatsApp was opened, but the email was not sent. Check your connection and try again.";
+    });
+}
+
+function enviarFeedback(event) {
+  event.preventDefault();
+
+  const t = traducoes[idiomaAtual];
+  const form = document.getElementById("formFeedback");
+  const status = document.getElementById("feedbackStatus");
+  const submitButton = document.getElementById("feedbackSubmit");
+  const nome = document.getElementById("feedbackName").value.trim();
+  const email = document.getElementById("feedbackEmail").value.trim();
+  const mensagem = document.getElementById("feedbackMessage").value.trim();
+
+  if (
+    CONFIG_NOTIFICACOES.emailJsPublicKey === "SUA_PUBLIC_KEY_AQUI" ||
+    typeof emailjs === "undefined"
+  ) {
+    console.error("EmailJS não está configurado para receber feedback.");
+    status.innerText = t.feedbackUnavailable;
+    return;
+  }
+
+  const mensagemEmail = `NOVO FEEDBACK (MozBookStore)\n\nNome: ${nome || "Anónimo"}\nEmail: ${email || "Não fornecido"}\n\nSugestão:\n${mensagem}`;
+  status.innerText = t.feedbackSending;
+  submitButton.disabled = true;
+
+  emailjs
+    .send(
+      CONFIG_NOTIFICACOES.emailJsServiceId,
+      CONFIG_NOTIFICACOES.emailJsTemplateId,
+      {
+        cliente_nome: nome || "Utilizador anónimo",
+        cliente_email: email,
+        livro_titulo: "Feedback do utilizador",
+        referencia: "Sugestão para melhorias",
+        metodo: "Feedback do site",
+        tipo_notificacao: "Feedback / Sugestão",
+        solicitante_contacto: email || nome || "Anónimo",
+        detalhes_pedido: mensagem,
+        mensagem: mensagemEmail,
+      },
+    )
+    .then(() => {
+      status.innerText = t.feedbackSuccess;
+      form.reset();
+    })
+    .catch((error) => {
+      console.error("Erro EmailJS ao enviar feedback:", error);
+      status.innerText = t.feedbackError;
+    })
+    .finally(() => {
+      submitButton.disabled = false;
     });
 }
 

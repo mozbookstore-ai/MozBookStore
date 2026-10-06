@@ -53,6 +53,46 @@ body {
   text-decoration: underline;
 }
 
+.top-bar-socials {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.top-bar-socials span {
+  color: #e2e8f0;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.top-bar-socials a {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid rgba(186, 230, 253, 0.55);
+  border-radius: 50%;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.top-bar-socials a:hover {
+  background: #e0f2fe;
+  border-color: #e0f2fe;
+  color: #172554;
+  text-decoration: none;
+}
+
+.social-icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
 .top-bar-actions {
   display: flex;
   align-items: center;
@@ -213,11 +253,55 @@ body {
   font-size: 1rem;
 }
 
+.hero-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.hero-actions a {
+  padding: 11px 18px;
+  border: 1px solid #bae6fd;
+  border-radius: 999px;
+  color: #e0f2fe;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.hero-actions a:hover {
+  background: #e0f2fe;
+  color: #172554;
+  transform: translateY(-1px);
+}
+
+.hero-actions .hero-action-primary {
+  border-color: #38bdf8;
+  background: #0284c7;
+  color: #fff;
+}
+
+.hero-actions .hero-action-primary:hover {
+  background: #0369a1;
+  color: #fff;
+}
+
+.hero-actions a:focus-visible {
+  outline-color: #fff;
+}
+
 /* Secção Pedir Livro */
 .request-book-section {
   background: #eff6ff;
   color: var(--text-main);
   padding: 36px 20px;
+  scroll-margin-top: 100px;
 }
 
 .request-container {
@@ -288,6 +372,82 @@ body {
 
 .status-pedido {
   margin-top: 15px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* Secção de Feedback */
+.feedback-section {
+  padding: 36px 20px;
+  background: #f8fafc;
+  scroll-margin-top: 100px;
+}
+
+.feedback-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: clamp(22px, 4vw, 34px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.feedback-container h2,
+.feedback-container > p {
+  text-align: center;
+}
+
+.feedback-container h2 {
+  margin-bottom: 8px;
+  color: var(--dark);
+  font-size: clamp(1.25rem, 3vw, 1.65rem);
+}
+
+.feedback-container > p {
+  margin-bottom: 20px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+#formFeedback {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+#formFeedback input,
+#formFeedback textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  background: #fff;
+}
+
+#formFeedback textarea {
+  grid-column: 1 / -1;
+  resize: vertical;
+}
+
+#formFeedback input:focus,
+#formFeedback textarea:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.11);
+}
+
+#formFeedback button {
+  grid-column: 1 / -1;
+}
+
+.feedback-status {
+  min-height: 1.55em;
+  margin: 12px 0 0 !important;
+  text-align: center;
   font-weight: 600;
   overflow-wrap: anywhere;
 }
@@ -923,11 +1083,13 @@ footer {
 }
 
 .footer-socials a {
-  padding: 6px 14px;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
   border: 1px solid rgba(186, 230, 253, 0.55);
-  border-radius: 999px;
+  border-radius: 50%;
   color: #bae6fd;
-  font-size: 0.8rem;
   text-decoration: none;
   transition:
     background-color 0.2s ease,
@@ -968,6 +1130,15 @@ footer {
 
   .hero-content h1 {
     font-size: clamp(1.6rem, 5vw, 2rem);
+  }
+
+  .hero-actions {
+    gap: 9px;
+  }
+
+  .hero-actions a {
+    padding: 10px 14px;
+    font-size: 0.82rem;
   }
 
   .categories-nav {
@@ -1043,6 +1214,24 @@ footer {
   }
 
   .request-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .feedback-section {
+    padding: 22px 14px;
+  }
+
+  .feedback-container {
+    padding: 22px 16px;
+    border-radius: 16px;
+  }
+
+  .request-book-section,
+  .feedback-section {
+    scroll-margin-top: 20px;
+  }
+
+  #formFeedback {
     grid-template-columns: minmax(0, 1fr);
   }
 

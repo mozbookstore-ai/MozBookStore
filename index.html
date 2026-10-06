@@ -48,6 +48,60 @@
             >+27 63 643 7259</a
           >
         </span>
+        <nav class="top-bar-socials" aria-label="Redes sociais da MozBookStore">
+          <span id="topBarSocialTitle">Siga-nos para atualizações:</span>
+          <a
+            href="https://www.instagram.com/mozbookstore_?stkn=eWp0NHVuMXJkNzRw&amp;utm_source=qr"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram MozBookStore"
+          >
+            <svg
+              class="social-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <rect
+                x="3"
+                y="3"
+                width="18"
+                height="18"
+                rx="5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <circle
+                cx="12"
+                cy="12"
+                r="4"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <circle cx="17.5" cy="6.5" r="1.25" fill="currentColor" />
+            </svg>
+          </a>
+          <a
+            href="https://www.facebook.com/share/1EjEcr8PCt/?mibextid=wwXIfr"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook MozBookStore"
+          >
+            <svg
+              class="social-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                fill="currentColor"
+                d="M13.5 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.1H7.3V13h2.8v8h3.4Z"
+              />
+            </svg>
+          </a>
+        </nav>
         <!-- Grupo de botões com a dica de idioma -->
         <div class="top-bar-actions">
           <span
@@ -133,45 +187,14 @@
           adicionamo-lo! Pagamento via M-Pesa, e-Mola ou banco/cartão
           sul-africano.
         </p>
-      </div>
-    </section>
-
-    <!-- Secção: Pedir um Livro -->
-    <section class="request-book-section">
-      <div class="request-container">
-        <h2 id="txtPedirTitulo">
-          📑 Não encontrou o livro que procura? Peça-o e nós adicionamos!
-        </h2>
-        <p id="txtPedirSub">
-          Envie os detalhes do material pretendido. A nossa equipa recebe o
-          pedido de imediato.
-        </p>
-
-        <form id="formPedirLivro" onsubmit="enviarPedidoLivro(event)">
-          <div class="request-grid">
-            <input
-              type="text"
-              id="reqTitulo"
-              placeholder="Nome do livro ou exame *"
-              required
-            />
-            <input
-              type="text"
-              id="reqAutor"
-              placeholder="Autor / Categoria (Opcional)"
-            />
-            <input
-              type="text"
-              id="reqContacto"
-              placeholder="O seu nome e contacto (WhatsApp/email) *"
-              required
-            />
-            <button type="submit" id="txtBtnPedir" class="btn-request">
-              🚀 Pedir e Notificar a Equipa
-            </button>
-          </div>
-        </form>
-        <div id="statusPedido" class="status-pedido"></div>
+        <div class="hero-actions">
+          <a class="hero-action-primary" href="#requestBookSection" id="btnIrPedido">
+            📚 Pedir um livro
+          </a>
+          <a class="hero-action-secondary" href="#feedbackSection" id="btnIrFeedback">
+            💡 Enviar feedback
+          </a>
+        </div>
       </div>
     </section>
 
@@ -530,6 +553,96 @@
       </div>
     </div>
 
+    <!-- Secção: Pedir um Livro -->
+    <section
+      class="request-book-section"
+      id="requestBookSection"
+      aria-labelledby="txtPedirTitulo"
+    >
+      <div class="request-container">
+        <h2 id="txtPedirTitulo">
+          📑 Não encontrou o livro que procura? Peça-o e nós adicionamos!
+        </h2>
+        <p id="txtPedirSub">
+          Envie os detalhes do material pretendido. A nossa equipa recebe o
+          pedido de imediato.
+        </p>
+
+        <form id="formPedirLivro" onsubmit="enviarPedidoLivro(event)">
+          <div class="request-grid">
+            <input
+              type="text"
+              id="reqTitulo"
+              placeholder="Nome do livro ou exame *"
+              required
+            />
+            <input
+              type="text"
+              id="reqAutor"
+              placeholder="Autor / Categoria (Opcional)"
+            />
+            <input
+              type="text"
+              id="reqContacto"
+              placeholder="O seu nome e contacto (WhatsApp/email) *"
+              required
+            />
+            <button type="submit" id="txtBtnPedir" class="btn-request">
+              🚀 Pedir e Notificar a Equipa
+            </button>
+          </div>
+        </form>
+        <div id="statusPedido" class="status-pedido"></div>
+      </div>
+    </section>
+
+    <!-- Secção: Feedback dos Utilizadores -->
+    <section
+      class="feedback-section"
+      id="feedbackSection"
+      aria-labelledby="feedbackTitle"
+    >
+      <div class="feedback-container">
+        <h2 id="feedbackTitle">💡 Ajude-nos a melhorar</h2>
+        <p id="feedbackDescription">
+          Partilhe sugestões ou ideias para futuras melhorias da MozBookStore.
+        </p>
+        <form id="formFeedback" onsubmit="enviarFeedback(event)">
+          <input
+            type="text"
+            id="feedbackName"
+            maxlength="100"
+            placeholder="O seu nome (opcional)"
+            aria-label="O seu nome (opcional)"
+          />
+          <input
+            type="email"
+            id="feedbackEmail"
+            maxlength="254"
+            placeholder="O seu email (opcional)"
+            aria-label="O seu email (opcional)"
+          />
+          <textarea
+            id="feedbackMessage"
+            rows="4"
+            maxlength="2000"
+            placeholder="Que melhoria gostaria de ver? *"
+            aria-label="Que melhoria gostaria de ver?"
+            required
+          ></textarea>
+          <button type="submit" id="feedbackSubmit" class="btn-request">
+            Enviar feedback
+          </button>
+        </form>
+        <p
+          id="feedbackStatus"
+          class="feedback-status"
+          role="status"
+          aria-live="polite"
+        ></p>
+      </div>
+    </section>
+
     <!-- Rodapé -->
     <footer>
       <p id="footerCopy">
@@ -545,15 +658,52 @@
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Instagram MozBookStore"
-          >Instagram</a
         >
+          <svg
+            class="social-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <rect
+              x="3"
+              y="3"
+              width="18"
+              height="18"
+              rx="5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+            <circle
+              cx="12"
+              cy="12"
+              r="4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+            <circle cx="17.5" cy="6.5" r="1.25" fill="currentColor" />
+          </svg>
+        </a>
         <a
           href="https://www.facebook.com/share/1EjEcr8PCt/?mibextid=wwXIfr"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Facebook MozBookStore"
-          >Facebook</a
         >
+          <svg
+            class="social-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              fill="currentColor"
+              d="M13.5 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.1H7.3V13h2.8v8h3.4Z"
+            />
+          </svg>
+        </a>
       </div>
     </footer>
 
