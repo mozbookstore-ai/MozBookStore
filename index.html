@@ -49,24 +49,17 @@
           >
         </span>
         <!-- Grupo de botões com a dica de idioma -->
-        <div style="display: flex; gap: 12px; align-items: center">
+        <div class="top-bar-actions">
           <span
             id="txtIdiomaLabel"
-            style="
-              font-size: 0.8rem;
-              color: #94a3b8;
-              display: flex;
-              align-items: center;
-              gap: 4px;
-            "
+            class="language-label"
           >
             🌐 Mudar idioma:
           </span>
           <button
             id="btnTraduzir"
-            class="btn-login-trigger"
+            class="btn-login-trigger btn-language"
             onclick="alternarIdioma()"
-            style="border-color: #38bdf8; color: #38bdf8"
           >
             🇿🇦 English (SA)
           </button>
@@ -111,7 +104,7 @@
         <div class="logo">
           <h2>MozBook<span>Store</span> 📚</h2>
         </div>
-        <div class="search-bar" style="position: relative">
+        <div class="search-bar">
           <input
             type="text"
             id="searchInput"
@@ -126,20 +119,6 @@
           <div
             id="searchSuggestions"
             class="suggestions-box"
-            style="
-              display: none;
-              position: absolute;
-              top: 100%;
-              left: 0;
-              right: 0;
-              background: white;
-              border: 1px solid #cbd5e1;
-              border-radius: 0 0 12px 12px;
-              box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.1);
-              z-index: 1000;
-              max-height: 220px;
-              overflow-y: auto;
-            "
           ></div>
         </div>
       </div>
@@ -371,14 +350,7 @@
           <button
             type="submit"
             id="btnConfirmar"
-            class="btn-primary btn-success"
-            style="
-              background: #25d366;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              gap: 8px;
-            "
+            class="btn-primary btn-success btn-whatsapp"
           >
             📱 Confirmar e enviar pelo WhatsApp
           </button>
@@ -392,103 +364,41 @@
     </div>
 
     <!-- Modal de Preview / Introdução -->
-    <div id="previewModal" class="modal" style="display: none">
-      <div
-        class="modal-content"
-        style="max-width: 500px; padding: 24px; position: relative"
-      >
-        <span
-          onclick="fecharModalPreview()"
-          class="close-btn"
-          style="
-            position: absolute;
-            top: 12px;
-            right: 16px;
-            cursor: pointer;
-            font-size: 1.5rem;
-          "
+    <div id="previewModal" class="modal">
+      <div class="modal-content preview-content">
+        <span onclick="fecharModalPreview()" class="close-btn preview-close"
           >&times;</span
         >
 
-        <h2 id="previewTitulo" style="margin-top: 0; color: #1e293b">
+        <h2 id="previewTitulo" class="preview-title">
           Título do livro
         </h2>
-        <p
-          id="previewAutor"
-          style="
-            font-size: 0.9rem;
-            color: #64748b;
-            margin-top: -8px;
-            margin-bottom: 16px;
-          "
-        ></p>
+        <p id="previewAutor" class="preview-author"></p>
 
-        <div
-          style="
-            background: #f8fafc;
-            border-left: 4px solid #2563eb;
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            border-radius: 0 8px 8px 0;
-          "
-        >
-          <h4 id="txtSinopse" style="margin: 0 0 8px 0; color: #1e293b">
+        <div class="preview-synopsis">
+          <h4 id="txtSinopse">
             📌 Introdução / Sinopse
           </h4>
-          <p
-            id="previewTexto"
-            style="
-              font-size: 0.95rem;
-              color: #334155;
-              line-height: 1.6;
-              margin: 0;
-            "
-          ></p>
+          <p id="previewTexto" class="preview-text"></p>
         </div>
 
-        <p
-          id="txtAvisoPDF"
-          style="
-            font-size: 0.85rem;
-            color: #059669;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 16px;
-          "
-        >
+        <p id="txtAvisoPDF" class="preview-notice">
           🔒 Para ler a obra completa em PDF, efectue o pagamento via M-Pesa,
           e-Mola ou cartão sul-africano.
         </p>
 
-        <div style="display: flex; gap: 10px">
+        <div class="preview-actions">
           <button
             onclick="fecharModalPreview()"
             id="btnFecharModal"
-            style="
-              flex: 1;
-              padding: 10px;
-              background: #e2e8f0;
-              border: none;
-              border-radius: 6px;
-              cursor: pointer;
-              font-weight: 600;
-            "
+            class="btn-preview-close"
           >
             Fechar
           </button>
           <button
             onclick="irParaCheckoutDoPreview()"
             id="btnComprarModal"
-            style="
-              flex: 1.5;
-              padding: 10px;
-              background: #2563eb;
-              color: #fff;
-              border: none;
-              border-radius: 6px;
-              cursor: pointer;
-              font-weight: 600;
-            "
+            class="btn-preview-buy"
           >
             💳 Comprar agora
           </button>

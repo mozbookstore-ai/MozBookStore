@@ -60,7 +60,7 @@ let catalogOrderWarning = false;
 // --- DICIONÁRIO DE TRADUÇÕES (PT / en-ZA) ---
 const traducoes = {
   pt: {
-    idiomaLabel: "🌐 Mudar idioma:",
+    idiomaLabel: "🌐 Change language / Mudar idioma:",
     btnLogin: "🔑 Entrar / Registar",
     btnBiblioteca: "📚 Minha Biblioteca",
     btnAdmin: "⚙️ Administração",
@@ -160,7 +160,7 @@ const traducoes = {
     footerCopy: "&copy; 2026 MozBookStore - Todos os direitos reservados.",
   },
   "en-ZA": {
-    idiomaLabel: "🌐 Change language:",
+    idiomaLabel: "🌐 Mudar idioma / Change language:",
     btnLogin: "🔑 Sign In / Register",
     btnBiblioteca: "📚 My Library",
     btnAdmin: "⚙️ Administration",
