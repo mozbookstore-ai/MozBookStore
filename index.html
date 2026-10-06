@@ -34,17 +34,17 @@
     <!-- Barra de Contacto Superior -->
     <div class="top-bar">
       <div class="top-bar-container">
-        <span>
-          💬 WhatsApp:
-          <a href="https://wa.me/258867568918" target="_blank"
+        <span class="top-bar-contact">
+          <span class="wa-pill">💬 WhatsApp</span>
+          <a class="wa-link" href="https://wa.me/258867568918" target="_blank"
             >+258 86 756 8918</a
           >
           /
-          <a href="https://wa.me/258820109316" target="_blank"
+          <a class="wa-link" href="https://wa.me/258820109316" target="_blank"
             >+258 82 010 9316</a
           >
           /
-          <a href="https://wa.me/27636437259" target="_blank"
+          <a class="wa-link" href="https://wa.me/27636437259" target="_blank"
             >+27 63 643 7259</a
           >
         </span>
@@ -642,6 +642,40 @@
         ></p>
       </div>
     </section>
+
+    <button id="quizTrigger" class="quiz-trigger" type="button">
+      🧠 Fazer quiz
+    </button>
+
+    <div id="quizModal" class="modal" aria-hidden="true">
+      <div class="modal-content quiz-modal-content">
+        <button type="button" class="close-btn" data-close-quiz aria-label="Fechar quiz">×</button>
+
+        <div class="quiz-header">
+          <p class="quiz-kicker">🧠 Interactividade</p>
+          <h2 id="quizTitle">Descobre o teu perfil de leitor</h2>
+        </div>
+
+        <div class="quiz-card">
+          <div id="quizQuestion" class="quiz-question">
+            Qual das opções descreve melhor a tua forma de aprender?
+          </div>
+
+          <div id="quizOptions" class="quiz-options" aria-live="polite"></div>
+
+          <div class="quiz-actions">
+            <button type="button" id="quizPrev" class="btn-quiz btn-quiz-secondary" hidden>
+              Anterior
+            </button>
+            <button type="button" id="quizNext" class="btn-quiz btn-quiz-primary">
+              Próxima
+            </button>
+          </div>
+
+          <div id="quizResult" class="quiz-result" hidden></div>
+        </div>
+      </div>
+    </div>
 
     <!-- Rodapé -->
     <footer>

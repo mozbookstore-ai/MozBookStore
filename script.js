@@ -1058,7 +1058,7 @@ function abrirWhatsAppComFallback(urlWa, statusElement, mensagemFallback) {
   const janelaWhatsApp = window.open(urlWa, "_blank");
 
   if (janelaWhatsApp === null) {
-    statusElement.innerHTML = `${mensagemFallback} <a href="${urlWa}" target="_blank" rel="noopener">Abrir WhatsApp</a>`;
+    statusElement.innerHTML = `${mensagemFallback} <a href="${urlWa}" target="_blank" rel="noopener">💬 Abrir no WhatsApp</a>`;
     return false;
   }
 
@@ -1102,7 +1102,7 @@ function enviarPedidoLivro(event) {
       (idiomaAtual === "pt"
         ? "⚠️ O navegador bloqueou a janela do WhatsApp. "
         : "⚠️ Your browser blocked the WhatsApp tab. ") +
-      `<a href="${urlWa}" target="_blank" rel="noopener">${idiomaAtual === "pt" ? "Abrir WhatsApp" : "Open WhatsApp"}</a>`;
+      `<a href="${urlWa}" target="_blank" rel="noopener">${idiomaAtual === "pt" ? "💬 Abrir no WhatsApp" : "💬 Open in WhatsApp"}</a>`;
   }
 
   emailjs
@@ -1173,7 +1173,7 @@ function enviarFeedback(event) {
     status.innerHTML =
       janelaWhatsApp !== null
         ? `${t.feedbackUnavailable} ${idiomaAtual === "pt" ? "O WhatsApp também foi aberto para confirmação." : "WhatsApp was also opened for confirmation."}`
-        : `${t.feedbackUnavailable} <a href="${urlWhatsApp}" target="_blank" rel="noopener">${idiomaAtual === "pt" ? "Abrir WhatsApp" : "Open WhatsApp"}</a>`;
+        : `${t.feedbackUnavailable} <a href="${urlWhatsApp}" target="_blank" rel="noopener">${idiomaAtual === "pt" ? "💬 Abrir no WhatsApp" : "💬 Open in WhatsApp"}</a>`;
     return;
   }
 
@@ -1203,8 +1203,8 @@ function enviarFeedback(event) {
       const avisoWhatsApp =
         janelaWhatsApp === null
           ? idiomaAtual === "pt"
-            ? ` <a href="${urlWhatsApp}" target="_blank" rel="noopener">Abrir WhatsApp</a> e confirmar o envio.`
-            : ` <a href="${urlWhatsApp}" target="_blank" rel="noopener">Open WhatsApp</a> and confirm sending.`
+            ? ` <a href="${urlWhatsApp}" target="_blank" rel="noopener">💬 Abrir no WhatsApp</a> e confirmar o envio.`
+            : ` <a href="${urlWhatsApp}" target="_blank" rel="noopener">💬 Open in WhatsApp</a> and confirm sending.`
           : idiomaAtual === "pt"
             ? " O WhatsApp foi aberto; confirme o envio da mensagem."
             : " WhatsApp was opened; confirm sending the message.";
@@ -1220,7 +1220,7 @@ function enviarFeedback(event) {
       status.innerHTML =
         janelaWhatsApp !== null
           ? `${t.feedbackError} ${idiomaAtual === "pt" ? "O WhatsApp foi aberto para confirmação." : "WhatsApp was opened for confirmation."}`
-          : `${t.feedbackError} <a href="${urlWhatsApp}" target="_blank" rel="noopener">${idiomaAtual === "pt" ? "Abrir WhatsApp" : "Open WhatsApp"}</a>`;
+          : `${t.feedbackError} <a href="${urlWhatsApp}" target="_blank" rel="noopener">${idiomaAtual === "pt" ? "💬 Abrir no WhatsApp" : "💬 Open in WhatsApp"}</a>`;
     })
     .finally(() => {
       submitButton.disabled = false;
@@ -1803,6 +1803,212 @@ async function reverEncomenda(id, estado) {
   status.innerText = traducoes[idiomaAtual].orderSaved;
   status.className = "account-status success";
   await carregarEncomendasAdmin();
+}
+
+const quizPerguntas = [
+  {
+    pergunta: "Qual das opções descreve melhor a tua forma de aprender?",
+    opcoes: [
+      { texto: "Gosto de aprender com passos claros e objetivos simples.", valor: "pratico" },
+      { texto: "Prefiro descobrir ideias novas e explorar temas interessantes.", valor: "curioso" },
+      { texto: "Adoro ensinar-me a mim mesmo e aplicar o que aprendo rapidamente.", valor: "estrategico" },
+    ],
+  },
+  {
+    pergunta: "Quando escolhes um livro ou guia, o que mais te atrai?",
+    opcoes: [
+      { texto: "Conteúdos práticos, receitas, exercícios e exemplos do dia a dia.", valor: "pratico" },
+      { texto: "Histórias, curiosidades e temas que abram a minha mente.", valor: "curioso" },
+      { texto: "Estruturas bem organizadas e metas que me ajudem a evoluir.", valor: "estrategico" },
+    ],
+  },
+  {
+    pergunta: "Como reagiste ao fim de uma leitura?",
+    opcoes: [
+      { texto: "Vou já aplicar algo no meu dia a dia.", valor: "pratico" },
+      { texto: "Procuro mais conteúdos semelhantes para continuar a explorar.", valor: "curioso" },
+      { texto: "Faço um plano para evoluir passo a passo.", valor: "estrategico" },
+    ],
+  },
+];
+
+const quizResultadoPorPerfil = {
+  pratico: {
+    titulo: "Perfil: Leitor Prático",
+    descricao:
+      "Gostas de conteúdos úteis, diretos e fáceis de pôr em prática. O melhor para ti é começar por guias que te ajudam a evoluir com ação imediata.",
+    recomendacao: "Culinária para Iniciantes ou Natação para Iniciantes",
+  },
+  curioso: {
+    titulo: "Perfil: Leitor Curioso",
+    descricao:
+      "A tua mente gosta de aprender, explorar e descobrir novos temas. Vais apreciar materiais que expandem o teu conhecimento e te inspiram a seguir.",
+    recomendacao: "Calistenia para Iniciantes ou Ciclismo para Iniciantes",
+  },
+  estrategico: {
+    titulo: "Perfil: Leitor Estratégico",
+    descricao:
+      "Buscas organização, progresso e um caminho claro para evoluir. A melhor escolha para ti é um guia bem estruturado e com foco em resultados.",
+    recomendacao: "Futebol para Iniciantes ou Musculação para Iniciantes",
+  },
+};
+
+const quizEstado = {
+  index: 0,
+  respostas: {},
+};
+
+function abrirQuizModal() {
+  const quizModal = document.getElementById("quizModal");
+  if (!quizModal) return;
+  quizModal.style.display = "flex";
+  quizModal.setAttribute("aria-hidden", "false");
+}
+
+function fecharQuizModal() {
+  const quizModal = document.getElementById("quizModal");
+  if (!quizModal) return;
+  quizModal.style.display = "none";
+  quizModal.setAttribute("aria-hidden", "true");
+  try {
+    localStorage.setItem("mozbookstoreQuizDismissed", "true");
+  } catch (error) {
+    console.warn("Não foi possível guardar a preferência do quiz:", error);
+  }
+}
+
+function renderizarQuiz() {
+  const perguntaAtual = quizPerguntas[quizEstado.index];
+  const perguntaEl = document.getElementById("quizQuestion");
+  const opcoesEl = document.getElementById("quizOptions");
+  const anteriorBtn = document.getElementById("quizPrev");
+  const proximaBtn = document.getElementById("quizNext");
+  const resultadoEl = document.getElementById("quizResult");
+
+  if (!perguntaAtual) return;
+
+  perguntaEl.textContent = perguntaAtual.pergunta;
+  opcoesEl.innerHTML = "";
+
+  perguntaAtual.opcoes.forEach((opcao) => {
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "quiz-option";
+    botao.textContent = opcao.texto;
+
+    if (quizEstado.respostas[quizEstado.index] === opcao.valor) {
+      botao.classList.add("selected");
+    }
+
+    botao.addEventListener("click", () => {
+      quizEstado.respostas[quizEstado.index] = opcao.valor;
+      renderizarQuiz();
+    });
+
+    opcoesEl.appendChild(botao);
+  });
+
+  const ultimaPergunta = quizEstado.index === quizPerguntas.length - 1;
+  anteriorBtn.hidden = quizEstado.index === 0;
+  proximaBtn.textContent = ultimaPergunta ? "Ver resultado" : "Próxima";
+  resultadoEl.hidden = true;
+}
+
+function concluirQuiz() {
+  const respostas = Object.values(quizEstado.respostas);
+  if (respostas.length < quizPerguntas.length) {
+    document.getElementById("quizResult").hidden = false;
+    document.getElementById("quizResult").innerHTML =
+      "<strong>Falta só uma resposta!</strong> Escolhe uma opção em cada pergunta para ver o teu perfil.";
+    return;
+  }
+
+  const contagem = { pratico: 0, curioso: 0, estrategico: 0 };
+  respostas.forEach((valor) => {
+    if (valor in contagem) {
+      contagem[valor] += 1;
+    }
+  });
+
+  const perfil = Object.entries(contagem).sort((a, b) => b[1] - a[1])[0][0];
+  const resultado = quizResultadoPorPerfil[perfil];
+  const resultadoEl = document.getElementById("quizResult");
+  resultadoEl.hidden = false;
+  resultadoEl.innerHTML = `
+    <strong>${resultado.titulo}</strong><br>
+    ${resultado.descricao}<br>
+    <strong>Sugestão:</strong> ${resultado.recomendacao}
+  `;
+
+  document.getElementById("quizNext").textContent = "Reiniciar quiz";
+}
+
+function reiniciarQuiz() {
+  quizEstado.index = 0;
+  quizEstado.respostas = {};
+  document.getElementById("quizNext").textContent = "Próxima";
+  document.getElementById("quizResult").hidden = true;
+  renderizarQuiz();
+}
+
+function inicializarQuiz() {
+  const proximaBtn = document.getElementById("quizNext");
+  const anteriorBtn = document.getElementById("quizPrev");
+  const quizModal = document.getElementById("quizModal");
+  const fecharQuizBtn = document.querySelector("[data-close-quiz]");
+  const quizTrigger = document.getElementById("quizTrigger");
+
+  if (!proximaBtn || !anteriorBtn || !quizModal) return;
+
+  quizTrigger?.addEventListener("click", () => {
+    reiniciarQuiz();
+    abrirQuizModal();
+  });
+
+  proximaBtn.addEventListener("click", () => {
+    if (quizEstado.index < quizPerguntas.length - 1) {
+      if (!(quizEstado.index in quizEstado.respostas)) {
+        document.getElementById("quizResult").hidden = false;
+        document.getElementById("quizResult").innerHTML =
+          "<strong>Falta uma resposta!</strong> Escolhe uma opção antes de continuar.";
+        return;
+      }
+      quizEstado.index += 1;
+      document.getElementById("quizResult").hidden = true;
+      renderizarQuiz();
+      return;
+    }
+
+    if (document.getElementById("quizNext").textContent === "Reiniciar quiz") {
+      reiniciarQuiz();
+      return;
+    }
+
+    concluirQuiz();
+  });
+
+  anteriorBtn.addEventListener("click", () => {
+    if (quizEstado.index > 0) {
+      quizEstado.index -= 1;
+      document.getElementById("quizResult").hidden = true;
+      renderizarQuiz();
+    }
+  });
+
+  fecharQuizBtn?.addEventListener("click", fecharQuizModal);
+  quizModal.addEventListener("click", (evento) => {
+    if (evento.target === quizModal) {
+      fecharQuizModal();
+    }
+  });
+
+  renderizarQuiz();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", inicializarQuiz);
+} else {
+  inicializarQuiz();
 }
 
 function voltarAoCatalogo() {
