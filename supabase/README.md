@@ -5,8 +5,14 @@ privados dependem de um projecto Supabase. Não publique a aplicação até conc
 estes passos:
 
 1. Crie um projecto no Supabase e abra o **SQL Editor**.
-2. Execute todo o conteúdo de `setup.sql`. O script cria os perfis, produtos,
-   encomendas, políticas RLS e o bucket privado `ebooks-private`.
+2. Execute todo o conteúdo de `setup.sql`. O script cria/actualiza os perfis,
+   produtos (incluindo `price_mzn`), encomendas, políticas RLS e o bucket
+   privado `ebooks-private`. Na tabela `products` existente, o script migra
+   `titulo` para `title` quando necessário, adiciona `price_mzn` e tenta
+   recuperar preços de colunas antigas `preco`, `preco_mzn` ou `price`.
+   Se não conseguir identificar um preço, indica os IDs e títulos que precisam
+   de correcção antes de continuar. O trigger de encomendas também lê título
+   como `title` ou `titulo` e valida `price_mzn`.
 3. A ligação para o projecto actual está configurada em `../script.js`. Se
    mudares de projecto, actualiza `CONFIG_SUPABASE.url` e
    `CONFIG_SUPABASE.anonKey` com o **Project URL** e a chave publicável
@@ -50,7 +56,8 @@ estes passos:
 - Moçambique apresenta M-Pesa e e-Mola em MZN. África do Sul/outros países
   apresenta transferência bancária em ZAR.
 - A referência submetida cria uma encomenda pendente. O preço e a moeda são
-  calculados no banco de dados, não aceites do navegador.
+  calculados no banco de dados a partir de `products.price_mzn`, não aceites do
+  navegador.
 - O catálogo segue a ordem numérica dos IDs (1–13), não a ordem alfabética.
 - `mozbookstore@gmail.com` vê as encomendas no botão **Administração** e pode
   aprovar ou rejeitar. A aprovação concede acesso ao PDF privado.

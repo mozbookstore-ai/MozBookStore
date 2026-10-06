@@ -17,8 +17,121 @@ create table if not exists public.products (
   pdf_path text not null
 );
 
+do $$
+begin
+  if not exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'products'
+      and column_name = 'title'
+  ) then
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'products'
+        and column_name = 'titulo'
+    ) then
+      alter table public.products rename column titulo to title;
+    else
+      alter table public.products add column title text;
+    end if;
+  elsif exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'products'
+      and column_name = 'titulo'
+  ) then
+    execute format(
+      'update public.products set title = titulo where title is null or btrim(title) = %L',
+      ''
+    );
+  end if;
+
+  if exists (
+    select 1
+    from public.products
+    where title is null or btrim(title) = ''
+  ) then
+    raise exception 'Every product needs a title. Populate title or titulo before running setup.sql.';
+  end if;
+end;
+$$;
+
+alter table public.products
+  alter column title set not null;
+
 alter table public.products
   add column if not exists pdf_path text;
+
+alter table public.products
+  add column if not exists price_mzn numeric(10, 2);
+
+update public.products
+set price_mzn = case lower(btrim(title))
+  when 'calistenia para iniciantes' then 280
+  when 'ciclismo para iniciantes' then 280
+  when 'corrida para iniciantes' then 250
+  when 'crossfit para iniciantes' then 300
+  when 'culinária para iniciantes' then 250
+  when 'culinaria para iniciantes' then 250
+  when 'escalada para iniciantes' then 300
+  when 'futebol para iniciantes' then 250
+  when 'ginástica para iniciante' then 270
+  when 'ginástica para iniciantes' then 270
+  when 'ginastica para iniciante' then 270
+  when 'ginastica para iniciantes' then 270
+  when 'musculação para iniciantes' then 300
+  when 'musculacao para iniciantes' then 300
+  when 'natação para iniciantes' then 250
+  when 'natacao para iniciantes' then 250
+  when 'patinagem no gelo para iniciantes' then 300
+  when 'queda de braço para iniciantes' then 220
+  when 'queda de braco para iniciantes' then 220
+  when 'skate para iniciantes' then 320
+  else price_mzn
+end;
+
+update public.products as product
+set price_mzn = nullif(
+  regexp_replace(
+    coalesce(
+      nullif(to_jsonb(product) ->> 'preco', ''),
+      nullif(to_jsonb(product) ->> 'preco_mzn', ''),
+      nullif(to_jsonb(product) ->> 'price', '')
+    ),
+    '[^0-9.]',
+    '',
+    'g'
+  ),
+  ''
+)::numeric
+where product.price_mzn is null;
+
+do $$
+declare
+  products_without_price text;
+begin
+  select string_agg(
+    format('ID %s (%s)', id, coalesce(title, 'sem título')),
+    ', ' order by id
+  )
+  into products_without_price
+  from public.products
+  where price_mzn is null or price_mzn <= 0;
+
+  if products_without_price is not null then
+    raise exception
+      'Não foi possível determinar um price_mzn positivo para: %. Corrija o título ou preencha a coluna preco/preco_mzn/price.',
+      products_without_price;
+  end if;
+end;
+$$;
+
+alter table public.products
+  alter column price_mzn set not null;
 
 create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
@@ -198,13 +311,15 @@ security invoker
 set search_path = public
 as $$
 declare
-  product_row public.products%rowtype;
+  product_data jsonb;
+  product_title text;
+  product_price_mzn numeric;
 begin
   if new.user_id <> (select auth.uid()) then
     raise exception 'An order can only be created for the signed-in user.';
   end if;
 
-  select * into product_row
+  select to_jsonb(products) into product_data
   from public.products
   where id = new.product_id;
 
@@ -212,23 +327,51 @@ begin
     raise exception 'The selected product does not exist.';
   end if;
 
+  product_title := coalesce(
+    nullif(product_data ->> 'title', ''),
+    nullif(product_data ->> 'titulo', '')
+  );
+  product_price_mzn := coalesce(
+    nullif(product_data ->> 'price_mzn', '')::numeric,
+    nullif(
+      regexp_replace(
+        coalesce(
+          nullif(product_data ->> 'preco_mzn', ''),
+          nullif(product_data ->> 'preco', ''),
+          nullif(product_data ->> 'price', '')
+        ),
+        '[^0-9.]',
+        '',
+        'g'
+      ),
+      ''
+    )::numeric
+  );
+
+  if product_title is null then
+    raise exception 'The product % has no title (title/titulo).', new.product_id;
+  end if;
+  if product_price_mzn is null or product_price_mzn <= 0 then
+    raise exception 'The product % has no valid price_mzn.', new.product_id;
+  end if;
+
   if new.region = 'mozambique' then
     if new.payment_method not in ('mpesa', 'emola') then
       raise exception 'Choose M-Pesa or e-Mola for Mozambique.';
     end if;
-    new.amount := product_row.price_mzn;
+    new.amount := product_price_mzn;
     new.currency := 'MZN';
   elsif new.region = 'other' then
     if new.payment_method <> 'sa_bank' then
       raise exception 'Choose bank transfer for South Africa and other countries.';
     end if;
-    new.amount := round(product_row.price_mzn / 3.5, 2);
+    new.amount := round(product_price_mzn / 3.5, 2);
     new.currency := 'ZAR';
   else
     raise exception 'The selected region is not supported.';
   end if;
 
-  new.product_title := product_row.title;
+  new.product_title := product_title;
   new.status := 'pending';
   new.reviewed_at := null;
   new.reviewed_by := null;

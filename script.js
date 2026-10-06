@@ -100,7 +100,7 @@ const traducoes = {
     passwordMismatch: "As palavras-passe não coincidem.",
     passwordResetError: "Não foi possível enviar o email de recuperação:",
     productOrderWarning:
-      "Não foi possível obter a ordem do catálogo no Supabase; a lista está ordenada pelo ID local.",
+      "Não foi possível validar os IDs e preços do catálogo no Supabase; a lista local foi mantida.",
     searchPlaceholder: "Pesquisar livros, exames, desporto, tecnologia...",
     heroTitulo: "A sua central académica e literária digital",
     heroSub:
@@ -200,7 +200,7 @@ const traducoes = {
     passwordMismatch: "The passwords do not match.",
     passwordResetError: "Could not send the recovery email:",
     productOrderWarning:
-      "Could not retrieve the catalogue order from Supabase; displaying local ID order.",
+      "Could not validate catalogue IDs and prices from Supabase; keeping the local catalogue.",
     searchPlaceholder: "Search for books, exams, drama, philosophy...",
     heroTitulo: "Your Digital Academic & Literary Hub",
     heroSub:
@@ -1161,18 +1161,26 @@ async function ordenarProdutosPeloSupabase() {
   try {
     ({ data, error } = await supabaseClient
       .from("products")
-      .select("id")
+      .select("id,price_mzn")
       .order("id", { ascending: true }));
   } catch (erroConsulta) {
     error = erroConsulta;
   }
 
-  if (error || !data?.length) {
+  const produtosInvalidos = data?.some(
+    (produto) =>
+      !Number.isFinite(Number(produto.price_mzn)) ||
+      Number(produto.price_mzn) <= 0,
+  );
+  if (error || !data?.length || produtosInvalidos) {
     catalogOrderWarning = true;
     produtos.sort((a, b) => a.id - b.id);
     console.error(
-      "Não foi possível obter a ordem dos produtos no Supabase:",
-      error || "A tabela products não devolveu produtos.",
+      "Não foi possível obter IDs e preços válidos dos produtos no Supabase:",
+      error ||
+        (produtosInvalidos
+          ? "Há produtos sem um price_mzn positivo."
+          : "A tabela products não devolveu produtos."),
     );
     document.getElementById("catalogStatus").innerText =
       traducoes[idiomaAtual].productOrderWarning;
@@ -1181,6 +1189,15 @@ async function ordenarProdutosPeloSupabase() {
     return;
   }
 
+  const precosPorId = new Map(
+    data.map((produto) => [Number(produto.id), Number(produto.price_mzn)]),
+  );
+  produtos.forEach((produto) => {
+    const precoMzn = precosPorId.get(produto.id);
+    if (precoMzn !== undefined) {
+      produto.preco = `${precoMzn} MT`;
+    }
+  });
   produtos.sort((a, b) => a.id - b.id);
   catalogOrderWarning = false;
   document.getElementById("catalogStatus").innerText = "";
