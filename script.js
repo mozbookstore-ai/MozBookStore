@@ -782,23 +782,70 @@ function enviarPedidoLivro(event) {
   const contacto = document.getElementById("reqContacto").value;
   const statusDiv = document.getElementById("statusPedido");
 
+  const textoMensagem = `📚 *NOVO PEDIDO DE LIVRO (MozBookStore)*\n\n📖 *Livro/Exame:* ${titulo}\n✍ *Autor/Detalhes:* ${autor}\n👤 *Solicitante:* ${contacto}`;
+  const urlWa = `https://wa.me/${CONFIG_NOTIFICACOES.numeroWhatsAppPrincipal}?text=${encodeURIComponent(textoMensagem)}`;
+  const janelaWhatsApp = window.open(urlWa, "_blank");
+
   statusDiv.innerHTML =
     idiomaAtual === "pt"
-      ? "⏳ A registar pedido e a redirecionar para o WhatsApp..."
-      : "⏳ Registering request and redirecting to WhatsApp...";
+      ? "⏳ A enviar o pedido por email..."
+      : "⏳ Sending the request by email...";
 
-  const textoMensagem = `📚 *NOVO PEDIDO DE LIVRO (MozBookStore)*\n\n📖 *Livro/Exame:* ${titulo}\n✍ *Autor/Detalhes:* ${autor}\n👤 *Solicitante:* ${contacto}`;
-
-  setTimeout(() => {
-    const urlWa = `https://wa.me/${CONFIG_NOTIFICACOES.numeroWhatsAppPrincipal}?text=${encodeURIComponent(textoMensagem)}`;
-    window.open(urlWa, "_blank");
-
+  if (
+    CONFIG_NOTIFICACOES.emailJsPublicKey === "SUA_PUBLIC_KEY_AQUI" ||
+    typeof emailjs === "undefined"
+  ) {
+    console.error(
+      "EmailJS não está configurado para enviar pedidos de livros.",
+    );
     statusDiv.innerHTML =
       idiomaAtual === "pt"
-        ? `<span style="color: #10b981;">✅ Pedido enviado! Abrimos o WhatsApp para confirmar com a nossa equipa.</span>`
-        : `<span style="color: #10b981;">✅ Request sent! WhatsApp opened to confirm with our team.</span>`;
-    document.getElementById("formPedirLivro").reset();
-  }, 1000);
+        ? "⚠️ O WhatsApp foi aberto, mas não foi possível enviar o email. Tente novamente mais tarde."
+        : "⚠️ WhatsApp was opened, but the email could not be sent. Please try again later.";
+    return;
+  }
+
+  emailjs
+    .send(
+      CONFIG_NOTIFICACOES.emailJsServiceId,
+      CONFIG_NOTIFICACOES.emailJsTemplateId,
+      {
+        cliente_nome: "Pedido de livro pelo site",
+        cliente_email: contacto,
+        livro_titulo: titulo,
+        referencia: autor,
+        metodo: "Pedido de livro",
+        tipo_notificacao: "Pedido de livro",
+        solicitante_contacto: contacto,
+        detalhes_pedido: autor,
+        mensagem: textoMensagem,
+      },
+    )
+    .then(() => {
+      const avisoWhatsApp =
+        janelaWhatsApp === null
+          ? idiomaAtual === "pt"
+            ? ` <a href="${urlWa}" target="_blank" rel="noopener">Abrir WhatsApp</a> e confirmar o envio.`
+            : ` <a href="${urlWa}" target="_blank" rel="noopener">Open WhatsApp</a> and confirm sending.`
+          : idiomaAtual === "pt"
+            ? " O WhatsApp foi aberto; confirme o envio da mensagem."
+            : " WhatsApp was opened; confirm sending the message.";
+
+      statusDiv.innerHTML =
+        (idiomaAtual === "pt"
+          ? '<span style="color: #10b981;">✅ Pedido enviado para o email da equipa.'
+          : '<span style="color: #10b981;">✅ Request emailed to the team.') +
+        avisoWhatsApp +
+        "</span>";
+      document.getElementById("formPedirLivro").reset();
+    })
+    .catch((err) => {
+      console.error("Erro EmailJS ao enviar pedido de livro:", err);
+      statusDiv.innerHTML =
+        idiomaAtual === "pt"
+          ? "⚠️ O WhatsApp foi aberto, mas o email não foi enviado. Verifique a ligação e tente novamente."
+          : "⚠️ WhatsApp was opened, but the email was not sent. Check your connection and try again.";
+    });
 }
 
 function abrirModalLogin() {
