@@ -95,6 +95,8 @@ const traducoes = {
     btnDeleteOrder: "Apagar compra",
     orderDeleting: "A apagar a compra...",
     orderDeleteError: "Não foi possível apagar a compra.",
+    orderDeleteNoRows:
+      "A compra não foi apagada. Pode já ter sido removida ou a política de exclusão ainda não foi aplicada. Execute novamente supabase/setup.sql no SQL Editor do Supabase.",
     confirmDeleteOrder:
       "Apagar definitivamente a compra de “{book}”? O acesso ao livro será removido.",
     orderDeleted: "Compra apagada e acesso removido.",
@@ -137,8 +139,7 @@ const traducoes = {
     feedbackSuccess: "Obrigado! O seu feedback foi enviado à equipa.",
     feedbackUnavailable:
       "Não foi possível enviar o feedback agora. Tente novamente mais tarde.",
-    feedbackError:
-      "O envio falhou. Verifique a ligação e tente novamente.",
+    feedbackError: "O envio falhou. Verifique a ligação e tente novamente.",
     ultimosLivros: "🔥 Últimos livros adicionados a pedido:",
     badge1: "✅ Natação para Iniciantes",
     badge2: "✅ Treino de Força para Iniciantes",
@@ -184,7 +185,8 @@ const traducoes = {
     lblRegPass: "Palavra-passe",
     btnRegSubmit: "Criar conta",
     footerCopy: "&copy; 2026 MozBookStore - Todos os direitos reservados.",
-    footerSocialTitle: "Siga-nos nas redes sociais para ficar a par das atualizações",
+    footerSocialTitle:
+      "Siga-nos nas redes sociais para ficar a par das atualizações",
     topBarSocialTitle: "Siga-nos para atualizações:",
   },
   "en-ZA": {
@@ -222,6 +224,8 @@ const traducoes = {
     btnDeleteOrder: "Delete purchase",
     orderDeleting: "Deleting purchase...",
     orderDeleteError: "The purchase could not be deleted.",
+    orderDeleteNoRows:
+      "The purchase was not deleted. It may already be removed, or the delete policy may not have been applied. Run supabase/setup.sql again in the Supabase SQL Editor.",
     confirmDeleteOrder:
       "Permanently delete the purchase of “{book}”? Access to the book will be removed.",
     orderDeleted: "Purchase deleted and access removed.",
@@ -465,7 +469,7 @@ const produtos = [
     categoria: "desporto",
     preco: "250 MT",
     imagem:
-      "https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&q=80&w=800",
+      "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&q=80&w=800",
     tipo: "PDF / Desporto & Saúde",
     tipoEn: "PDF / Sports & Health",
     introducao:
@@ -609,8 +613,7 @@ function aplicarIdioma() {
   document
     .getElementById("feedbackEmail")
     .setAttribute("aria-label", t.feedbackEmailPh);
-  document.getElementById("feedbackMessage").placeholder =
-    t.feedbackMessagePh;
+  document.getElementById("feedbackMessage").placeholder = t.feedbackMessagePh;
   document
     .getElementById("feedbackMessage")
     .setAttribute("aria-label", t.feedbackMessagePh);
@@ -981,7 +984,9 @@ async function submeterConfirmacaoPagamento(event) {
     CONFIG_NOTIFICACOES.emailJsPublicKey === "SUA_PUBLIC_KEY_AQUI" ||
     typeof emailjs === "undefined"
   ) {
-    console.error("EmailJS não está configurado para notificar novas encomendas.");
+    console.error(
+      "EmailJS não está configurado para notificar novas encomendas.",
+    );
     mensagemEstado = t.orderNotificationFailed;
   } else {
     const nomeCliente =
@@ -1305,7 +1310,8 @@ function enviarFeedback(event) {
       status.innerHTML =
         (idiomaAtual === "pt"
           ? '<span style="color: #10b981;">✅ Feedback enviado para o email e também enviado para o WhatsApp.</span>'
-          : '<span style="color: #10b981;">✅ Feedback sent by email and also sent to WhatsApp.</span>') + avisoWhatsApp;
+          : '<span style="color: #10b981;">✅ Feedback sent by email and also sent to WhatsApp.</span>') +
+        avisoWhatsApp;
       form.reset();
     })
     .catch((error) => {
@@ -1781,7 +1787,9 @@ async function descarregarEbook(encomenda) {
 
   const caminhoPdf = CAMINHOS_PDF[pedido.product_id];
   if (!caminhoPdf) {
-    console.error(`Não existe caminho de PDF configurado para o produto ${pedido.product_id}.`);
+    console.error(
+      `Não existe caminho de PDF configurado para o produto ${pedido.product_id}.`,
+    );
     status.innerText =
       idiomaAtual === "pt"
         ? "O caminho do PDF deste livro ainda não está configurado."
@@ -1926,16 +1934,17 @@ async function apagarEncomenda(encomenda, isAdmin = false) {
   if (!isAdmin) {
     consulta = consulta.eq("user_id", utilizadorAtual.id);
   }
-  const { data, error } = await consulta.select("id").single();
+  const { data, error } = await consulta.select("id");
 
-  if (error || !data) {
+  if (error || !data?.length) {
     console.error(
       "Não foi possível apagar a encomenda:",
-      error || "A encomenda não foi encontrada ou já não pode ser apagada.",
+      error ||
+        "A encomenda não foi encontrada ou a política bloqueou a exclusão.",
     );
     status.innerText = error
       ? `${t.orderDeleteError} ${traduzirErroSupabase(error)}`
-      : t.orderDeleteError;
+      : t.orderDeleteNoRows;
     status.className = "account-status error";
     return;
   }
@@ -1971,25 +1980,51 @@ const quizPerguntas = [
   {
     pergunta: "Qual das opções descreve melhor a tua forma de aprender?",
     opcoes: [
-      { texto: "Gosto de aprender com passos claros e objetivos simples.", valor: "pratico" },
-      { texto: "Prefiro descobrir ideias novas e explorar temas interessantes.", valor: "curioso" },
-      { texto: "Adoro ensinar-me a mim mesmo e aplicar o que aprendo rapidamente.", valor: "estrategico" },
+      {
+        texto: "Gosto de aprender com passos claros e objetivos simples.",
+        valor: "pratico",
+      },
+      {
+        texto: "Prefiro descobrir ideias novas e explorar temas interessantes.",
+        valor: "curioso",
+      },
+      {
+        texto:
+          "Adoro ensinar-me a mim mesmo e aplicar o que aprendo rapidamente.",
+        valor: "estrategico",
+      },
     ],
   },
   {
     pergunta: "Quando escolhes um livro ou guia, o que mais te atrai?",
     opcoes: [
-      { texto: "Conteúdos práticos, receitas, exercícios e exemplos do dia a dia.", valor: "pratico" },
-      { texto: "Histórias, curiosidades e temas que abram a minha mente.", valor: "curioso" },
-      { texto: "Estruturas bem organizadas e metas que me ajudem a evoluir.", valor: "estrategico" },
+      {
+        texto:
+          "Conteúdos práticos, receitas, exercícios e exemplos do dia a dia.",
+        valor: "pratico",
+      },
+      {
+        texto: "Histórias, curiosidades e temas que abram a minha mente.",
+        valor: "curioso",
+      },
+      {
+        texto: "Estruturas bem organizadas e metas que me ajudem a evoluir.",
+        valor: "estrategico",
+      },
     ],
   },
   {
     pergunta: "Como reagiste ao fim de uma leitura?",
     opcoes: [
       { texto: "Vou já aplicar algo no meu dia a dia.", valor: "pratico" },
-      { texto: "Procuro mais conteúdos semelhantes para continuar a explorar.", valor: "curioso" },
-      { texto: "Faço um plano para evoluir passo a passo.", valor: "estrategico" },
+      {
+        texto: "Procuro mais conteúdos semelhantes para continuar a explorar.",
+        valor: "curioso",
+      },
+      {
+        texto: "Faço um plano para evoluir passo a passo.",
+        valor: "estrategico",
+      },
     ],
   },
 ];

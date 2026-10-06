@@ -510,7 +510,9 @@ create policy "Admins can delete ebooks"
 grant usage on schema public to anon, authenticated;
 grant select on public.products to anon, authenticated;
 grant select on public.profiles to authenticated;
-grant select, insert, update, delete on public.orders to authenticated;
+grant select, insert, update on public.orders to authenticated;
+revoke delete on public.orders from anon, public;
+grant delete on public.orders to authenticated;
 
 insert into public.profiles (id, email, full_name)
 select
