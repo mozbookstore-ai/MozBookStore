@@ -336,6 +336,7 @@ body {
 }
 
 .card {
+  min-width: 0;
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -382,19 +383,45 @@ body {
   margin-bottom: 10px;
 }
 
+.card-purchase {
+  min-width: 0;
+}
+
+.card-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.card-actions button {
+  min-width: 0;
+  width: 100%;
+  padding: 8px 4px;
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+}
+
+.btn-synopsis {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.btn-synopsis:hover {
+  background: #cbd5e1;
+}
+
 .btn-buy {
   display: block;
   text-align: center;
   background: var(--secondary);
   color: #fff;
-  text-decoration: none;
-  padding: 10px;
-  border-radius: 6px;
-  font-weight: 600;
   transition: 0.2s;
-  width: 100%;
-  cursor: pointer;
-  border: none;
 }
 
 .btn-buy:hover {
@@ -498,6 +525,80 @@ body {
   font-size: 0.9rem;
 }
 
+.account-section {
+  min-height: 260px;
+  padding-bottom: 40px;
+}
+
+.account-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.account-heading h2 {
+  color: var(--dark);
+}
+
+.account-status {
+  margin: 10px 0;
+  color: var(--text-muted);
+}
+
+.account-status.error {
+  color: #b91c1c;
+}
+
+.account-status.success {
+  color: #047857;
+}
+
+.account-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 14px;
+}
+
+.account-card {
+  min-width: 0;
+  padding: 18px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
+
+.account-card h3 {
+  margin-bottom: 8px;
+  color: var(--dark);
+}
+
+.account-card p {
+  margin: 6px 0;
+  color: var(--text-muted);
+}
+
+.account-card button {
+  width: auto;
+  margin: 10px 8px 0 0;
+}
+
+.btn-secondary {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #e2e8f0;
+  color: #334155;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #cbd5e1;
+}
+
 .modal-tabs {
   display: flex;
   margin-bottom: 20px;
@@ -524,6 +625,11 @@ body {
 
 .auth-form.active {
   display: block;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.65;
 }
 
 /* Rodapé */
@@ -568,5 +674,19 @@ footer {
   .catalog-grid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 12px;
+  }
+
+  .account-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .card-actions {
+    gap: 6px;
+  }
+
+  .card-actions button {
+    padding: 8px 3px;
+    font-size: 0.75rem;
   }
 }

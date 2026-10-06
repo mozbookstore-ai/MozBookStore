@@ -6,6 +6,11 @@ const CONFIG_NOTIFICACOES = {
   emailJsTemplateId: "template_qgdxq0d",
 };
 
+const CONFIG_SUPABASE = {
+  url: "https://ovvhhpndakdmhdhqsnwf.supabase.co",
+  anonKey: "sb_publishable_CSLkAAdsYkK6UpWqQFZgzQ_7vmklnHe",
+};
+
 const CONTAS_PAGAMENTO = {
   mpesa: ["+258 85 067 3457", "+258 85 636 7798"],
   emola: ["+258 86 756 8918"],
@@ -27,65 +32,131 @@ function converterPreco(precoMT) {
 }
 
 // --- VARIÁVEIS GLOBAIS ---
-let idiomaAtual = "pt"; // <-- Alterado de "en-ZA" para "pt" para iniciar em português
+let idiomaAtual = "pt";
 let produtoSelecionado = null;
 let categoriaAtivaAtual = "todos";
+let supabaseClient = null;
+let utilizadorAtual = null;
+let perfilAtual = null;
+let produtoCompraPendente = null;
 
 // --- DICIONÁRIO DE TRADUÇÕES (PT / en-ZA) ---
 const traducoes = {
   pt: {
-    btnLogin: "🔑 Entrar / Cadastrar",
-    searchPlaceholder: "Buscar por livros, exames, drama, filosofia...",
-    heroTitulo: "Sua Central Académica & Literária Digital",
+    idiomaLabel: "🌐 Mudar idioma:",
+    btnLogin: "🔑 Entrar / Registar",
+    btnBiblioteca: "📚 Minha Biblioteca",
+    btnAdmin: "⚙️ Administração",
+    btnLogout: "Sair",
+    libraryTitle: "📚 Os Meus Livros",
+    adminTitle: "⚙️ Aprovar pagamentos",
+    backCatalog: "Voltar ao catálogo",
+    lblRegiao: "País / Região",
+    regiaoMozambique: "Moçambique",
+    regiaoOutros: "África do Sul / Outros países",
+    lblStatusPedido: "Estado",
+    statusPendente: "Pendente de aprovação",
+    statusAprovado: "Aprovado",
+    statusRejeitado: "Rejeitado",
+    btnDownload: "⬇️ Descarregar PDF",
+    btnApprove: "Aprovar",
+    btnReject: "Rejeitar / Revogar",
+    btnRestore: "Reabrir para aprovação",
+    lblSolicitante: "Cliente",
+    lblReferenciaAdmin: "Referência",
+    authRequired: "Inicie sessão para comprar e aceder à sua biblioteca.",
+    authNotConfigured: "A ligação à plataforma ainda não está configurada.",
+    orderPending: "Confirmação enviada. O acesso ao livro será libertado após a aprovação do pagamento.",
+    noOrders: "Ainda não existem encomendas.",
+    noLibrary: "Ainda não tem livros na sua biblioteca.",
+    adminOnly: "Esta área está disponível apenas para a administração.",
+    orderSaved: "Estado da encomenda actualizado.",
+    searchPlaceholder: "Pesquisar livros, exames, desporto, tecnologia...",
+    heroTitulo: "A sua central académica e literária digital",
     heroSub:
-      "Não tem o livro que procura? Peça na caixa abaixo e nós adicionamos! Pagamento via M-Pesa, e-Mola ou Banco/Cartão SA.",
-    pedirTitulo: "📑 Não encontrou o seu livro? Peça que nós adicionamos!",
+      "Não encontra o livro que procura? Peça-o no formulário abaixo e nós adicionamo-lo! Pagamento via M-Pesa, e-Mola ou banco/cartão sul-africano.",
+    pedirTitulo: "📑 Não encontrou o livro que procura? Peça-o e nós adicionamos!",
     pedirSub:
-      "Envie os detalhes do material desejado. A nossa equipa recebe a notificação instantaneamente.",
-    reqTituloPh: "Nome do Livro ou Exame *",
+      "Envie os detalhes do material pretendido. A nossa equipa recebe o pedido de imediato.",
+    reqTituloPh: "Nome do livro ou exame *",
     reqAutorPh: "Autor / Categoria (Opcional)",
-    reqContatoPh: "Seu Nome e Contacto (WhatsApp/Email) *",
-    btnPedir: "🚀 Pedir & Notificar Equipa",
-    ultimosLivros: "🔥 Últimos Livros Adicionados por Pedido:",
+    reqContatoPh: "O seu nome e contacto (WhatsApp/email) *",
+    btnPedir: "🚀 Pedir e Notificar a Equipa",
+    ultimosLivros: "🔥 Últimos livros adicionados a pedido:",
     badge1: "✅ Natação para Iniciantes",
-    badge2: "✅ Treinamento de Força para Iniciantes",
+    badge2: "✅ Treino de Força para Iniciantes",
     badge3: "✅ Futebol para Iniciantes",
-    passo1Tit: "Peça ou Escolha",
-    passo1Desc: "Solicite um livro no formulário ou selecione no catálogo.",
-    passo2Tit: "Pague & Anexe Comprovativo",
+    passo1Tit: "Peça ou escolha",
+    passo1Desc: "Peça um livro no formulário ou escolha um do catálogo.",
+    passo2Tit: "Pague e anexe o comprovativo",
     passo2Desc:
-      "Transfira via M-Pesa, e-Mola ou South African Bank/Card e carregue a referência.",
-    passo3Tit: "Baixe o PDF",
+      "Transfira via M-Pesa, e-Mola ou banco/cartão sul-africano e indique a referência.",
+    passo3Tit: "Descarregue o PDF",
     passo3Desc:
-      "Após rápida verificação, o seu documento estará disponível para download.",
-    catalogoTit: "Catálogo de Livros Disponíveis",
-    btnIntro: "📖 Introdução",
+      "Após uma verificação rápida, poderá descarregar o seu documento.",
+    catalogoTit: "Catálogo de livros disponíveis",
+    btnIntro: "📖 Sinopse",
     btnComprar: "💳 Comprar",
-    lblNome: "Seu Nome Completo *",
-    lblEmail: "Seu E-mail (Para receber o PDF) *",
-    lblMetodo: "Forma de Pagamento",
-    lblRef: "Código / Ref. da Transação *",
-    btnConfirmar: "📱 Confirmar & Enviar no WhatsApp",
+    checkoutTitulo: "Pagar e receber o PDF",
+    lblNome: "Nome completo *",
+    lblEmail: "O seu email (para receber o PDF) *",
+    lblMetodo: "Forma de pagamento",
+    saBankOption: "Banco/cartão sul-africano (ZAR)",
+    nomeCheckoutPh: "Ex.: José da Silva",
+    emailCheckoutPh: "exemplo@gmail.com",
+    referenciaPh: "Ex.: PP240929.1830.A12345 / número de referência",
+    lblRef: "Código / Referência da transacção *",
+    btnConfirmar: "📱 Confirmar e enviar pelo WhatsApp",
     txtSinopse: "📌 Introdução / Sinopse",
     txtAvisoPDF:
-      "🔒 Para ler a obra completa em PDF, efetue a compra via M-Pesa, e-Mola ou Cartão SA.",
+      "🔒 Para ler a obra completa em PDF, efectue o pagamento via M-Pesa, e-Mola ou cartão sul-africano.",
     btnFechar: "Fechar",
-    btnComprarModal: "💳 Comprar Agora",
+    btnComprarModal: "💳 Comprar agora",
     tabLogin: "Entrar",
-    tabRegister: "Cadastrar",
+    tabRegister: "Registar",
     loginTitle: "Bem-vindo de volta!",
-    lblLoginEmail: "E-mail ou Utilizador",
+    lblLoginEmail: "Email ou utilizador",
+    loginEmailPh: "seu@email.com",
     lblLoginPass: "Palavra-passe",
-    btnLoginSubmit: "Iniciar Sessão",
+    btnLoginSubmit: "Iniciar sessão",
     regTitle: "Crie a sua conta",
-    lblRegName: "Nome Completo",
-    lblRegEmail: "E-mail",
+    lblRegName: "Nome completo",
+    nomeRegPh: "O seu nome",
+    lblRegEmail: "Email",
+    regEmailPh: "seu@email.com",
     lblRegPass: "Palavra-passe",
-    btnRegSubmit: "Criar Conta",
+    btnRegSubmit: "Criar conta",
     footerCopy: "&copy; 2026 MozBookStore - Todos os direitos reservados.",
   },
   "en-ZA": {
+    idiomaLabel: "🌐 Change language:",
     btnLogin: "🔑 Sign In / Register",
+    btnBiblioteca: "📚 My Library",
+    btnAdmin: "⚙️ Administration",
+    btnLogout: "Sign out",
+    libraryTitle: "📚 My Books",
+    adminTitle: "⚙️ Approve payments",
+    backCatalog: "Back to catalogue",
+    lblRegiao: "Country / Region",
+    regiaoMozambique: "Mozambique",
+    regiaoOutros: "South Africa / Other countries",
+    lblStatusPedido: "Status",
+    statusPendente: "Awaiting approval",
+    statusAprovado: "Approved",
+    statusRejeitado: "Rejected",
+    btnDownload: "⬇️ Download PDF",
+    btnApprove: "Approve",
+    btnReject: "Reject / Revoke",
+    btnRestore: "Reopen for approval",
+    lblSolicitante: "Customer",
+    lblReferenciaAdmin: "Reference",
+    authRequired: "Sign in to purchase and access your library.",
+    authNotConfigured: "The platform connection has not been configured yet.",
+    orderPending: "Confirmation submitted. Book access will be released after payment approval.",
+    noOrders: "There are no orders yet.",
+    noLibrary: "Your library is empty.",
+    adminOnly: "This area is available to administrators only.",
+    orderSaved: "Order status updated.",
     searchPlaceholder: "Search for books, exams, drama, philosophy...",
     heroTitulo: "Your Digital Academic & Literary Hub",
     heroSub:
@@ -110,11 +181,16 @@ const traducoes = {
     passo3Desc:
       "After a quick verification, your document will be available for download.",
     catalogoTit: "Available Books Catalogue",
-    btnIntro: "📖 Introduction",
+    btnIntro: "📖 Synopsis",
     btnComprar: "💳 Buy",
+    checkoutTitulo: "Pay & Receive PDF",
     lblNome: "Full Name *",
     lblEmail: "Your E-mail (To receive the PDF) *",
     lblMetodo: "Payment Method",
+    saBankOption: "South African Bank / Card (ZAR)",
+    nomeCheckoutPh: "E.g. Jose da Silva",
+    emailCheckoutPh: "example@gmail.com",
+    referenciaPh: "E.g. PP240929.1830.A12345 / Reference number",
     lblRef: "Transaction Code / Reference Number *",
     btnConfirmar: "📱 Confirm & Send on WhatsApp",
     txtSinopse: "📌 Introduction / Synopsis",
@@ -126,11 +202,14 @@ const traducoes = {
     tabRegister: "Register",
     loginTitle: "Welcome back!",
     lblLoginEmail: "Email or Username",
+    loginEmailPh: "your@email.com",
     lblLoginPass: "Password",
     btnLoginSubmit: "Sign In",
     regTitle: "Create your account",
     lblRegName: "Full Name",
+    nomeRegPh: "Your name",
     lblRegEmail: "Email",
+    regEmailPh: "your@email.com",
     lblRegPass: "Password",
     btnRegSubmit: "Create Account",
     footerCopy: "&copy; 2026 MozBookStore - All rights reserved.",
@@ -362,37 +441,6 @@ const produtos = [
   },
 ];
 
-// Função para exibir os livros no catálogo com acessibilidade garantida
-function renderizarCatalogo(listaDeLivros) {
-  const catalogGrid = document.getElementById("catalog");
-  if (!catalogGrid) return;
-
-  catalogGrid.innerHTML = "";
-
-  listaDeLivros.forEach((livro) => {
-    const card = document.createElement("div");
-    card.className = "book-card";
-
-    card.innerHTML = `
-      <img src="${livro.imagem}" alt="Capa do livro ${livro.titulo}" loading="lazy" />
-      <div class="book-info">
-        <span class="book-category">${livro.tipo}</span>
-        <h3>${livro.titulo}</h3>
-        <p class="book-author">Por: ${livro.autor}</p>
-        <p class="book-price">${livro.preco}</p>
-        <button class="btn-primary" onclick="abrirPreview(${livro.id})">Ver Sinopse / Comprar</button>
-      </div>
-    `;
-
-    catalogGrid.appendChild(card);
-  });
-}
-
-// Executar ao carregar a página
-document.addEventListener("DOMContentLoaded", () => {
-  renderizarCatalogo(livros);
-});
-
 // Inicialização EmailJS
 (function () {
   if (
@@ -405,11 +453,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function alternarIdioma() {
   idiomaAtual = idiomaAtual === "pt" ? "en-ZA" : "pt";
+  aplicarIdioma();
+}
+
+function aplicarIdioma() {
   const t = traducoes[idiomaAtual];
+  document.documentElement.lang = idiomaAtual === "pt" ? "pt-MZ" : "en-ZA";
+  document.title =
+    idiomaAtual === "pt"
+      ? "MozBookStore 📚 | Livraria e Central Académica Digital"
+      : "MozBookStore 📚 | Digital Bookshop & Academic Hub";
 
   document.getElementById("btnTraduzir").innerHTML =
-    idiomaAtual === "pt" ? "🇿🇦 English (SA)" : "🇲🇿 Português";
+    idiomaAtual === "pt" ? "🇿🇦 English (SA)" : "🇲🇿 Português (MZ)";
+  document.getElementById("txtIdiomaLabel").innerText = t.idiomaLabel;
   document.getElementById("txtBtnLogin").innerText = t.btnLogin;
+  document.getElementById("btnBiblioteca").innerText = t.btnBiblioteca;
+  document.getElementById("btnAdmin").innerText = t.btnAdmin;
+  document.getElementById("btnLogout").innerText = t.btnLogout;
   document.getElementById("searchInput").placeholder = t.searchPlaceholder;
   document.getElementById("txtHeroTitulo").innerText = t.heroTitulo;
   document.getElementById("txtHeroSub").innerText = t.heroSub;
@@ -437,8 +498,16 @@ function alternarIdioma() {
 
   document.getElementById("lblNome").innerText = t.lblNome;
   document.getElementById("lblEmail").innerText = t.lblEmail;
+  document.getElementById("clienteEmail").placeholder = t.emailCheckoutPh;
   document.getElementById("lblMetodo").innerText = t.lblMetodo;
+  document.getElementById("lblRegiao").innerText = t.lblRegiao;
+  document.getElementById("optionMozambique").innerText = t.regiaoMozambique;
+  document.getElementById("optionOther").innerText = t.regiaoOutros;
+  document.getElementById("optionSaBank").innerText = t.saBankOption;
+  document.getElementById("clienteNome").placeholder = t.nomeCheckoutPh;
   document.getElementById("lblRef").innerText = t.lblRef;
+  document.getElementById("referenciaPagamento").placeholder = t.referenciaPh;
+  document.getElementById("checkoutTitulo").innerText = t.checkoutTitulo;
   document.getElementById("btnConfirmar").innerText = t.btnConfirmar;
   document.getElementById("txtSinopse").innerText = t.txtSinopse;
   document.getElementById("txtAvisoPDF").innerText = t.txtAvisoPDF;
@@ -449,18 +518,35 @@ function alternarIdioma() {
   document.getElementById("tabRegisterBtn").innerText = t.tabRegister;
   document.getElementById("loginTitle").innerText = t.loginTitle;
   document.getElementById("lblLoginEmail").innerText = t.lblLoginEmail;
+  document.querySelector("#formLogin input[type='email']").placeholder =
+    t.loginEmailPh;
   document.getElementById("lblLoginPass").innerText = t.lblLoginPass;
   document.getElementById("btnLoginSubmit").innerText = t.btnLoginSubmit;
   document.getElementById("regTitle").innerText = t.regTitle;
   document.getElementById("lblRegName").innerText = t.lblRegName;
+  document.querySelector("#formRegistro input[type='text']").placeholder =
+    t.nomeRegPh;
   document.getElementById("lblRegEmail").innerText = t.lblRegEmail;
+  document.querySelector("#formRegistro input[type='email']").placeholder =
+    t.regEmailPh;
   document.getElementById("lblRegPass").innerText = t.lblRegPass;
   document.getElementById("btnRegSubmit").innerText = t.btnRegSubmit;
   document.getElementById("footerCopy").innerHTML = t.footerCopy;
+  document.getElementById("libraryTitle").innerText = t.libraryTitle;
+  document.getElementById("adminTitle").innerText = t.adminTitle;
+  document.getElementById("libraryBackButton").innerText = t.backCatalog;
+  document.getElementById("adminBackButton").innerText = t.backCatalog;
 
   renderizarCategorias();
   renderizarRodapé();
-  carregarProdutos(produtos);
+  if (document.getElementById("searchInput").value.trim()) {
+    buscarLivro();
+  } else {
+    carregarProdutos(produtos);
+  }
+  if (document.getElementById("checkoutModal").style.display === "flex") {
+    atualizarOpcoesPagamento();
+  }
 }
 
 // Renderizar Categorias Dinamicamente com Tradução
@@ -487,7 +573,7 @@ function renderizarRodapé() {
     footerContacts.innerHTML = `
       <p><strong>Contas M-Pesa:</strong> ${CONTAS_PAGAMENTO.mpesa[0]} | ${CONTAS_PAGAMENTO.mpesa[1]}</p>
       <p><strong>Conta e-Mola:</strong> ${CONTAS_PAGAMENTO.emola[0]}</p>
-      <p><strong>🏦 Dados Bancários SA (ZAR):</strong> ${sb.banco} | Holder: ${sb.titular} | Acc: <b>${sb.conta}</b> | Branch: <b>${sb.branchCode}</b></p>
+      <p><strong>🏦 Dados bancários da África do Sul (ZAR):</strong> ${sb.banco} | Titular: ${sb.titular} | Conta: <b>${sb.conta}</b> | Código da agência: <b>${sb.branchCode}</b></p>
       <p><strong>WhatsApp Apoio:</strong> +258 86 756 8918 | +258 82 010 9316 | +27 63 643 7259</p>
     `;
   } else {
@@ -531,13 +617,13 @@ function carregarProdutos(lista) {
         <h3>${tituloExibido}</h3>
         <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px;">${item.autor}</p>
       </div>
-      <div>
+      <div class="card-purchase">
         <div class="price">${precoExibido}</div>
-        <div style="display: flex; gap: 8px; margin-top: 10px;">
-          <button onclick="abrirModalPreview(${item.id})" style="flex: 1; background: #e2e8f0; color: #334155; border: none; padding: 8px; border-radius: 6px; font-weight: 600; cursor: pointer;">
+      <div class="card-actions">
+        <button onclick="abrirModalPreview(${item.id})" class="btn-synopsis">
             ${t.btnIntro}
           </button>
-          <button onclick="iniciarCompra(${item.id})" class="btn-buy" style="flex: 1.5;">
+        <button onclick="iniciarCompra(${item.id})" class="btn-buy">
             ${t.btnComprar}
           </button>
         </div>
@@ -579,20 +665,74 @@ function iniciarCompra(id) {
   produtoSelecionado = produtos.find((p) => p.id === id);
   if (!produtoSelecionado) return;
 
+  if (!supabaseClient) {
+    abrirModalLogin();
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].authNotConfigured, true);
+    return;
+  }
+
+  if (!utilizadorAtual) {
+    produtoCompraPendente = id;
+    abrirModalLogin();
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].authRequired, true);
+    return;
+  }
+
+  abrirCheckout();
+}
+
+function abrirCheckout() {
+  if (!produtoSelecionado || !utilizadorAtual) return;
+
+  document.getElementById("clienteNome").value =
+    perfilAtual?.full_name || utilizadorAtual.user_metadata?.full_name || "";
+  document.getElementById("clienteEmail").value = utilizadorAtual.email || "";
   const precoAtual =
     idiomaAtual === "en-ZA"
       ? converterPreco(produtoSelecionado.preco)
       : produtoSelecionado.preco;
 
-  document.getElementById("checkoutTitulo").innerText =
-    idiomaAtual === "pt" ? "Pagar & Receber PDF" : "Pay & Receive PDF";
   document.getElementById("checkoutPreco").innerText =
     `${idiomaAtual === "pt" ? "Valor a pagar" : "Amount to pay"}: ${precoAtual}`;
   document.getElementById("statusPagamento").style.display = "none";
+  document.getElementById("statusPagamento").innerText = "";
   document.getElementById("formCheckout").reset();
+  document.getElementById("clienteNome").value =
+    perfilAtual?.full_name || utilizadorAtual.user_metadata?.full_name || "";
+  document.getElementById("clienteEmail").value = utilizadorAtual.email || "";
+  atualizarOpcoesPagamento();
 
-  atualizarInstrucoesPagamento();
   document.getElementById("checkoutModal").style.display = "flex";
+}
+
+function atualizarOpcoesPagamento() {
+  const regiao = document.getElementById("regiaoPagamento").value;
+  const opcaoMpesa = document.querySelector(
+    '#metodoPagamento option[value="mpesa"]',
+  );
+  const opcaoEmola = document.querySelector(
+    '#metodoPagamento option[value="emola"]',
+  );
+  const opcaoBanco = document.getElementById("optionSaBank");
+
+  opcaoMpesa.hidden = regiao !== "mozambique";
+  opcaoEmola.hidden = regiao !== "mozambique";
+  opcaoBanco.hidden = regiao === "mozambique";
+
+  const metodoPagamento = document.getElementById("metodoPagamento");
+  if (regiao === "mozambique" && metodoPagamento.value === "sabank") {
+    metodoPagamento.value = "mpesa";
+  } else if (regiao === "other" && metodoPagamento.value !== "sabank") {
+    metodoPagamento.value = "sabank";
+  }
+  if (produtoSelecionado) {
+    const valor = regiao === "mozambique"
+      ? produtoSelecionado.preco
+      : converterPreco(produtoSelecionado.preco);
+    document.getElementById("checkoutPreco").innerText =
+      `${idiomaAtual === "pt" ? "Valor a pagar" : "Amount to pay"}: ${valor}`;
+  }
+  atualizarInstrucoesPagamento();
 }
 
 function atualizarInstrucoesPagamento() {
@@ -617,64 +757,73 @@ function atualizarInstrucoesPagamento() {
     const sb = CONTAS_PAGAMENTO.sabank;
     caixaInstrucoes.innerHTML =
       idiomaAtual === "pt"
-        ? `<strong>Depósito / Transferência SA (${precoZAR}):</strong><br>🏦 <b>${sb.banco}</b><br>👤 Holder: ${sb.titular}<br>💳 Acc: <b>${sb.conta}</b> | Branch: <b>${sb.branchCode}</b>`
+        ? `<strong>Depósito / transferência bancária (${precoZAR}):</strong><br>🏦 <b>${sb.banco}</b><br>👤 Titular: ${sb.titular}<br>💳 Conta: <b>${sb.conta}</b> | Código da agência: <b>${sb.branchCode}</b>`
         : `<strong>SA Bank Deposit / Transfer (${precoZAR}):</strong><br>🏦 <b>${sb.banco}</b><br>👤 Holder: ${sb.titular}<br>💳 Acc: <b>${sb.conta}</b> | Branch: <b>${sb.branchCode}</b>`;
   }
 }
 
-function processarPagamentoViaWhatsApp(event) {
+async function submeterConfirmacaoPagamento(event) {
   event.preventDefault();
 
-  const nome = document.getElementById("clienteNome").value;
-  const email = document.getElementById("clienteEmail").value;
-  const metodo = document.getElementById("metodoPagamento").value.toUpperCase();
-  const ref = document.getElementById("referenciaPagamento").value;
+  const status = document.getElementById("statusPagamento");
+  const botao = document.getElementById("btnConfirmar");
+  const t = traducoes[idiomaAtual];
 
-  if (!produtoSelecionado) return;
-
-  const tituloLivro =
-    idiomaAtual === "en-ZA"
-      ? produtoSelecionado.tituloEn
-      : produtoSelecionado.titulo;
-  const precoFinal =
-    idiomaAtual === "en-ZA"
-      ? converterPreco(produtoSelecionado.preco)
-      : produtoSelecionado.preco;
-
-  const mensagemWA =
-    idiomaAtual === "pt"
-      ? `🛍️ *NOVA COMPRA DE LIVRO (MozBookStore)*\n\n📖 *Livro:* ${tituloLivro}\n💰 *Valor:* ${precoFinal}\n👤 *Cliente:* ${nome}\n✉️ *E-mail:* ${email}\n💳 *Método:* ${metodo}\n🧾 *Comprovativo/Ref:* ${ref}\n\nOlá! Fiz o pagamento e aguardo a confirmação para receber o meu livro em PDF.\n\nObrigado pela compra! Volte sempre à MozBookStore! 📚✨`
-      : `🛍️ *NEW BOOK PURCHASE (MozBookStore)*\n\n📖 *Book:* ${tituloLivro}\n💰 *Price:* ${precoFinal}\n👤 *Customer:* ${nome}\n✉️ *E-mail:* ${email}\n💳 *Method:* ${metodo}\n🧾 *Receipt/Ref:* ${ref}\n\nHello! I've made the payment and look forward to receiving my PDF book.\n\nThank you for your purchase! Come back soon to MozBookStore! 📚✨`;
-
-  if (
-    CONFIG_NOTIFICACOES.emailJsPublicKey !== "SUA_PUBLIC_KEY_AQUI" &&
-    typeof emailjs !== "undefined"
-  ) {
-    emailjs
-      .send(
-        CONFIG_NOTIFICACOES.emailJsServiceId,
-        CONFIG_NOTIFICACOES.emailJsTemplateId,
-        {
-          cliente_nome: nome,
-          cliente_email: email,
-          livro_titulo: tituloLivro,
-          referencia: ref,
-          metodo: metodo,
-        },
-      )
-      .catch((err) => console.error("Erro EmailJS no checkout:", err));
+  if (!supabaseClient || !utilizadorAtual || !produtoSelecionado) {
+    status.innerText = !supabaseClient
+      ? t.authNotConfigured
+      : t.authRequired;
+    status.style.display = "block";
+    return;
   }
 
-  alert(
-    idiomaAtual === "pt"
-      ? `Obrigado pela tua compra, ${nome}! A tua referência foi enviada com sucesso.\nVolte sempre à MozBookStore! 📚`
-      : `Thank you for your purchase, ${nome}! Your reference was successfully sent.\nCome back soon to MozBookStore! 📚`,
-  );
+  const referencia = document
+    .getElementById("referenciaPagamento")
+    .value.trim();
+  if (!referencia) {
+    status.innerText =
+      idiomaAtual === "pt"
+        ? "Introduza a referência ou o ID da transacção."
+        : "Enter the transaction reference or ID.";
+    status.style.display = "block";
+    return;
+  }
 
-  const urlWA = `https://wa.me/${CONFIG_NOTIFICACOES.numeroWhatsAppPrincipal}?text=${encodeURIComponent(mensagemWA)}`;
-  window.open(urlWA, "_blank");
+  botao.disabled = true;
+  status.innerText =
+    idiomaAtual === "pt" ? "A registar a confirmação..." : "Submitting confirmation...";
+  status.style.display = "block";
 
+  const { error } = await supabaseClient.from("orders").insert({
+    user_id: utilizadorAtual.id,
+    product_id: produtoSelecionado.id,
+    region: document.getElementById("regiaoPagamento").value,
+    payment_method: document.getElementById("metodoPagamento").value,
+    transaction_reference: referencia,
+  });
+
+  botao.disabled = false;
+  if (error) {
+    console.error("Erro ao registar a confirmação de pagamento:", error);
+    status.innerText =
+      idiomaAtual === "pt"
+        ? `Não foi possível registar o pagamento: ${traduzirErroSupabase(error)}`
+        : `Could not submit payment confirmation: ${traduzirErroSupabase(error)}`;
+    return;
+  }
+
+  status.innerText = t.orderPending;
+  document.getElementById("formCheckout").reset();
+  document.getElementById("clienteNome").value =
+    perfilAtual?.full_name || utilizadorAtual.user_metadata?.full_name || "";
+  document.getElementById("clienteEmail").value = utilizadorAtual.email || "";
+  document.getElementById("referenciaPagamento").value = "";
+  atualizarOpcoesPagamento();
   fecharModalCheckout();
+  alternarVistaConta("biblioteca");
+  await carregarBiblioteca();
+  document.getElementById("libraryStatus").innerText = t.orderPending;
+  document.getElementById("libraryStatus").className = "account-status success";
 }
 
 function fecharModalCheckout() {
@@ -747,7 +896,7 @@ function atualizarSugestoes() {
     html += `
       <div class="suggestion-item" onclick="selecionarSugestao('${tituloExibido.replace(/'/g, "\\'")}')">
         <strong style="color: #1e293b; display: block; font-size: 0.95rem;">${tituloExibido}</strong>
-        <span style="color: #64748b; font-size: 0.8rem;">Por ${livro.autor}</span>
+        <span style="color: #64748b; font-size: 0.8rem;">${idiomaAtual === "pt" ? "Por" : "By"} ${livro.autor}</span>
       </div>
     `;
   });
@@ -848,7 +997,403 @@ function enviarPedidoLivro(event) {
     });
 }
 
+function escaparHTML(valor) {
+  return String(valor ?? "").replace(/[&<>"']/g, (caractere) => {
+    const entidades = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    };
+    return entidades[caractere];
+  });
+}
+
+function mostrarEstadoAutenticacao(mensagem, erro = false) {
+  const elemento = document.getElementById("authStatus");
+  elemento.innerText = mensagem;
+  elemento.className = `account-status${erro ? " error" : ""}`;
+}
+
+function traduzirErroSupabase(error) {
+  const mensagem = error?.message || "Unknown error";
+  if (idiomaAtual !== "pt") return mensagem;
+  if (/invalid login credentials/i.test(mensagem))
+    return "email ou palavra-passe incorrectos.";
+  if (/email not confirmed/i.test(mensagem))
+    return "confirme o seu email antes de iniciar sessão.";
+  if (/user already registered/i.test(mensagem))
+    return "já existe uma conta com este email.";
+  if (/password should be at least/i.test(mensagem))
+    return "a palavra-passe deve ter pelo menos 8 caracteres.";
+  if (/duplicate key|orders_one_approved_product_per_user/i.test(mensagem))
+    return "já tem acesso aprovado a este livro.";
+  return mensagem;
+}
+
+function inicializarSupabase() {
+  document
+    .getElementById("formLogin")
+    .addEventListener("submit", iniciarSessao);
+  document
+    .getElementById("formRegistro")
+    .addEventListener("submit", registarConta);
+
+  const urlConfigurado =
+    CONFIG_SUPABASE.url.startsWith("https://") &&
+    !CONFIG_SUPABASE.url.includes("SEU-PROJECT-REF");
+  const chaveConfigurada =
+    CONFIG_SUPABASE.anonKey.length > 20 &&
+    !CONFIG_SUPABASE.anonKey.includes("SUA_CHAVE");
+
+  if (!window.supabase?.createClient || !urlConfigurado || !chaveConfigurada) {
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].authNotConfigured, true);
+    return;
+  }
+
+  supabaseClient = window.supabase.createClient(
+    CONFIG_SUPABASE.url,
+    CONFIG_SUPABASE.anonKey,
+  );
+  supabaseClient.auth.onAuthStateChange((_evento, sessao) => {
+    window.setTimeout(() => {
+      void atualizarSessao(sessao);
+    }, 0);
+  });
+  supabaseClient.auth.getSession().then(({ data, error }) => {
+    if (error) {
+      console.error("Não foi possível recuperar a sessão:", error);
+      mostrarEstadoAutenticacao(traduzirErroSupabase(error), true);
+      return;
+    }
+    void atualizarSessao(data.session);
+  });
+}
+
+async function atualizarSessao(sessao) {
+  utilizadorAtual = sessao?.user || null;
+  perfilAtual = null;
+
+  if (utilizadorAtual) {
+    const { data, error } = await supabaseClient
+      .from("profiles")
+      .select("id,email,full_name,role")
+      .eq("id", utilizadorAtual.id)
+      .maybeSingle();
+    if (error) {
+      console.error("Não foi possível carregar o perfil:", error);
+      mostrarEstadoAutenticacao(traduzirErroSupabase(error), true);
+    } else {
+      perfilAtual = data;
+    }
+  }
+
+  const autenticado = Boolean(utilizadorAtual);
+  document.getElementById("txtBtnLogin").hidden = autenticado;
+  document.getElementById("btnBiblioteca").hidden = !autenticado;
+  document.getElementById("btnLogout").hidden = !autenticado;
+  document.getElementById("btnAdmin").hidden =
+    !autenticado || perfilAtual?.role !== "admin";
+
+  if (autenticado) {
+    document.getElementById("authStatus").innerText = "";
+    fecharModalLogin();
+    if (produtoCompraPendente !== null) {
+      produtoSelecionado =
+        produtos.find((produto) => produto.id === produtoCompraPendente) || null;
+      produtoCompraPendente = null;
+      abrirCheckout();
+    }
+  } else {
+    document.getElementById("authStatus").innerText = "";
+  }
+}
+
+async function iniciarSessao(event) {
+  event.preventDefault();
+  if (!supabaseClient) {
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].authNotConfigured, true);
+    return;
+  }
+
+  const botao = document.getElementById("btnLoginSubmit");
+  botao.disabled = true;
+  const { error } = await supabaseClient.auth.signInWithPassword({
+    email: document.getElementById("loginEmail").value.trim(),
+    password: document.getElementById("loginPassword").value,
+  });
+  botao.disabled = false;
+
+  if (error) {
+    console.error("Erro ao iniciar sessão:", error);
+    mostrarEstadoAutenticacao(traduzirErroSupabase(error), true);
+  }
+}
+
+async function registarConta(event) {
+  event.preventDefault();
+  if (!supabaseClient) {
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].authNotConfigured, true);
+    return;
+  }
+
+  const botao = document.getElementById("btnRegSubmit");
+  botao.disabled = true;
+  const { data, error } = await supabaseClient.auth.signUp({
+    email: document.getElementById("regEmail").value.trim(),
+    password: document.getElementById("regPassword").value,
+    options: {
+      data: { full_name: document.getElementById("regName").value.trim() },
+    },
+  });
+  botao.disabled = false;
+
+  if (error) {
+    console.error("Erro ao criar conta:", error);
+    mostrarEstadoAutenticacao(traduzirErroSupabase(error), true);
+    return;
+  }
+  if (!data.session) {
+    mostrarEstadoAutenticacao(
+      idiomaAtual === "pt"
+        ? "Conta criada. Confirme o email enviado para activar a conta e depois inicie sessão."
+        : "Account created. Confirm the email sent to activate your account, then sign in.",
+    );
+    return;
+  }
+  mostrarEstadoAutenticacao(
+    idiomaAtual === "pt" ? "Conta criada com sucesso." : "Account created successfully.",
+  );
+}
+
+async function terminarSessao() {
+  if (!supabaseClient) return;
+  const { error } = await supabaseClient.auth.signOut();
+  if (error) {
+    console.error("Erro ao terminar sessão:", error);
+    mostrarEstadoAutenticacao(traduzirErroSupabase(error), true);
+  } else {
+    voltarAoCatalogo();
+  }
+}
+
+function alternarVistaConta(vista) {
+  const mostrarConta = Boolean(vista);
+  document.getElementById("catalogMain").hidden = mostrarConta;
+  document.getElementById("categoriesNav").hidden = mostrarConta;
+  document.getElementById("librarySection").hidden = vista !== "biblioteca";
+  document.getElementById("adminSection").hidden = vista !== "admin";
+}
+
+async function mostrarBiblioteca() {
+  if (!utilizadorAtual) {
+    abrirModalLogin();
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].authRequired, true);
+    return;
+  }
+  alternarVistaConta("biblioteca");
+  await carregarBiblioteca();
+}
+
+async function carregarBiblioteca() {
+  const lista = document.getElementById("libraryBooks");
+  const status = document.getElementById("libraryStatus");
+  lista.innerHTML = "";
+  status.innerText = idiomaAtual === "pt" ? "A carregar..." : "Loading...";
+
+  const { data: encomendas, error } = await supabaseClient
+    .from("orders")
+    .select("id,product_id,product_title,amount,currency,status,created_at")
+    .eq("user_id", utilizadorAtual.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Não foi possível carregar a biblioteca:", error);
+    status.innerText = traduzirErroSupabase(error);
+    status.className = "account-status error";
+    return;
+  }
+
+  status.innerText = "";
+  if (!encomendas.length) {
+    status.innerText = traducoes[idiomaAtual].noLibrary;
+    return;
+  }
+
+  const rotulosEstado = {
+    pending: traducoes[idiomaAtual].statusPendente,
+    approved: traducoes[idiomaAtual].statusAprovado,
+    rejected: traducoes[idiomaAtual].statusRejeitado,
+  };
+  encomendas.forEach((encomenda) => {
+    const cartao = document.createElement("article");
+    cartao.className = "account-card";
+    const titulo = document.createElement("h3");
+    titulo.innerText = encomenda.product_title;
+    const detalhes = document.createElement("p");
+    detalhes.innerText = `${encomenda.amount} ${encomenda.currency} · ${rotulosEstado[encomenda.status]}`;
+    cartao.append(titulo, detalhes);
+    if (encomenda.status === "approved") {
+      const botao = document.createElement("button");
+      botao.className = "btn-primary";
+      botao.innerText = traducoes[idiomaAtual].btnDownload;
+      botao.addEventListener("click", () => {
+        void descarregarEbook(encomenda);
+      });
+      cartao.appendChild(botao);
+    }
+    lista.appendChild(cartao);
+  });
+}
+
+async function descarregarEbook(encomenda) {
+  const status = document.getElementById("libraryStatus");
+  status.innerText = idiomaAtual === "pt" ? "A preparar o PDF..." : "Preparing PDF...";
+  status.className = "account-status";
+
+  const { data: pedido, error: erroPedido } = await supabaseClient
+    .from("orders")
+    .select("id,product_id,status")
+    .eq("id", encomenda.id)
+    .eq("user_id", utilizadorAtual.id)
+    .eq("status", "approved")
+    .single();
+  if (erroPedido) {
+    console.error("Não foi possível validar o acesso ao livro:", erroPedido);
+    status.innerText = traduzirErroSupabase(erroPedido);
+    status.className = "account-status error";
+    return;
+  }
+
+  const nomeFicheiro = `product-${pedido.product_id}.pdf`;
+  const { data, error } = await supabaseClient.storage
+    .from("ebooks-private")
+    .createSignedUrl(nomeFicheiro, 60, {
+      download: `${pedido.product_id}-${pedido.product_title}.pdf`,
+    });
+  if (error) {
+    console.error("Não foi possível gerar o link do PDF:", error);
+    status.innerText =
+      idiomaAtual === "pt"
+        ? `O PDF ainda não está disponível: ${traduzirErroSupabase(error)}`
+        : `The PDF is not available yet: ${traduzirErroSupabase(error)}`;
+    status.className = "account-status error";
+    return;
+  }
+
+  const link = document.createElement("a");
+  link.href = data.signedUrl;
+  link.rel = "noopener";
+  link.download = `${pedido.product_id}-${pedido.product_title}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  status.innerText = "";
+}
+
+async function mostrarPainelAdmin() {
+  if (perfilAtual?.role !== "admin") {
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].adminOnly, true);
+    return;
+  }
+  alternarVistaConta("admin");
+  await carregarEncomendasAdmin();
+}
+
+async function carregarEncomendasAdmin() {
+  const lista = document.getElementById("adminOrders");
+  const status = document.getElementById("adminStatus");
+  lista.innerHTML = "";
+  status.innerText = idiomaAtual === "pt" ? "A carregar..." : "Loading...";
+
+  const { data: encomendas, error } = await supabaseClient
+    .from("orders")
+    .select(
+      "id,product_title,amount,currency,region,payment_method,transaction_reference,status,created_at,profile:profiles!orders_user_id_fkey(full_name,email)",
+    )
+    .order("created_at", { ascending: false });
+  if (error) {
+    console.error("Não foi possível carregar as encomendas:", error);
+    status.innerText = traduzirErroSupabase(error);
+    status.className = "account-status error";
+    return;
+  }
+
+  status.innerText = "";
+  if (!encomendas.length) {
+    status.innerText = traducoes[idiomaAtual].noOrders;
+    return;
+  }
+
+  const t = traducoes[idiomaAtual];
+  encomendas.forEach((encomenda) => {
+    const cartao = document.createElement("article");
+    cartao.className = "account-card";
+    const cliente = encomenda.profile?.full_name || encomenda.profile?.email || "";
+    const statusEncomenda =
+      encomenda.status === "pending"
+        ? t.statusPendente
+        : encomenda.status === "approved"
+          ? t.statusAprovado
+          : t.statusRejeitado;
+    cartao.innerHTML = `
+      <h3>${escaparHTML(encomenda.product_title)}</h3>
+      <p><strong>${t.lblSolicitante}:</strong> ${escaparHTML(cliente)} (${escaparHTML(encomenda.profile?.email || "")})</p>
+      <p><strong>${t.lblReferenciaAdmin}:</strong> ${escaparHTML(encomenda.transaction_reference)}</p>
+      <p>${escaparHTML(encomenda.payment_method.toUpperCase())} · ${escaparHTML(encomenda.region)} · ${escaparHTML(encomenda.amount)} ${escaparHTML(encomenda.currency)}</p>
+      <p><strong>${t.lblStatusPedido}:</strong> ${escaparHTML(statusEncomenda)}</p>
+    `;
+    const accoes =
+      encomenda.status === "pending"
+        ? [
+            ["approved", t.btnApprove, "btn-primary"],
+            ["rejected", t.btnReject, "btn-secondary"],
+          ]
+        : encomenda.status === "approved"
+          ? [["rejected", t.btnReject, "btn-secondary"]]
+          : [["pending", t.btnRestore, "btn-secondary"]];
+    for (const [novoEstado, rotulo, classe] of accoes) {
+      const botao = document.createElement("button");
+      botao.className = classe;
+      botao.innerText = rotulo;
+      botao.addEventListener("click", () => {
+        void reverEncomenda(encomenda.id, novoEstado);
+      });
+      cartao.appendChild(botao);
+    }
+    lista.appendChild(cartao);
+  });
+}
+
+async function reverEncomenda(id, estado) {
+  const status = document.getElementById("adminStatus");
+  status.innerText = idiomaAtual === "pt" ? "A actualizar..." : "Updating...";
+  const { error } = await supabaseClient
+    .from("orders")
+    .update({ status: estado })
+    .eq("id", id);
+  if (error) {
+    console.error("Não foi possível actualizar o estado da encomenda:", error);
+    status.innerText = traduzirErroSupabase(error);
+    status.className = "account-status error";
+    return;
+  }
+  status.innerText = traducoes[idiomaAtual].orderSaved;
+  status.className = "account-status success";
+  await carregarEncomendasAdmin();
+}
+
+function voltarAoCatalogo() {
+  alternarVistaConta(null);
+}
+
 function abrirModalLogin() {
+  if (supabaseClient) {
+    document.getElementById("authStatus").innerText = "";
+  } else {
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].authNotConfigured, true);
+  }
   document.getElementById("loginModal").style.display = "flex";
 }
 
@@ -884,7 +1429,6 @@ window.onclick = function (event) {
 };
 
 window.onload = () => {
-  renderizarCategorias();
-  renderizarRodapé();
-  carregarProdutos(produtos);
+  aplicarIdioma();
+  inicializarSupabase();
 };

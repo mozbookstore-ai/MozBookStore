@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt">
+<html lang="pt-MZ">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -28,6 +28,7 @@
       type="text/javascript"
       src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"
     ></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body>
     <!-- Barra de Contacto Superior -->
@@ -50,6 +51,7 @@
         <!-- Grupo de botões com a dica de idioma -->
         <div style="display: flex; gap: 12px; align-items: center">
           <span
+            id="txtIdiomaLabel"
             style="
               font-size: 0.8rem;
               color: #94a3b8;
@@ -59,7 +61,6 @@
             "
           >
             🌐 Mudar idioma:
-            <p>🌐 Change language:</p>
           </span>
           <button
             id="btnTraduzir"
@@ -67,7 +68,7 @@
             onclick="alternarIdioma()"
             style="border-color: #38bdf8; color: #38bdf8"
           >
-            🇲🇿 Português
+            🇿🇦 English (SA)
           </button>
           <button
             id="txtBtnLogin"
@@ -75,6 +76,15 @@
             onclick="abrirModalLogin()"
           >
             🔑 Entrar / Cadastrar
+          </button>
+          <button id="btnBiblioteca" class="btn-login-trigger" onclick="mostrarBiblioteca()" hidden>
+            📚 Minha Biblioteca
+          </button>
+          <button id="btnAdmin" class="btn-login-trigger" onclick="mostrarPainelAdmin()" hidden>
+            ⚙️ Administração
+          </button>
+          <button id="btnLogout" class="btn-login-trigger" onclick="terminarSessao()" hidden>
+            Sair
           </button>
         </div>
       </div>
@@ -90,7 +100,7 @@
           <input
             type="text"
             id="searchInput"
-            placeholder="Search for books, exams, sports, technology..."
+            placeholder="Pesquisar livros, exames, desporto, tecnologia..."
             oninput="
               buscarLivro();
               atualizarSugestoes();
@@ -123,10 +133,10 @@
     <!-- Banner Principal -->
     <section class="hero-banner">
       <div class="hero-content">
-        <h1 id="txtHeroTitulo">Your Digital Academic & Literary Hub</h1>
+        <h1 id="txtHeroTitulo">A sua central académica e literária digital</h1>
         <p id="txtHeroSub">
-          Can't find the book you're looking for? Request it below and we'll add
-          it! Payment via M-Pesa, e-Mola or SA Bank Deposit/Card.
+          Não encontra o livro que procura? Peça-o no formulário abaixo e nós
+          adicionamo-lo! Pagamento via M-Pesa, e-Mola ou banco/cartão sul-africano.
         </p>
       </div>
     </section>
@@ -135,11 +145,11 @@
     <section class="request-book-section">
       <div class="request-container">
         <h2 id="txtPedirTitulo">
-          📑 Didn't find your book? Request it and we'll add it!
+          📑 Não encontrou o livro que procura? Peça-o e nós adicionamos!
         </h2>
         <p id="txtPedirSub">
-          Send the details of the material you want. Our team receives the
-          notification instantly.
+          Envie os detalhes do material pretendido. A nossa equipa recebe o
+          pedido de imediato.
         </p>
 
         <form id="formPedirLivro" onsubmit="enviarPedidoLivro(event)">
@@ -147,22 +157,22 @@
             <input
               type="text"
               id="reqTitulo"
-              placeholder="Book Name or Exam *"
+              placeholder="Nome do livro ou exame *"
               required
             />
             <input
               type="text"
               id="reqAutor"
-              placeholder="Author / Category (Optional)"
+              placeholder="Autor / Categoria (Opcional)"
             />
             <input
               type="text"
               id="reqContacto"
-              placeholder="Your Name and Contact (WhatsApp/Email) *"
+              placeholder="O seu nome e contacto (WhatsApp/email) *"
               required
             />
             <button type="submit" id="txtBtnPedir" class="btn-request">
-              🚀 Request & Notify Team
+              🚀 Pedir e Notificar a Equipa
             </button>
           </div>
         </form>
@@ -174,7 +184,7 @@
     <section class="recent-requests-banner">
       <div class="recent-container">
         <span id="txtUltimosLivros"
-          >🔥 <b>Latest Books Added by Request:</b></span
+          >🔥 <b>Últimos livros adicionados a pedido:</b></span
         >
         <div class="ticker-items">
           <span class="badge" id="badge1">✅ Natação para Iniciantes</span>
@@ -191,79 +201,106 @@
       <div class="steps-container">
         <div class="step-card">
           <span class="step-num">1</span>
-          <h3 id="txtPasso1Tit">Request or Choose</h3>
+          <h3 id="txtPasso1Tit">Peça ou escolha</h3>
           <p id="txtPasso1Desc">
-            Request a book using the form or select one from the catalog.
+            Peça um livro no formulário ou escolha um do catálogo.
           </p>
         </div>
         <div class="step-card">
           <span class="step-num">2</span>
-          <h3 id="txtPasso2Tit">Pay & Attach Receipt</h3>
+          <h3 id="txtPasso2Tit">Pague e anexe o comprovativo</h3>
           <p id="txtPasso2Desc">
-            Transfer via M-Pesa, e-Mola or SA Bank/Card and upload the
-            reference.
+            Transfira via M-Pesa, e-Mola ou banco/cartão sul-africano e indique
+            a referência.
           </p>
         </div>
         <div class="step-card">
           <span class="step-num">3</span>
-          <h3 id="txtPasso3Tit">Download PDF</h3>
+          <h3 id="txtPasso3Tit">Descarregue o PDF</h3>
           <p id="txtPasso3Desc">
-            After a quick verification, your document will be available for
-            download.
+            Após uma verificação rápida, poderá descarregar o seu documento.
           </p>
         </div>
       </div>
     </section>
 
     <!-- Menu de Categorias Dinâmico -->
-    <nav class="categories-nav">
+    <nav class="categories-nav" id="categoriesNav">
       <div class="categories-container" id="categoriesContainer">
         <!-- Carregado via JS -->
       </div>
     </nav>
 
     <!-- Vitrine de Produtos -->
-    <main class="container">
+    <main class="container" id="catalogMain">
       <h2 id="txtCatalogoTit" class="section-title">
-        Available Books Catalogue
+        Catálogo de livros disponíveis
       </h2>
       <section id="catalog" class="catalog-grid">
         <!-- Carregado via JS -->
       </section>
     </main>
 
+    <section id="librarySection" class="account-section container" hidden>
+      <div class="account-heading">
+        <h2 id="libraryTitle">📚 Os Meus Livros</h2>
+        <button class="btn-secondary" onclick="voltarAoCatalogo()" id="libraryBackButton">Voltar ao catálogo</button>
+      </div>
+      <div id="libraryStatus" class="account-status" role="status"></div>
+      <div id="libraryBooks" class="account-list"></div>
+    </section>
+
+    <section id="adminSection" class="account-section container" hidden>
+      <div class="account-heading">
+        <h2 id="adminTitle">⚙️ Aprovar pagamentos</h2>
+        <button class="btn-secondary" onclick="voltarAoCatalogo()" id="adminBackButton">Voltar ao catálogo</button>
+      </div>
+      <div id="adminStatus" class="account-status" role="status"></div>
+      <div id="adminOrders" class="account-list"></div>
+    </section>
+
     <!-- Modal de Checkout Otimizado -->
     <div id="checkoutModal" class="modal">
       <div class="modal-content">
         <span class="close-btn" onclick="fecharModalCheckout()">&times;</span>
-        <h3 id="checkoutTitulo">Pay & Receive PDF</h3>
+        <h3 id="checkoutTitulo">Pagar e receber o PDF</h3>
         <p id="checkoutPreco" class="checkout-price-highlight"></p>
 
-        <form id="formCheckout" onsubmit="processarPagamentoViaWhatsApp(event)">
+        <form id="formCheckout" onsubmit="submeterConfirmacaoPagamento(event)">
           <div class="form-group">
-            <label id="lblNome" for="clienteNome">Full Name *</label>
+            <label id="lblNome" for="clienteNome">Nome completo *</label>
             <input
               type="text"
               id="clienteNome"
-              placeholder="Ex: Jose da Silva"
+              placeholder="Ex.: José da Silva"
+              readonly
               required
             />
           </div>
 
           <div class="form-group">
             <label id="lblEmail" for="clienteEmail"
-              >Your E-mail (To receive the PDF) *</label
+              >O seu email (para receber o PDF) *</label
             >
             <input
               type="email"
               id="clienteEmail"
-              placeholder="example@gmail.com"
+              placeholder="exemplo@gmail.com"
+              readonly
               required
             />
           </div>
 
           <div class="form-group">
-            <label id="lblMetodo" for="metodoPagamento">Payment Method</label>
+            <label id="lblRegiao" for="regiaoPagamento">País / Região</label>
+            <select id="regiaoPagamento" onchange="atualizarOpcoesPagamento()" required>
+              <option value="mozambique" id="optionMozambique">Moçambique</option>
+              <option value="other" id="optionOther">África do Sul / Outros países</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label id="lblMetodo" for="metodoPagamento">Forma de pagamento</label>
             <select
               id="metodoPagamento"
               onchange="atualizarInstrucoesPagamento()"
@@ -271,7 +308,7 @@
             >
               <option value="mpesa">M-Pesa (Vodacom)</option>
               <option value="emola">e-Mola (Movitel)</option>
-              <option value="sabank">South African Bank / Card (ZAR)</option>
+              <option value="sabank" id="optionSaBank" hidden>Banco/cartão sul-africano (ZAR)</option>
             </select>
           </div>
 
@@ -279,12 +316,13 @@
 
           <div class="form-group">
             <label id="lblRef" for="referenciaPagamento"
-              >Transaction Code / Reference Number *</label
+              >Código / Referência da transacção *</label
             >
             <input
               type="text"
               id="referenciaPagamento"
-              placeholder="Ex: PP240929.1830.A12345 / Ref Number"
+              maxlength="160"
+              placeholder="Ex.: PP240929.1830.A12345 / número de referência"
               required
             />
           </div>
@@ -301,10 +339,10 @@
               gap: 8px;
             "
           >
-            📱 Confirm & Send on WhatsApp
+            📱 Confirmar e enviar pelo WhatsApp
           </button>
         </form>
-        <div id="statusPagamento" class="payment-status"></div>
+        <div id="statusPagamento" class="payment-status account-status" role="status"></div>
       </div>
     </div>
 
@@ -328,7 +366,7 @@
         >
 
         <h2 id="previewTitulo" style="margin-top: 0; color: #1e293b">
-          Book Title
+          Título do livro
         </h2>
         <p
           id="previewAutor"
@@ -350,7 +388,7 @@
           "
         >
           <h4 id="txtSinopse" style="margin: 0 0 8px 0; color: #1e293b">
-            📌 Introduction / Synopsis
+            📌 Introdução / Sinopse
           </h4>
           <p
             id="previewTexto"
@@ -373,8 +411,8 @@
             margin-bottom: 16px;
           "
         >
-          🔒 To read the full work in PDF, please make the payment via M-Pesa,
-          e-Mola or SA Card.
+          🔒 Para ler a obra completa em PDF, efectue o pagamento via M-Pesa,
+          e-Mola ou cartão sul-africano.
         </p>
 
         <div style="display: flex; gap: 10px">
@@ -391,7 +429,7 @@
               font-weight: 600;
             "
           >
-            Close
+            Fechar
           </button>
           <button
             onclick="irParaCheckoutDoPreview()"
@@ -407,7 +445,7 @@
               font-weight: 600;
             "
           >
-            💳 Buy Now
+            💳 Comprar agora
           </button>
         </div>
       </div>
@@ -423,56 +461,64 @@
             onclick="alternarAba('login')"
             id="tabLoginBtn"
           >
-            Sign In
+            Entrar
           </button>
           <button
             class="tab-btn"
             onclick="alternarAba('registro')"
             id="tabRegisterBtn"
           >
-            Register
+            Registar
           </button>
         </div>
 
         <form id="formLogin" class="auth-form active">
-          <h3 id="loginTitle">Welcome back!</h3>
+          <h3 id="loginTitle">Bem-vindo de volta!</h3>
           <div class="form-group">
-            <label id="lblLoginEmail">Email or Username</label>
-            <input type="email" placeholder="your@email.com" required />
+            <label id="lblLoginEmail">Email ou utilizador</label>
+            <input type="email" id="loginEmail" autocomplete="email" placeholder="seu@email.com" required />
           </div>
           <div class="form-group">
-            <label id="lblLoginPass">Password</label>
-            <input type="password" placeholder="••••••••" required />
+            <label id="lblLoginPass">Palavra-passe</label>
+            <input type="password" id="loginPassword" autocomplete="current-password" placeholder="••••••••" required />
           </div>
           <button type="submit" id="btnLoginSubmit" class="btn-primary">
-            Sign In
+            Iniciar sessão
           </button>
         </form>
 
         <form id="formRegistro" class="auth-form">
-          <h3 id="regTitle">Create your account</h3>
+          <h3 id="regTitle">Crie a sua conta</h3>
           <div class="form-group">
-            <label id="lblRegName">Full Name</label>
-            <input type="text" placeholder="Your Name" required />
+            <label id="lblRegName">Nome completo</label>
+            <input
+              type="text"
+              id="regName"
+              data-i18n-placeholder="nomeRegPh"
+              placeholder="O seu nome"
+              autocomplete="name"
+              required
+            />
           </div>
           <div class="form-group">
             <label id="lblRegEmail">Email</label>
-            <input type="email" placeholder="your@email.com" required />
+            <input type="email" id="regEmail" autocomplete="email" placeholder="seu@email.com" required />
           </div>
           <div class="form-group">
-            <label id="lblRegPass">Password</label>
-            <input type="password" placeholder="••••••••" required />
+            <label id="lblRegPass">Palavra-passe</label>
+            <input type="password" id="regPassword" autocomplete="new-password" minlength="8" placeholder="••••••••" required />
           </div>
           <button type="submit" id="btnRegSubmit" class="btn-primary">
-            Create Account
+            Criar conta
           </button>
         </form>
+        <div id="authStatus" class="account-status" role="status"></div>
       </div>
     </div>
 
     <!-- Rodapé -->
     <footer>
-      <p id="footerCopy">&copy; 2026 MozBookStore - All rights reserved.</p>
+      <p id="footerCopy">&copy; 2026 MozBookStore - Todos os direitos reservados.</p>
       <div class="footer-contacts" id="footerContacts">
         <!-- Preenchido via JS -->
       </div>

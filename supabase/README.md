@@ -1,0 +1,42 @@
+# Configuração do Supabase
+
+O site continua estático, mas o login, os pedidos, as aprovações e os PDFs
+privados dependem de um projecto Supabase. Não publique a aplicação até concluir
+estes passos:
+
+1. Crie um projecto no Supabase e abra o **SQL Editor**.
+2. Execute todo o conteúdo de `setup.sql`. O script cria os perfis, produtos,
+   encomendas, políticas RLS e o bucket privado `ebooks-private`.
+3. A ligação para o projecto actual está configurada em `../script.js`. Se
+   mudares de projecto, actualiza `CONFIG_SUPABASE.url` e
+   `CONFIG_SUPABASE.anonKey` com o **Project URL** e a chave publicável
+   (`anon`/`publishable`) de **Project Settings → API**. Essa chave pública pode
+   estar no cliente; nunca uses a `service_role`/secret key no JavaScript.
+4. Em **Authentication → URL Configuration**, registe o URL publicado do site
+   como Site URL e como Redirect URL. Sirva o site por HTTP/HTTPS; não use
+   `file://`.
+5. Active a confirmação de email nas definições de autenticação. Crie e confirme
+   a conta `mozbookstore@gmail.com` no site. Depois execute no SQL Editor:
+   `update public.profiles set role = 'admin' where lower(email) = 'mozbookstore@gmail.com';`
+   O papel administrativo não é atribuído pelo navegador nem automaticamente
+   pelo email: só quem tem acesso ao SQL Editor pode concedê-lo.
+6. Em **Storage → ebooks-private**, carregue os PDFs com estes nomes exactos:
+   `product-1.pdf`, `product-2.pdf`, …, `product-12.pdf`, correspondentes aos
+   IDs e títulos semeados no SQL. O bucket é privado; as políticas permitem o
+   download apenas ao administrador e a clientes com encomenda aprovada.
+
+## Funcionamento
+
+- O cliente regista-se/inicia sessão antes de comprar.
+- Moçambique apresenta M-Pesa e e-Mola em MZN. África do Sul/outros países
+  apresenta transferência bancária em ZAR.
+- A referência submetida cria uma encomenda pendente. O preço e a moeda são
+  calculados no banco de dados, não aceites do navegador.
+- `mozbookstore@gmail.com` vê as encomendas no botão **Administração** e pode
+  aprovar ou rejeitar. A aprovação concede acesso ao PDF privado.
+- **Minha Biblioteca** mostra o estado das encomendas e só apresenta o botão de
+  download para livros aprovados. Os links de download expiram após 60 segundos.
+
+Os PDFs não estão incluídos neste repositório: devem ser fornecidos e carregados
+no bucket após a criação do projecto. As instruções de pagamento e os preços
+devem ser confirmados no código e no banco antes da publicação.
