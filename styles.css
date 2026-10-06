@@ -1596,3 +1596,117 @@ footer {
 [hidden] {
   display: none !important;
 }
+
+.pwa-install-banner {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(440px, calc(100vw - 32px));
+  padding: 16px 48px 16px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 16px;
+  background: #0b2545;
+  color: #f4f6f9;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.28);
+  animation: pwa-install-enter 0.25s ease-out;
+}
+
+.pwa-install-icon {
+  display: grid;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 1.5rem;
+}
+
+.pwa-install-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.pwa-install-copy strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.92rem;
+}
+
+.pwa-install-copy p {
+  color: #dbeafe;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.pwa-install-action {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: #fff;
+  color: #0b2545;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pwa-install-action:hover {
+  background: #e2e8f0;
+}
+
+.pwa-install-dismiss {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #dbeafe;
+  font-size: 1.35rem;
+  cursor: pointer;
+}
+
+.pwa-install-dismiss:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+@keyframes pwa-install-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .pwa-install-banner {
+    right: 12px;
+    bottom: 12px;
+    gap: 9px;
+    padding: 14px 42px 14px 12px;
+  }
+
+  .pwa-install-icon {
+    flex-basis: 38px;
+    width: 38px;
+    height: 38px;
+  }
+
+  .pwa-install-action {
+    padding: 8px 9px;
+    font-size: 0.74rem;
+  }
+}

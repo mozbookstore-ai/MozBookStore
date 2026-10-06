@@ -58,6 +58,9 @@ let utilizadorAtual = null;
 let perfilAtual = null;
 let produtoCompraPendente = null;
 let catalogOrderWarning = false;
+let deferredInstallPrompt = null;
+let pwaInstallMode = null;
+let pwaInstallDismissed = false;
 
 // --- DICIONÁRIO DE TRADUÇÕES (PT / en-ZA) ---
 const traducoes = {
@@ -694,6 +697,7 @@ function aplicarIdioma() {
   document.getElementById("adminTitle").innerText = t.adminTitle;
   document.getElementById("libraryBackButton").innerText = t.backCatalog;
   document.getElementById("adminBackButton").innerText = t.backCatalog;
+  atualizarTextoInstalacaoPwa();
 
   renderizarCategorias();
   renderizarRodapé();
@@ -709,6 +713,102 @@ function aplicarIdioma() {
     atualizarOpcoesPagamento();
   }
 }
+
+function atualizarTextoInstalacaoPwa() {
+  const titulo = document.getElementById("pwaInstallTitle");
+  if (!titulo) return;
+
+  const portugues = idiomaAtual === "pt";
+  titulo.innerText = portugues
+    ? "Instale a MozBookStore"
+    : "Install MozBookStore";
+  document.getElementById("pwaInstallMessage").innerText =
+    pwaInstallMode === "ios"
+      ? portugues
+        ? "Toque em Partilhar e escolha “Adicionar ao ecrã principal”."
+        : "Tap Share, then choose “Add to Home Screen”."
+      : portugues
+        ? "Aceda aos seus livros mais rapidamente, directamente do ecrã inicial."
+        : "Get to your books faster, right from your home screen.";
+  document.getElementById("pwaInstallAction").innerText =
+    pwaInstallMode === "ios"
+      ? portugues
+        ? "Entendi"
+        : "Got it"
+      : portugues
+        ? "Instalar"
+        : "Install";
+  document
+    .getElementById("pwaInstallDismiss")
+    .setAttribute(
+      "aria-label",
+      portugues ? "Fechar sugestão de instalação" : "Close install suggestion",
+    );
+}
+
+function inicializarSugestaoInstalacaoPwa() {
+  const banner = document.getElementById("pwaInstallBanner");
+  const botaoInstalar = document.getElementById("pwaInstallAction");
+  const fechar = document.getElementById("pwaInstallDismiss");
+  const appInstalada =
+    window.matchMedia?.("(display-mode: standalone)")?.matches ||
+    navigator.standalone === true;
+
+  if (!banner || appInstalada) return;
+
+  const ocultarSugestao = () => {
+    pwaInstallDismissed = true;
+    banner.hidden = true;
+  };
+
+  fechar.addEventListener("click", ocultarSugestao);
+
+  botaoInstalar.addEventListener("click", async () => {
+    if (!deferredInstallPrompt) {
+      ocultarSugestao();
+      return;
+    }
+
+    const installPrompt = deferredInstallPrompt;
+    deferredInstallPrompt = null;
+    try {
+      await installPrompt.prompt();
+      await installPrompt.userChoice;
+      banner.hidden = true;
+    } catch (error) {
+      console.error("Não foi possível iniciar a instalação da PWA:", error);
+      banner.hidden = true;
+    }
+  });
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    pwaInstallMode = "prompt";
+    atualizarTextoInstalacaoPwa();
+    if (!pwaInstallDismissed) banner.hidden = false;
+  });
+
+  window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    banner.hidden = true;
+  });
+
+  const dispositivoApple =
+    /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (dispositivoApple) {
+    pwaInstallMode = "ios";
+    atualizarTextoInstalacaoPwa();
+    window.setTimeout(() => {
+      if (!pwaInstallDismissed && !deferredInstallPrompt) {
+        banner.hidden = false;
+      }
+    }, 1500);
+  }
+}
+
+inicializarSugestaoInstalacaoPwa();
 
 // Renderizar Categorias Dinamicamente com Tradução
 function renderizarCategorias() {

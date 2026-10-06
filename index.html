@@ -16,6 +16,26 @@
     />
     <meta name="author" content="MozBookStore" />
 
+    <!-- PWA Manifest & Theme -->
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#0b2545" />
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./sw.js")
+            .then((reg) =>
+              console.log("Service Worker registado com sucesso!", reg),
+            )
+            .catch((err) =>
+              console.log("Falha ao registar o Service Worker:", err),
+            );
+        });
+      }
+    </script>
+
     <!-- Estilos e Fontes -->
     <link rel="stylesheet" href="./styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -820,6 +840,30 @@
         </div>
       </div>
     </div>
+
+    <aside
+      id="pwaInstallBanner"
+      class="pwa-install-banner"
+      role="region"
+      aria-live="polite"
+      aria-labelledby="pwaInstallTitle"
+      hidden
+    >
+      <span class="pwa-install-icon" aria-hidden="true">📚</span>
+      <div class="pwa-install-copy">
+        <strong id="pwaInstallTitle"></strong>
+        <p id="pwaInstallMessage"></p>
+      </div>
+      <button id="pwaInstallAction" class="pwa-install-action" type="button"></button>
+      <button
+        id="pwaInstallDismiss"
+        class="pwa-install-dismiss"
+        type="button"
+        aria-label="Fechar sugestão de instalação"
+      >
+        &times;
+      </button>
+    </aside>
 
     <!-- Rodapé -->
     <footer>
