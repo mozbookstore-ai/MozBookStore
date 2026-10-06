@@ -158,6 +158,7 @@ const traducoes = {
     lblRegPass: "Palavra-passe",
     btnRegSubmit: "Criar conta",
     footerCopy: "&copy; 2026 MozBookStore - Todos os direitos reservados.",
+    footerSocialTitle: "Siga-nos",
   },
   "en-ZA": {
     idiomaLabel: "🌐 Mudar idioma / Change language:",
@@ -257,6 +258,7 @@ const traducoes = {
     lblRegPass: "Password",
     btnRegSubmit: "Create Account",
     footerCopy: "&copy; 2026 MozBookStore - All rights reserved.",
+    footerSocialTitle: "Follow us",
   },
 };
 
@@ -604,6 +606,7 @@ function aplicarIdioma() {
     document.getElementById("catalogStatus").innerText = t.productOrderWarning;
   }
   document.getElementById("footerCopy").innerHTML = t.footerCopy;
+  document.getElementById("footerSocialTitle").innerText = t.footerSocialTitle;
   document.getElementById("libraryTitle").innerText = t.libraryTitle;
   document.getElementById("adminTitle").innerText = t.adminTitle;
   document.getElementById("libraryBackButton").innerText = t.backCatalog;
