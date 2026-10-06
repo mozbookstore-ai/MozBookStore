@@ -4,6 +4,7 @@ const CONFIG_NOTIFICACOES = {
   emailJsPublicKey: "-ft_UtWIa-tk49VHy",
   emailJsServiceId: "service_ldwmjo9",
   emailJsTemplateId: "template_qgdxq0d",
+  emailJsTemplateIdAutoReply: "template_ikogr4i",
   emailDestino: "mozbookstore@gmail.com",
 };
 
@@ -87,7 +88,7 @@ const traducoes = {
     orderPending:
       "Confirmação enviada. O acesso ao livro será libertado após a aprovação do pagamento.",
     orderNotificationFailed:
-      "A encomenda ficou registada e pendente de aprovação, mas não foi possível enviar o email de notificação à equipa.",
+      "A encomenda ficou registada e pendente de aprovação, mas não foi possível enviar todos os emails de confirmação.",
     noOrders: "Ainda não existem encomendas.",
     noPurchases: "Ainda não tem compras.",
     adminOnly: "Esta área está disponível apenas para a administração.",
@@ -216,7 +217,7 @@ const traducoes = {
     orderPending:
       "Confirmation submitted. Book access will be released after payment approval.",
     orderNotificationFailed:
-      "The order was recorded and is pending approval, but the notification email could not be sent to the team.",
+      "The order was recorded and is pending approval, but not all confirmation emails could be sent.",
     noOrders: "There are no orders yet.",
     noPurchases: "You have no purchases yet.",
     adminOnly: "This area is available to administrators only.",
@@ -994,47 +995,45 @@ async function submeterConfirmacaoPagamento(event) {
       utilizadorAtual.user_metadata?.full_name ||
       utilizadorAtual.email ||
       "";
-    const detalhesEncomenda = [
-      idiomaAtual === "pt"
-        ? "NOVA COMPRA - APROVAÇÃO PENDENTE"
-        : "NEW PURCHASE - APPROVAL PENDING",
-      "",
-      `${idiomaAtual === "pt" ? "Cliente" : "Customer"}: ${nomeCliente}`,
-      `Email: ${utilizadorAtual.email || ""}`,
-      `${idiomaAtual === "pt" ? "Livro" : "Book"}: ${encomenda.product_title}`,
-      `${idiomaAtual === "pt" ? "Valor" : "Amount"}: ${encomenda.amount} ${encomenda.currency}`,
-      `${idiomaAtual === "pt" ? "Região" : "Region"}: ${regiao.selectedOptions[0].text}`,
-      `${idiomaAtual === "pt" ? "Forma de pagamento" : "Payment method"}: ${metodoPagamento.selectedOptions[0].text}`,
-      `${idiomaAtual === "pt" ? "Referência" : "Reference"}: ${referencia}`,
-      `${idiomaAtual === "pt" ? "Estado" : "Status"}: ${t.statusPendente}`,
-    ].join("\n");
+    const templateParams = {
+      to_email: CONFIG_NOTIFICACOES.emailDestino,
+      name: nomeCliente,
+      email: utilizadorAtual.email || "",
+      title: encomenda.product_title,
+      author: produtoSelecionado.autor || "",
+      metodo: metodoPagamento.selectedOptions[0].text,
+      referencia,
+    };
+    const resultadosEmail = await Promise.allSettled([
+      Promise.resolve().then(() =>
+        emailjs.send(
+          CONFIG_NOTIFICACOES.emailJsServiceId,
+          CONFIG_NOTIFICACOES.emailJsTemplateId,
+          templateParams,
+        ),
+      ),
+      Promise.resolve().then(() =>
+        emailjs.send(
+          CONFIG_NOTIFICACOES.emailJsServiceId,
+          CONFIG_NOTIFICACOES.emailJsTemplateIdAutoReply,
+          templateParams,
+        ),
+      ),
+    ]);
 
-    try {
-      await emailjs.send(
-        CONFIG_NOTIFICACOES.emailJsServiceId,
-        CONFIG_NOTIFICACOES.emailJsTemplateId,
-        {
-          cliente_nome: nomeCliente,
-          cliente_email: utilizadorAtual.email || "",
-          to_email: CONFIG_NOTIFICACOES.emailDestino,
-          reply_to: utilizadorAtual.email || CONFIG_NOTIFICACOES.emailDestino,
-          livro_titulo: encomenda.product_title,
-          referencia,
-          metodo: metodoPagamento.selectedOptions[0].text,
-          tipo_notificacao:
-            idiomaAtual === "pt"
-              ? "Nova compra pendente de aprovação"
-              : "New purchase pending approval",
-          solicitante_contacto: utilizadorAtual.email || nomeCliente,
-          detalhes_pedido: detalhesEncomenda,
-          mensagem: detalhesEncomenda,
-        },
-      );
-    } catch (erroNotificacao) {
-      console.error(
-        "Não foi possível enviar o email da nova encomenda:",
-        erroNotificacao,
-      );
+    const emailsFalhados = resultadosEmail
+      .map((resultado, indice) => {
+        if (resultado.status === "fulfilled") return null;
+        const tipoEmail = indice === 0 ? "notificação da loja" : "auto-reply";
+        console.error(
+          `Falha no envio do email (${tipoEmail}):`,
+          resultado.reason,
+        );
+        return tipoEmail;
+      })
+      .filter(Boolean);
+
+    if (emailsFalhados.length > 0) {
       mensagemEstado = t.orderNotificationFailed;
     }
   }

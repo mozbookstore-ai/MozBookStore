@@ -59,10 +59,13 @@ estes passos:
   calculados no banco de dados a partir de `products.price_mzn`, não aceites do
   navegador.
 - Depois de registar uma encomenda, o site envia uma notificação de aprovação
-  pendente para `emailDestino` em `../script.js`, através do serviço e template
-  EmailJS já configurados. No template, confirme que o destinatário usa
-  `{{to_email}}` e que o conteúdo inclui `{{mensagem}}`. Se o envio falhar, a
-  encomenda continua registada e pendente, e o cliente recebe um aviso.
+  pendente para `emailDestino` em `../script.js` e um auto-reply para o cliente,
+  através dos templates EmailJS `template_qgdxq0d` e `template_ikogr4i`.
+  Ambos recebem `to_email`, `name`, `email`, `title`, `author`, `metodo` e
+  `referencia`. No painel EmailJS, configure o destinatário da notificação da
+  loja como `{{to_email}}` e o destinatário do auto-reply como `{{email}}`.
+  Se um dos envios falhar, a encomenda continua registada e pendente, e o
+  cliente recebe um aviso.
 - O catálogo segue a ordem numérica dos IDs (1–13), não a ordem alfabética.
 - `mozbookstore@gmail.com` vê as encomendas no botão **Administração** e pode
   aprovar ou rejeitar. A aprovação concede acesso ao PDF privado.
