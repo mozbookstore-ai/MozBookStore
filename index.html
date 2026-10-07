@@ -134,6 +134,20 @@
             🇿🇦 English (SA)
           </button>
           <button
+            id="btnMedia"
+            class="btn-login-trigger btn-media"
+            type="button"
+            onclick="mostrarMultimedia()"
+          >
+            <span class="btn-media-icon" aria-hidden="true">🎬</span>
+            <span class="btn-media-copy">
+              <span id="btnMediaTitle">Multimédia</span>
+              <span id="btnMediaSubtitle" class="btn-media-subtitle">
+                GRÁTIS · AULAS · COMICS · PODCASTS · INFANTIL
+              </span>
+            </span>
+          </button>
+          <button
             id="txtBtnLogin"
             class="btn-login-trigger"
             onclick="abrirModalLogin()"
@@ -147,6 +161,22 @@
             hidden
           >
             🛒 Minhas compras
+          </button>
+          <button
+            id="btnVendas"
+            class="btn-login-trigger"
+            onclick="mostrarResumoVendas()"
+            hidden
+          >
+            📊 Vendas
+          </button>
+          <button
+            id="btnLixeira"
+            class="btn-login-trigger"
+            onclick="mostrarLixeira()"
+            hidden
+          >
+            🗑️ Lixeira
           </button>
           <button
             id="btnAdmin"
@@ -311,17 +341,129 @@
     </main>
 
     <section
+      id="mediaSection"
+      class="media-section container"
+      aria-labelledby="mediaTitle"
+      hidden
+    >
+      <header class="media-heading">
+        <span class="media-eyebrow" id="mediaEyebrow">GRATUITO · APRENDER AO SEU RITMO</span>
+        <h1 id="mediaTitle">Aprender também se ouve e se vê.</h1>
+        <p id="mediaDescription" class="section-help">
+          Aulas, comics, podcasts e conteúdos para crianças, gratuitos. Algumas
+          secções estão ainda a ser preparadas.
+        </p>
+      </header>
+
+      <section class="media-video-section" aria-labelledby="mediaVideosTitle">
+        <div class="media-section-heading" id="mediaVideoHeading">
+          <div>
+            <span class="media-eyebrow" id="mediaVideoEyebrow">EM DESTAQUE</span>
+            <h2 id="mediaVideosTitle">Videoaulas</h2>
+          </div>
+          <span class="media-count" id="mediaVideoCount"></span>
+        </div>
+        <div
+          id="mediaCategories"
+          class="media-categories"
+          role="tablist"
+          aria-label="Categorias de vídeo"
+        ></div>
+        <div
+          id="mediaVideoGrid"
+          class="media-video-grid"
+          role="tabpanel"
+          tabindex="0"
+          aria-live="polite"
+        ></div>
+      </section>
+
+      <section
+        id="mediaAudioSection"
+        class="media-audio-section"
+        aria-labelledby="mediaAudioTitle"
+        role="tabpanel"
+        tabindex="0"
+        hidden
+      >
+        <div class="media-audio-art" aria-hidden="true">
+          <span>♫</span>
+        </div>
+        <div class="media-audio-content">
+          <span class="media-eyebrow" id="mediaAudioEyebrow">OUVIR AGORA</span>
+          <h2 id="mediaAudioTitle">Podcasts e áudio</h2>
+          <p id="mediaAudioDescription" class="section-help">
+            Pratica inglês com este podcast enquanto preparamos histórias
+            assustadoras e vídeos educativos.
+          </p>
+          <div class="media-audio-meta">
+            <strong id="mediaAudioEpisode">How to be Indirect in Conversations</strong>
+            <span id="mediaAudioSource">Easy English · 17 min</span>
+          </div>
+          <audio
+            id="mediaAudioPlayer"
+            class="media-audio-player"
+            controls
+            preload="none"
+            aria-label="Leitor de podcast"
+          >
+            <source
+              src="https://aphid.fireside.fm/d/1437767933/19bb132e-6c09-446f-9d3b-0d2272d2779c/69bfb6f1-57bd-4905-b995-236e081d62ee.mp3"
+              type="audio/mpeg"
+            />
+          </audio>
+          <a
+            class="media-source-link"
+            href="https://www.easyenglish.fm/102"
+            target="_blank"
+            rel="noopener noreferrer"
+            id="mediaAudioLink"
+          >
+            Ver episódio e transcrição <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </section>
+      <p id="mediaCredits" class="media-credits">
+        Os vídeos e podcasts são incorporados a partir das plataformas e dos
+        criadores originais.
+      </p>
+      <button
+        id="mediaBackButton"
+        class="btn-secondary media-back-button"
+        type="button"
+        onclick="voltarAoCatalogo()"
+      >
+        Voltar à loja
+      </button>
+    </section>
+
+    <section
       id="activitySection"
       class="activity-section container"
       aria-labelledby="activityTitle"
     >
-      <h3 id="activityTitle">Registo de atividade</h3>
-      <p id="activityDescription" class="section-help">
-        As ações ficam guardadas apenas neste dispositivo. Cada entrada mostra
-        a data e hora local, incluindo os segundos.
-      </p>
-      <ol id="activityLog" class="activity-log" aria-live="polite"></ol>
-      <div id="activityStatus" class="account-status" role="status"></div>
+      <details class="activity-disclosure">
+        <summary id="activityTitle">Registo de atividade</summary>
+        <div class="activity-content">
+          <div class="activity-toolbar">
+            <p id="activityDescription" class="section-help">
+              As ações ficam guardadas apenas neste dispositivo. Cada entrada
+              mostra a data e hora local, incluindo os segundos.
+            </p>
+            <button
+              id="activityClearButton"
+              class="btn-secondary activity-clear-button"
+              type="button"
+              onclick="limparHistoricoAtividades()"
+              hidden
+            >
+              Apagar todas
+            </button>
+          </div>
+          <ol id="activityLog" class="activity-log" aria-live="polite"></ol>
+          <div id="activityStatus" class="account-status" role="status"></div>
+        </div>
+      </details>
     </section>
 
     <section id="librarySection" class="account-section container" hidden>
@@ -360,6 +502,62 @@
       </p>
       <div id="adminStatus" class="account-status" role="status"></div>
       <div id="adminOrders" class="account-list"></div>
+    </section>
+
+    <section id="salesSection" class="account-section container" hidden>
+      <div class="account-heading">
+        <h2 id="salesTitle">📊 Vendas e receitas</h2>
+        <button
+          class="btn-secondary"
+          onclick="mostrarPainelAdmin()"
+          id="salesBackButton"
+        >
+          Voltar à administração
+        </button>
+      </div>
+      <p id="salesHelp" class="section-help">
+        Resumo apenas de encomendas aprovadas. Os totais são apresentados
+        separadamente por moeda.
+      </p>
+      <div id="salesStatus" class="account-status" role="status"></div>
+      <div class="sales-summary" aria-live="polite">
+        <article class="sales-card">
+          <h3 id="salesOrdersLabel">Vendas aprovadas</h3>
+          <p id="salesOrderCount">—</p>
+        </article>
+        <article class="sales-card">
+          <h3 id="salesBooksLabel">Exemplares vendidos</h3>
+          <p id="salesBookCount">—</p>
+        </article>
+        <article class="sales-card">
+          <h3 id="salesMznLabel">Receita aprovada (MZN)</h3>
+          <p id="salesRevenueMzn">—</p>
+        </article>
+        <article class="sales-card">
+          <h3 id="salesZarLabel">Receita aprovada (ZAR)</h3>
+          <p id="salesRevenueZar">—</p>
+        </article>
+      </div>
+      <p id="salesUpdated" class="sales-updated"></p>
+    </section>
+
+    <section id="trashSection" class="account-section container" hidden>
+      <div class="account-heading">
+        <h2 id="trashTitle">🗑️ Lixeira</h2>
+        <button
+          class="btn-secondary"
+          onclick="voltarDaLixeira()"
+          id="trashBackButton"
+        >
+          Voltar
+        </button>
+      </div>
+      <p id="trashHelp" class="section-help">
+        As compras apagadas ficam aqui por 30 dias. Pode restaurá-las durante
+        esse prazo; depois serão excluídas permanentemente.
+      </p>
+      <div id="trashStatus" class="account-status" role="status"></div>
+      <div id="trashOrders" class="account-list"></div>
     </section>
 
     <!-- Modal de Checkout Otimizado -->

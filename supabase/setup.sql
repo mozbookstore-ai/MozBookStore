@@ -155,9 +155,13 @@ alter table public.orders
   add column if not exists quantity integer not null default 1
   check (quantity > 0);
 
+alter table public.orders
+  add column if not exists deleted_at timestamptz;
+
+drop index if exists public.orders_one_approved_product_per_user;
 create unique index if not exists orders_one_approved_product_per_user
   on public.orders (user_id, product_id)
-  where status = 'approved';
+  where status = 'approved' and deleted_at is null;
 
 -- Stage changed IDs first so product swaps preserve foreign keys and existing orders.
 create temporary table mozbookstore_product_id_remap (
@@ -396,9 +400,6 @@ security invoker
 set search_path = public
 as $$
 begin
-  if not public.is_admin() then
-    raise exception 'Only an administrator can review orders.';
-  end if;
   if new.id <> old.id
      or new.user_id <> old.user_id
      or new.product_id <> old.product_id
@@ -409,8 +410,41 @@ begin
      or new.region <> old.region
      or new.payment_method <> old.payment_method
      or new.transaction_reference <> old.transaction_reference
-     or new.created_at <> old.created_at then
-    raise exception 'Order details cannot be changed during review.';
+     or new.created_at <> old.created_at
+     or new.reviewed_at is distinct from old.reviewed_at
+     or new.reviewed_by is distinct from old.reviewed_by then
+    raise exception 'Order details cannot be changed.';
+  end if;
+
+  if new.deleted_at is distinct from old.deleted_at then
+    if old.status not in ('approved', 'rejected')
+       or new.status <> old.status then
+      raise exception 'Only finalized orders can be moved to or restored from trash.';
+    end if;
+
+    if not public.is_admin() and old.user_id <> (select auth.uid()) then
+      raise exception 'Only the order owner or an administrator can manage its trash status.';
+    end if;
+
+    if old.deleted_at is null and new.deleted_at is not null then
+      new.deleted_at := now();
+    elsif old.deleted_at is not null and new.deleted_at is null then
+      if old.deleted_at < now() - interval '720 hours' then
+        raise exception 'This order has expired from trash and can no longer be restored.';
+      end if;
+      new.deleted_at := null;
+    else
+      raise exception 'Invalid trash status change.';
+    end if;
+
+    return new;
+  end if;
+
+  if old.deleted_at is not null then
+    raise exception 'Orders in trash cannot be reviewed.';
+  end if;
+  if not public.is_admin() then
+    raise exception 'Only an administrator can review orders.';
   end if;
   if new.status not in ('pending', 'approved', 'rejected') then
     raise exception 'Invalid order status.';
@@ -458,19 +492,37 @@ create policy "Users can submit pending orders for themselves"
 drop policy if exists "Admins can review orders" on public.orders;
 create policy "Admins can review orders"
   on public.orders for update to authenticated
-  using (public.is_admin())
-  with check (public.is_admin());
-
-drop policy if exists "Users and admins can delete finalized orders" on public.orders;
-create policy "Users and admins can delete finalized orders"
-  on public.orders for delete to authenticated
   using (
-    status in ('approved', 'rejected')
-    and (
+    public.is_admin()
+    or (
       user_id = (select auth.uid())
-      or public.is_admin()
+      and status in ('approved', 'rejected')
+      and (deleted_at is null or deleted_at >= now() - interval '720 hours')
+    )
+  )
+  with check (
+    public.is_admin()
+    or (
+      user_id = (select auth.uid())
+      and status in ('approved', 'rejected')
+      and (deleted_at is null or deleted_at >= now() - interval '720 hours')
     )
   );
+
+drop policy if exists "Users and admins can delete finalized orders" on public.orders;
+revoke delete on public.orders from anon, authenticated, public;
+
+create extension if not exists pg_cron;
+
+select cron.unschedule(jobid)
+from cron.job
+where jobname = 'purge-expired-mozbookstore-trash';
+
+select cron.schedule(
+  'purge-expired-mozbookstore-trash',
+  '*/10 * * * *',
+  $job$delete from public.orders where deleted_at < now() - interval '720 hours';$job$
+);
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('ebooks-private', 'ebooks-private', false, 52428800, array['application/pdf'])
@@ -492,6 +544,7 @@ create policy "Approved customers and admins can download ebooks"
         join public.products on products.id = orders.product_id
         where orders.user_id = (select auth.uid())
           and orders.status = 'approved'
+          and orders.deleted_at is null
           and storage.objects.name = products.pdf_path
       )
     )

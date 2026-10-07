@@ -74,11 +74,21 @@ estes passos:
   guardadas no Supabase.
 - `mozbookstore@gmail.com` vê as encomendas no botão **Administração** e pode
   aprovar ou rejeitar. A aprovação concede acesso ao PDF privado.
+- A administração tem um resumo de vendas que conta apenas encomendas
+  aprovadas, indica o número de encomendas e exemplares vendidos, e mostra a
+  receita separada em MZN e ZAR, sem conversão ou soma entre moedas.
+- Compras aprovadas ou rejeitadas movidas para a **Lixeira** podem ser
+  restauradas durante 30 dias. O Supabase executa a remoção permanente de
+  encomendas expiradas a cada 10 minutos através da extensão `pg_cron`; execute
+  `setup.sql` para criar a coluna, permissões e tarefa agendada. Se o projecto
+  não permitir activar extensões pelo SQL Editor, active `pg_cron` em
+  **Database → Extensions** e volte a executar o script.
 - **Minhas compras** mostra o histórico e só apresenta o botão de download para
   livros aprovados. Tanto o cliente como a administração podem apagar compras
-  aprovadas ou rejeitadas; a exclusão é definitiva e remove o acesso ao PDF.
-  Compras pendentes não podem ser apagadas. Links de download já emitidos
-  permanecem válidos até expirarem, no máximo após 60 segundos.
+  aprovadas ou rejeitadas, que passam para a Lixeira e deixam de conceder
+  acesso ao PDF enquanto estiverem lá. Compras pendentes não podem ser
+  apagadas. Links de download já emitidos permanecem válidos até expirarem,
+  no máximo após 60 segundos.
 - O link **Esqueceu-se da palavra-passe?** envia o email de recuperação e
   redirecciona para `https://mozbookstore-ai.github.io/MozBookStore/`, onde a
   pessoa define a nova palavra-passe.

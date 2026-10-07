@@ -168,11 +168,15 @@ function descricaoAtividade(evento) {
 function renderizarHistoricoAtividades() {
   const lista = document.getElementById("activityLog");
   const estado = document.getElementById("activityStatus");
+  const botaoApagarTudo = document.getElementById("activityClearButton");
   if (!lista || !estado) return;
 
   const t = traducoes[idiomaAtual];
   lista.replaceChildren();
-  estado.textContent = erroHistoricoAtividades ? t.activityStorageError : "";
+  botaoApagarTudo.hidden = historicoAtividades.length === 0;
+  estado.textContent = erroHistoricoAtividades
+    ? t.activityStorageError
+    : avisoHistoricoAtividades;
   estado.className = `account-status${erroHistoricoAtividades ? " error" : ""}`;
 
   if (historicoAtividades.length === 0) {
@@ -183,7 +187,7 @@ function renderizarHistoricoAtividades() {
     return;
   }
 
-  historicoAtividades.forEach((evento) => {
+  historicoAtividades.forEach((evento, index) => {
     const item = document.createElement("li");
     item.className = "activity-entry";
     const descricao = document.createElement("p");
@@ -192,9 +196,56 @@ function renderizarHistoricoAtividades() {
     const timestamp = criarElementoTimestamp(evento.timestamp);
     timestamp.className = "activity-timestamp";
     timestamp.setAttribute("aria-label", `${t.activityTimestamp}: ${timestamp.textContent}`);
-    item.append(descricao, timestamp);
+    const botaoApagar = document.createElement("button");
+    botaoApagar.type = "button";
+    botaoApagar.className = "activity-delete-button";
+    botaoApagar.textContent = t.activityDeleteOne;
+    botaoApagar.setAttribute(
+      "aria-label",
+      t.activityDeleteLabel.replace("{activity}", descricao.textContent),
+    );
+    botaoApagar.addEventListener("click", () => apagarAtividade(index));
+    item.append(descricao, timestamp, botaoApagar);
     lista.appendChild(item);
   });
+}
+
+function persistirHistoricoAtividades() {
+  try {
+    localStorage.setItem(ACTIVITY_LOG_KEY, JSON.stringify(historicoAtividades));
+    erroHistoricoAtividades = false;
+    return true;
+  } catch (error) {
+    erroHistoricoAtividades = true;
+    console.error("Não foi possível guardar o registo de atividade:", error);
+    return false;
+  }
+}
+
+function apagarAtividade(indice) {
+  if (
+    !Number.isInteger(indice) ||
+    indice < 0 ||
+    indice >= historicoAtividades.length
+  ) {
+    console.error("Não foi possível apagar a atividade: índice inválido.", indice);
+    return;
+  }
+
+  historicoAtividades.splice(indice, 1);
+  avisoHistoricoAtividades = traducoes[idiomaAtual].activityDeleted;
+  persistirHistoricoAtividades();
+  renderizarHistoricoAtividades();
+}
+
+function limparHistoricoAtividades() {
+  if (historicoAtividades.length === 0) return;
+  if (!window.confirm(traducoes[idiomaAtual].activityClearConfirm)) return;
+
+  historicoAtividades = [];
+  avisoHistoricoAtividades = traducoes[idiomaAtual].activityCleared;
+  persistirHistoricoAtividades();
+  renderizarHistoricoAtividades();
 }
 
 function registarAtividade(messageKey, details = {}) {
@@ -208,14 +259,9 @@ function registarAtividade(messageKey, details = {}) {
     messageKey,
     details,
   };
+  avisoHistoricoAtividades = "";
   historicoAtividades.unshift(evento);
-  try {
-    localStorage.setItem(ACTIVITY_LOG_KEY, JSON.stringify(historicoAtividades));
-    erroHistoricoAtividades = false;
-  } catch (error) {
-    erroHistoricoAtividades = true;
-    console.error("Não foi possível guardar o registo de atividade:", error);
-  }
+  persistirHistoricoAtividades();
   renderizarHistoricoAtividades();
 }
 
@@ -361,6 +407,70 @@ const PWA_INSTALL_SEEN_KEY = "mozbookstoreInstallPromptHandled";
 const ACTIVITY_LOG_KEY = "mozbookstoreActivityLog";
 let historicoAtividades = [];
 let erroHistoricoAtividades = false;
+let avisoHistoricoAtividades = "";
+let resumoVendasAtual = null;
+let categoriaMultimediaAtiva = "exams-classes";
+let videoMultimediaAtivo = null;
+
+const categoriasMultimedia = [
+  {
+    id: "exams-classes",
+    pt: "Exames & Aulas",
+    en: "Exams & Lessons",
+    emptyKey: "mediaEmptyCategory",
+    catalogCategories: ["desporto", "estilo-de-vida"],
+    catalogEmptyKey: "catalogEmptyCategory",
+  },
+  {
+    id: "entertainment",
+    pt: "Entretenimento",
+    en: "Entertainment",
+    emptyKey: "mediaEmptyEntertainment",
+    catalogCategories: [],
+    catalogEmptyKey: "catalogEmptyEntertainment",
+  },
+  {
+    id: "podcasts-videos",
+    pt: "Podcasts & Vídeos",
+    en: "Podcasts & Videos",
+    emptyKey: "mediaEmptyCategory",
+    catalogCategories: [],
+    catalogEmptyKey: "catalogEmptyPodcasts",
+  },
+  {
+    id: "kids-space",
+    pt: "Espaço Infantil",
+    en: "Kids' Corner",
+    emptyKey: "mediaEmptyKids",
+    catalogCategories: [],
+    catalogEmptyKey: "catalogEmptyKids",
+  },
+];
+
+const videosMultimedia = [
+  {
+    id: "javascript-course",
+    category: "exams-classes",
+    youtubeId: "W6NZfCO5SIk",
+    title: "JavaScript Course for Beginners – Your First Step to Web Development",
+    creator: "Programming with Mosh",
+    description: {
+      pt: "Uma introdução prática aos fundamentos de JavaScript para quem está a começar no desenvolvimento web.",
+      en: "A practical introduction to JavaScript fundamentals for anyone starting out in web development.",
+    },
+  },
+  {
+    id: "figma-ui-ux",
+    category: "exams-classes",
+    youtubeId: "c9Wg6Cb_YlU",
+    title: "UI / UX Design Tutorial – Wireframe, Mockup & Design in Figma",
+    creator: "YouTube · Figma design tutorial",
+    description: {
+      pt: "Aprende a transformar uma ideia em wireframes, mockups e interfaces no Figma.",
+      en: "Learn how to turn an idea into wireframes, mockups, and interfaces in Figma.",
+    },
+  },
+];
 
 // --- DICIONÁRIO DE TRADUÇÕES (PT / en-ZA) ---
 const traducoes = {
@@ -369,10 +479,81 @@ const traducoes = {
     btnLogin: "🔑 Entrar / Registar",
     btnCompras: "🛒 Minhas compras",
     btnAdmin: "⚙️ Administração",
+    btnVendas: "📊 Vendas",
+    btnLixeira: "🗑️ Lixeira",
+    btnMedia: "Multimédia",
+    btnMediaSubtitle: "GRÁTIS · AULAS · COMICS · PODCASTS · INFANTIL",
+    mediaEyebrow: "GRATUITO · APRENDER AO SEU RITMO",
+    mediaTitle: "Aprender também se ouve e se vê.",
+    mediaDescription:
+      "Aulas, comics, podcasts e conteúdos para crianças, gratuitos. Algumas secções estão ainda a ser preparadas.",
+    mediaVideoEyebrow: "ESCOLHA UMA SECÇÃO",
+    mediaVideosTitle: "Explorar conteúdos",
+    mediaCategoryLabel: "Categorias multimédia",
+    mediaVideoCount: "{count} vídeo(s)",
+    mediaEmptyCategory:
+      "Ainda estamos a preparar conteúdos para esta secção. Volte em breve.",
+    mediaEmptyEntertainment:
+      "Em breve: banda desenhada, comics e histórias de entretenimento.",
+    mediaEmptyKids:
+      "Em breve: histórias, atividades e conteúdos seguros para crianças.",
+    catalogEmptyCategory:
+      "Ainda não há livros nesta categoria. Estamos a preparar novos títulos.",
+    catalogEmptyEntertainment:
+      "Em breve: livros de entretenimento, banda desenhada e comics.",
+    catalogEmptyPodcasts:
+      "Em breve: livros associados a podcasts, vídeos educativos, histórias assustadoras e línguas.",
+    catalogEmptyKids:
+      "Em breve: livros, histórias e atividades para crianças.",
+    mediaPlay: "Reproduzir vídeo",
+    mediaWatchOnYoutube: "Ver no YouTube",
+    mediaAudioEyebrow: "OUVIR AGORA",
+    mediaAudioTitle: "Podcasts e áudio",
+    mediaAudioDescription:
+      "Pratica inglês com este podcast enquanto preparamos histórias assustadoras e vídeos educativos.",
+    mediaAudioEpisode: "How to be Indirect in Conversations",
+    mediaAudioSource: "Easy English · 17 min",
+    mediaAudioAria: "Leitor de podcast",
+    mediaAudioLink: "Ver episódio e transcrição",
+    mediaCredits:
+      "Os vídeos e podcasts são incorporados a partir das plataformas e dos criadores originais.",
+    mediaBack: "Voltar à loja",
+    mediaBackTitle: "Voltar ao catálogo de livros",
     btnLogout: "Sair",
     libraryTitle: "🛒 As Minhas compras",
     adminTitle: "⚙️ Aprovar pagamentos",
     backCatalog: "Voltar ao catálogo",
+    backAdmin: "Voltar à administração",
+    salesTitle: "📊 Vendas e receitas",
+    salesHelp:
+      "Resumo apenas de encomendas aprovadas. Os totais são apresentados separadamente por moeda.",
+    salesOrdersLabel: "Vendas aprovadas",
+    salesBooksLabel: "Exemplares vendidos",
+    salesMznLabel: "Receita aprovada (MZN)",
+    salesZarLabel: "Receita aprovada (ZAR)",
+    salesUpdated: "Resumo actualizado em",
+    salesLoading: "A carregar o resumo de vendas...",
+    salesLoadError: "Não foi possível carregar o resumo de vendas.",
+    trashTitle: "🗑️ Lixeira",
+    trashHelp:
+      "As compras apagadas ficam aqui por 30 dias. Pode restaurá-las durante esse prazo; depois serão excluídas permanentemente.",
+    trashEmpty: "A lixeira está vazia.",
+    trashLoading: "A carregar a lixeira...",
+    trashLoadError: "Não foi possível carregar a lixeira.",
+    trashMoveConfirm:
+      "Mover a compra de “{book}” para a lixeira? Poderá restaurá-la durante 30 dias.",
+    trashMoved: "Compra movida para a lixeira.",
+    trashMoveError: "Não foi possível mover a compra para a lixeira.",
+    trashRestore: "Restaurar compra",
+    trashRestoring: "A restaurar compra...",
+    trashRestoreConfirm:
+      "Restaurar “{book}” para as compras activas?",
+    trashRestored: "Compra restaurada.",
+    trashRestoreError: "Não foi possível restaurar a compra.",
+    trashDeletedAt: "Movida para a lixeira em",
+    trashExpiresAt: "Exclusão permanente em",
+    trashDaysRemaining: "dias restantes",
+    trashRestoreExpired: "O prazo de 30 dias terminou; esta compra já expirou.",
     lblRegiao: "País / Região",
     regiaoMozambique: "Moçambique",
     regiaoOutros: "África do Sul / Outros países",
@@ -396,14 +577,14 @@ const traducoes = {
     orderSaved: "Estado da encomenda actualizado.",
     orderChangedElsewhere:
       "A encomenda já foi actualizada. Actualize a lista e tente novamente.",
-    btnDeleteOrder: "Apagar compra",
-    orderDeleting: "A apagar a compra...",
-    orderDeleteError: "Não foi possível apagar a compra.",
+    btnDeleteOrder: "Mover para a lixeira",
+    orderDeleting: "A mover a compra para a lixeira...",
+    orderDeleteError: "Não foi possível mover a compra para a lixeira.",
     orderDeleteNoRows:
-      "A compra não foi apagada. Pode já ter sido removida ou a política de exclusão ainda não foi aplicada. Execute novamente supabase/setup.sql no SQL Editor do Supabase.",
+      "A compra não foi movida. Pode já ter sido removida ou a lixeira ainda não foi configurada. Execute novamente supabase/setup.sql no SQL Editor do Supabase.",
     confirmDeleteOrder:
-      "Apagar definitivamente a compra de “{book}”? O acesso ao livro será removido.",
-    orderDeleted: "Compra apagada e acesso removido.",
+      "Mover a compra de “{book}” para a lixeira? Poderá restaurá-la durante 30 dias.",
+    orderDeleted: "Compra movida para a lixeira.",
     resetPasswordLink: "Esqueceu-se da palavra-passe?",
     showPassword: "Mostrar palavra-passe",
     hidePassword: "Ocultar palavra-passe",
@@ -549,6 +730,13 @@ const traducoes = {
     activityDescription:
       "As ações ficam guardadas apenas neste dispositivo. Cada entrada mostra a data e hora local, incluindo os segundos.",
     activityEmpty: "Ainda não há atividades registadas.",
+    activityDeleteOne: "Apagar",
+    activityDeleteLabel: "Apagar atividade: {activity}",
+    activityClear: "Apagar todas",
+    activityClearConfirm:
+      "Apagar permanentemente todas as atividades deste dispositivo?",
+    activityDeleted: "Atividade apagada.",
+    activityCleared: "Registo de atividades apagado.",
     activityStorageError:
       "Não foi possível guardar o registo neste dispositivo. As novas ações só ficarão visíveis enquanto esta página estiver aberta.",
     activityTimestamp: "Realizado em",
@@ -581,16 +769,95 @@ const traducoes = {
     activityQuizAnswer: "Resposta seleccionada na pergunta {question}.",
     activityQuizCompleted: "Quiz concluído.",
     activityQuizRestarted: "Quiz reiniciado.",
+    activitySalesViewed: "Resumo de vendas consultado.",
+    activityOrderTrashed: "Compra movida para a lixeira: {book}.",
+    activityOrderRestored: "Compra restaurada da lixeira: {book}.",
+    activityTrashViewed: "Lixeira consultada.",
+    activityMediaOpened: "Secção multimédia consultada.",
+    activityMediaCategory: "Categoria multimédia seleccionada: {category}.",
+    activityMediaPlayed: "Videoaula reproduzida: {video}.",
+    activityAudioPlayed: "Podcast reproduzido: {episode}.",
   },
   "en-ZA": {
     idiomaLabel: "🌐 Mudar idioma / Change language:",
     btnLogin: "🔑 Sign In / Register",
     btnCompras: "🛒 My purchases",
     btnAdmin: "⚙️ Administration",
-    btnLogout: "Sign out",
+    btnVendas: "📊 Sales",
+    btnLixeira: "🗑️ Trash",
+    btnMedia: "Media",
+    btnMediaSubtitle: "FREE · LESSONS · COMICS · PODCASTS · KIDS",
+    mediaEyebrow: "FREE · LEARN AT YOUR OWN PACE",
+    mediaTitle: "Learning is something you can see and hear.",
+    mediaDescription:
+      "Free lessons, comics, podcasts, and content for children. Some sections are still being prepared.",
+    mediaVideoEyebrow: "CHOOSE A SECTION",
+    mediaVideosTitle: "Explore content",
+    mediaCategoryLabel: "Media categories",
+    mediaVideoCount: "{count} video(s)",
+    mediaEmptyCategory:
+      "We are preparing content for this section. Check back soon.",
+    mediaEmptyEntertainment:
+      "Coming soon: comics, graphic novels, and entertainment stories.",
+    mediaEmptyKids:
+      "Coming soon: stories, activities, and safe content for children.",
+    catalogEmptyCategory:
+      "There are no books in this category yet. We are preparing new titles.",
+    catalogEmptyEntertainment:
+      "Coming soon: entertainment books, comics, and graphic novels.",
+    catalogEmptyPodcasts:
+      "Coming soon: books paired with podcasts, educational videos, spooky stories, and language learning.",
+    catalogEmptyKids:
+      "Coming soon: books, stories, and activities for children.",
+    mediaPlay: "Play video",
+    mediaWatchOnYoutube: "Watch on YouTube",
+    mediaAudioEyebrow: "LISTEN NOW",
+    mediaAudioTitle: "Podcasts & audio",
+    mediaAudioDescription:
+      "Practise English with this podcast while we curate spooky stories and educational videos.",
+    mediaAudioEpisode: "How to be Indirect in Conversations",
+    mediaAudioSource: "Easy English · 17 min",
+    mediaAudioAria: "Podcast player",
+    mediaAudioLink: "View episode and transcript",
+    mediaCredits:
+      "Videos and podcasts are embedded from their original platforms and creators.",
+    mediaBack: "Back to shop",
+    mediaBackTitle: "Return to the book catalogue",
+    btnLogout: "Log out",
     libraryTitle: "🛒 My purchases",
     adminTitle: "⚙️ Approve payments",
     backCatalog: "Back to catalogue",
+    backAdmin: "Back to administration",
+    salesTitle: "📊 Sales & revenue",
+    salesHelp:
+      "Summary of approved orders only. Totals are shown separately by currency.",
+    salesOrdersLabel: "Approved sales",
+    salesBooksLabel: "Copies sold",
+    salesMznLabel: "Approved revenue (MZN)",
+    salesZarLabel: "Approved revenue (ZAR)",
+    salesUpdated: "Summary updated at",
+    salesLoading: "Loading sales summary...",
+    salesLoadError: "Could not load the sales summary.",
+    trashTitle: "🗑️ Trash",
+    trashHelp:
+      "Deleted purchases stay here for 30 days. You can restore them during this period; afterwards they are permanently deleted.",
+    trashEmpty: "The trash is empty.",
+    trashLoading: "Loading trash...",
+    trashLoadError: "Could not load the trash.",
+    trashMoveConfirm:
+      "Move the purchase of “{book}” to trash? You can restore it for 30 days.",
+    trashMoved: "Purchase moved to trash.",
+    trashMoveError: "Could not move the purchase to trash.",
+    trashRestore: "Restore purchase",
+    trashRestoring: "Restoring purchase...",
+    trashRestoreConfirm:
+      "Restore “{book}” to active purchases?",
+    trashRestored: "Purchase restored.",
+    trashRestoreError: "Could not restore the purchase.",
+    trashDeletedAt: "Moved to trash at",
+    trashExpiresAt: "Permanently deleted at",
+    trashDaysRemaining: "days remaining",
+    trashRestoreExpired: "The 30-day period has ended; this purchase has expired.",
     lblRegiao: "Country / Region",
     regiaoMozambique: "Mozambique",
     regiaoOutros: "South Africa / Other countries",
@@ -614,14 +881,14 @@ const traducoes = {
     orderSaved: "Order status updated.",
     orderChangedElsewhere:
       "This order has already been updated. Refresh the list and try again.",
-    btnDeleteOrder: "Delete purchase",
-    orderDeleting: "Deleting purchase...",
-    orderDeleteError: "The purchase could not be deleted.",
+    btnDeleteOrder: "Move to trash",
+    orderDeleting: "Moving purchase to trash...",
+    orderDeleteError: "The purchase could not be moved to trash.",
     orderDeleteNoRows:
-      "The purchase was not deleted. It may already be removed, or the delete policy may not have been applied. Run supabase/setup.sql again in the Supabase SQL Editor.",
+      "The purchase was not moved. It may already be removed, or trash has not been configured. Run supabase/setup.sql again in the Supabase SQL Editor.",
     confirmDeleteOrder:
-      "Permanently delete the purchase of “{book}”? Access to the book will be removed.",
-    orderDeleted: "Purchase deleted and access removed.",
+      "Move the purchase of “{book}” to trash? You can restore it for 30 days.",
+    orderDeleted: "Purchase moved to trash.",
     resetPasswordLink: "Forgot your password?",
     showPassword: "Show password",
     hidePassword: "Hide password",
@@ -764,6 +1031,13 @@ const traducoes = {
     activityDescription:
       "Actions are stored only on this device. Each entry shows the local date and time, including seconds.",
     activityEmpty: "There is no activity recorded yet.",
+    activityDeleteOne: "Delete",
+    activityDeleteLabel: "Delete activity: {activity}",
+    activityClear: "Clear all",
+    activityClearConfirm:
+      "Permanently clear all activity from this device?",
+    activityDeleted: "Activity deleted.",
+    activityCleared: "Activity log cleared.",
     activityStorageError:
       "The log could not be saved on this device. New actions will only remain visible while this page is open.",
     activityTimestamp: "Performed at",
@@ -796,36 +1070,29 @@ const traducoes = {
     activityQuizAnswer: "Answer selected for question {question}.",
     activityQuizCompleted: "Quiz completed.",
     activityQuizRestarted: "Quiz restarted.",
+    activitySalesViewed: "Sales summary viewed.",
+    activityOrderTrashed: "Purchase moved to trash: {book}.",
+    activityOrderRestored: "Purchase restored from trash: {book}.",
+    activityTrashViewed: "Trash viewed.",
+    activityMediaOpened: "Media section viewed.",
+    activityMediaCategory: "Media category selected: {category}.",
+    activityMediaPlayed: "Video lesson played: {video}.",
+    activityAudioPlayed: "Podcast played: {episode}.",
   },
 };
 
 // --- LISTA DE CATEGORIAS BILÍNGUES ---
 const categoriasLista = [
   { id: "todos", pt: "Todos", en: "All" },
-  { id: "exames", pt: "Exames & Materiais", en: "Exams & Materials" },
-  { id: "desporto", pt: "Desporto & Fitness", en: "Sports & Fitness" },
-  { id: "saude", pt: "Saúde & Bem-estar", en: "Health & Wellness" },
-  {
-    id: "educacao",
-    pt: "Educação & Manuais Práticos",
-    en: "Education & Practical Guides",
-  },
-  { id: "infantil", pt: "Livros Infantis", en: "Children's Books" },
-  { id: "historias-curtas", pt: "Histórias Curtas", en: "Short Stories" },
-  {
-    id: "bandas-desenhadas",
-    pt: "Bandas Desenhadas",
-    en: "Comics & Graphic Novels",
-  },
-  {
-    id: "psicologia",
-    pt: "Psicologia & Comportamento",
-    en: "Psychology & Behavior",
-  },
-  { id: "culinaria", pt: "Culinária & Alimentação", en: "Cooking & Nutrition" },
-  { id: "negocios", pt: "Negócios & Carreira", en: "Business & Career" },
-  { id: "ciencia", pt: "Ciência & Tecnologia", en: "Science & Technology" },
-  { id: "historia", pt: "História & Geografia", en: "History & Geography" },
+  ...categoriasMultimedia
+    .filter((categoria) => categoria.id !== "podcasts-videos")
+    .map((categoria) => ({
+    id: categoria.id,
+    pt: categoria.pt,
+    en: categoria.en,
+    categories: categoria.catalogCategories,
+    emptyKey: categoria.catalogEmptyKey,
+    })),
 ];
 
 // --- CATÁLOGO DE PRODUTOS & SINOPSES BILÍNGUES ---
@@ -1041,6 +1308,207 @@ const produtos = [
   },
 ];
 
+function renderizarCategoriasMultimedia() {
+  const container = document.getElementById("mediaCategories");
+  if (!container) return;
+
+  container.replaceChildren();
+  categoriasMultimedia.forEach((categoria) => {
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "media-category-button";
+    botao.id = `mediaCategory-${categoria.id}`;
+    botao.setAttribute("role", "tab");
+    botao.setAttribute(
+      "aria-selected",
+      String(categoria.id === categoriaMultimediaAtiva),
+    );
+    botao.setAttribute(
+      "aria-controls",
+      categoria.id === "podcasts-videos"
+        ? "mediaAudioSection"
+        : "mediaVideoGrid",
+    );
+    botao.tabIndex = categoria.id === categoriaMultimediaAtiva ? 0 : -1;
+    botao.textContent =
+      idiomaAtual === "pt" ? categoria.pt : categoria.en;
+    botao.addEventListener("click", () =>
+      selecionarCategoriaMultimedia(categoria.id),
+    );
+    botao.addEventListener("keydown", (event) => {
+      const indiceAtual = categoriasMultimedia.findIndex(
+        (item) => item.id === categoria.id,
+      );
+      let indiceSeguinte;
+      if (event.key === "ArrowRight") {
+        indiceSeguinte = (indiceAtual + 1) % categoriasMultimedia.length;
+      } else if (event.key === "ArrowLeft") {
+        indiceSeguinte =
+          (indiceAtual - 1 + categoriasMultimedia.length) %
+          categoriasMultimedia.length;
+      } else if (event.key === "Home") {
+        indiceSeguinte = 0;
+      } else if (event.key === "End") {
+        indiceSeguinte = categoriasMultimedia.length - 1;
+      } else {
+        return;
+      }
+
+      event.preventDefault();
+      selecionarCategoriaMultimedia(
+        categoriasMultimedia[indiceSeguinte].id,
+        true,
+      );
+    });
+    container.appendChild(botao);
+  });
+}
+
+function selecionarCategoriaMultimedia(categoriaId, focar = false) {
+  if (
+    categoriaId !== "podcasts-videos" &&
+    categoriaMultimediaAtiva === "podcasts-videos"
+  ) {
+    document.getElementById("mediaAudioPlayer")?.pause();
+  }
+  categoriaMultimediaAtiva = categoriaId;
+  videoMultimediaAtivo = null;
+  renderizarCategoriasMultimedia();
+  renderizarVideosMultimedia();
+  if (focar) {
+    document.getElementById(`mediaCategory-${categoriaId}`)?.focus();
+  }
+  const categoria = categoriasMultimedia.find(
+    (item) => item.id === categoriaId,
+  );
+  if (categoria) {
+    registarAtividade("activityMediaCategory", {
+      category: idiomaAtual === "pt" ? categoria.pt : categoria.en,
+    });
+  }
+}
+
+function renderizarVideosMultimedia() {
+  const grelha = document.getElementById("mediaVideoGrid");
+  if (!grelha) return;
+
+  const t = traducoes[idiomaAtual];
+  const podcastsAtivos = categoriaMultimediaAtiva === "podcasts-videos";
+  const cabecalhoVideos = document.getElementById("mediaVideoHeading");
+  const audioSection = document.getElementById("mediaAudioSection");
+  cabecalhoVideos.hidden = podcastsAtivos;
+  grelha.hidden = podcastsAtivos;
+  audioSection.hidden = !podcastsAtivos;
+  audioSection.setAttribute(
+    "aria-labelledby",
+    `mediaCategory-${categoriaMultimediaAtiva}`,
+  );
+  if (podcastsAtivos) {
+    grelha.replaceChildren();
+    return;
+  }
+
+  grelha.setAttribute(
+    "aria-labelledby",
+    `mediaCategory-${categoriaMultimediaAtiva}`,
+  );
+  const videos = videosMultimedia.filter(
+    (video) => video.category === categoriaMultimediaAtiva,
+  );
+  document.getElementById("mediaVideoCount").textContent =
+    t.mediaVideoCount.replace("{count}", String(videos.length));
+  grelha.replaceChildren();
+
+  if (!videos.length) {
+    const vazio = document.createElement("p");
+    vazio.className = "media-empty";
+    const categoria = categoriasMultimedia.find(
+      (item) => item.id === categoriaMultimediaAtiva,
+    );
+    vazio.textContent = t[categoria?.emptyKey || "mediaEmptyCategory"];
+    grelha.appendChild(vazio);
+    return;
+  }
+
+  videos.forEach((video) => {
+    const cartao = document.createElement("article");
+    cartao.className = "media-video-card";
+    const moldura = document.createElement("div");
+    moldura.className = "media-video-frame";
+
+    if (videoMultimediaAtivo === video.id) {
+      const iframe = document.createElement("iframe");
+      iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(video.youtubeId)}?autoplay=1`;
+      iframe.title = video.title;
+      iframe.loading = "lazy";
+      iframe.referrerPolicy = "strict-origin-when-cross-origin";
+      iframe.allow =
+        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+      iframe.allowFullscreen = true;
+      moldura.appendChild(iframe);
+    } else {
+      const poster = document.createElement("img");
+      poster.src = `https://i.ytimg.com/vi/${encodeURIComponent(video.youtubeId)}/hqdefault.jpg`;
+      poster.alt = "";
+      poster.loading = "lazy";
+      poster.decoding = "async";
+      const reproduzir = document.createElement("button");
+      reproduzir.type = "button";
+      reproduzir.className = "media-play-button";
+      reproduzir.setAttribute("aria-label", `${t.mediaPlay}: ${video.title}`);
+      reproduzir.innerHTML =
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z" fill="currentColor"/></svg>';
+      reproduzir.addEventListener("click", () => {
+        videoMultimediaAtivo = video.id;
+        renderizarVideosMultimedia();
+        registarAtividade("activityMediaPlayed", {
+          video: video.title,
+        });
+      });
+      moldura.append(poster, reproduzir);
+    }
+
+    const texto = document.createElement("div");
+    texto.className = "media-video-copy";
+    const criador = document.createElement("span");
+    criador.className = "media-video-creator";
+    criador.textContent = video.creator;
+    const titulo = document.createElement("h3");
+    titulo.textContent = video.title;
+    const descricao = document.createElement("p");
+    descricao.textContent =
+      video.description[idiomaAtual === "pt" ? "pt" : "en"];
+    const link = document.createElement("a");
+    link.className = "media-source-link";
+    link.href = `https://www.youtube.com/watch?v=${encodeURIComponent(video.youtubeId)}`;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = t.mediaWatchOnYoutube;
+    texto.append(criador, titulo, descricao, link);
+    cartao.append(moldura, texto);
+    grelha.appendChild(cartao);
+  });
+}
+
+function pararReproducaoMultimedia() {
+  if (videoMultimediaAtivo) {
+    videoMultimediaAtivo = null;
+    renderizarVideosMultimedia();
+  }
+  document.getElementById("mediaAudioPlayer")?.pause();
+}
+
+function mostrarMultimedia() {
+  alternarVistaConta("multimedia");
+  renderizarCategoriasMultimedia();
+  renderizarVideosMultimedia();
+  registarAtividade("activityMediaOpened");
+  document.getElementById("mediaSection").scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+}
+
 function alternarIdioma() {
   idiomaAtual = idiomaAtual === "pt" ? "en-ZA" : "pt";
   aplicarIdioma();
@@ -1060,8 +1528,13 @@ function aplicarIdioma() {
   document.getElementById("btnTraduzir").innerHTML =
     idiomaAtual === "pt" ? "🇿🇦 English (SA)" : "🇲🇿 Português (MZ)";
   document.getElementById("txtIdiomaLabel").innerText = t.idiomaLabel;
+  document.getElementById("btnMediaTitle").innerText = t.btnMedia;
+  document.getElementById("btnMediaSubtitle").innerText = t.btnMediaSubtitle;
+  document.getElementById("btnMedia").title = t.mediaTitle;
   document.getElementById("txtBtnLogin").innerText = t.btnLogin;
   document.getElementById("btnBiblioteca").innerText = t.btnCompras;
+  document.getElementById("btnVendas").innerText = t.btnVendas;
+  document.getElementById("btnLixeira").innerText = t.btnLixeira;
   document.getElementById("btnAdmin").innerText = t.btnAdmin;
   document.getElementById("btnLogout").innerText = t.btnLogout;
   document.getElementById("searchInput").placeholder = t.searchPlaceholder;
@@ -1182,6 +1655,7 @@ function aplicarIdioma() {
   document.getElementById("activityTitle").innerText = t.activityTitle;
   document.getElementById("activityDescription").innerText =
     t.activityDescription;
+  document.getElementById("activityClearButton").innerText = t.activityClear;
   document.getElementById("catalogHelp").innerText = t.catalogHelp;
   document.getElementById("libraryHelp").innerText = t.libraryHelp;
   document.getElementById("adminHelp").innerText = t.adminHelp;
@@ -1260,6 +1734,45 @@ function aplicarIdioma() {
   document.getElementById("adminTitle").innerText = t.adminTitle;
   document.getElementById("libraryBackButton").innerText = t.backCatalog;
   document.getElementById("adminBackButton").innerText = t.backCatalog;
+  document.getElementById("salesTitle").innerText = t.salesTitle;
+  document.getElementById("salesBackButton").innerText = t.backAdmin;
+  document.getElementById("salesHelp").innerText = t.salesHelp;
+  document.getElementById("salesOrdersLabel").innerText = t.salesOrdersLabel;
+  document.getElementById("salesBooksLabel").innerText = t.salesBooksLabel;
+  document.getElementById("salesMznLabel").innerText = t.salesMznLabel;
+  document.getElementById("salesZarLabel").innerText = t.salesZarLabel;
+  document.getElementById("trashTitle").innerText = t.trashTitle;
+  document.getElementById("trashHelp").innerText = t.trashHelp;
+  document.getElementById("trashBackButton").innerText = t.backCatalog;
+  document.getElementById("btnVendas").title = t.salesHelp;
+  document.getElementById("btnLixeira").title = t.trashHelp;
+  document.getElementById("salesBackButton").title = t.adminHelp;
+  document.getElementById("mediaEyebrow").innerText = t.mediaEyebrow;
+  document.getElementById("mediaTitle").innerText = t.mediaTitle;
+  document.getElementById("mediaDescription").innerText = t.mediaDescription;
+  document.getElementById("mediaVideoEyebrow").innerText =
+    t.mediaVideoEyebrow;
+  document.getElementById("mediaVideosTitle").innerText = t.mediaVideosTitle;
+  document.getElementById("mediaCategories").setAttribute(
+    "aria-label",
+    t.mediaCategoryLabel,
+  );
+  document.getElementById("mediaAudioEyebrow").innerText = t.mediaAudioEyebrow;
+  document.getElementById("mediaAudioTitle").innerText = t.mediaAudioTitle;
+  document.getElementById("mediaAudioDescription").innerText =
+    t.mediaAudioDescription;
+  document.getElementById("mediaAudioEpisode").innerText =
+    t.mediaAudioEpisode;
+  document.getElementById("mediaAudioSource").innerText = t.mediaAudioSource;
+  document.getElementById("mediaAudioPlayer").setAttribute(
+    "aria-label",
+    t.mediaAudioAria,
+  );
+  document.getElementById("mediaAudioLink").innerHTML =
+    `${t.mediaAudioLink} <span aria-hidden="true">↗</span>`;
+  document.getElementById("mediaCredits").innerText = t.mediaCredits;
+  document.getElementById("mediaBackButton").innerText = t.mediaBack;
+  document.getElementById("mediaBackButton").title = t.mediaBackTitle;
   atualizarTextoInstalacaoPwa();
 
   renderizarCategorias();
@@ -1280,6 +1793,9 @@ function aplicarIdioma() {
     renderizarQuiz();
     if (quizEstado.concluido) concluirQuiz();
   }
+  if (resumoVendasAtual) renderizarResumoVendas(resumoVendasAtual);
+  renderizarCategoriasMultimedia();
+  renderizarVideosMultimedia();
   renderizarHistoricoAtividades();
 }
 
@@ -1460,8 +1976,9 @@ function renderizarCategorias() {
     const nomeCat = idiomaAtual === "pt" ? cat.pt : cat.en;
     const btn = document.createElement("button");
     btn.className = `cat-btn ${categoriaAtivaAtual === cat.id ? "active" : ""}`;
+    btn.setAttribute("aria-pressed", String(categoriaAtivaAtual === cat.id));
     btn.title = traducoes[idiomaAtual].categoryHelp;
-    btn.onclick = (e) => filtrarCategoria(cat.id, e);
+    btn.onclick = () => filtrarCategoria(cat.id);
     btn.innerText = nomeCat;
     container.appendChild(btn);
   });
@@ -1495,10 +2012,20 @@ function carregarProdutos(lista) {
   catalog.innerHTML = "";
 
   if (lista.length === 0) {
-    catalog.innerHTML =
-      idiomaAtual === "pt"
-        ? "<p style='grid-column: 1/-1; text-align: center; color: #64748b;'>Nenhum livro encontrado nesta categoria.</p>"
-        : "<p style='grid-column: 1/-1; text-align: center; color: #64748b;'>No books found in this category.</p>";
+    const categoria = categoriasLista.find(
+      (item) => item.id === categoriaAtivaAtual,
+    );
+    const vazio = document.createElement("p");
+    vazio.className = "catalog-empty";
+    vazio.textContent = categoria
+      ? traducoes[idiomaAtual][categoria.emptyKey] ||
+        (idiomaAtual === "pt"
+          ? "Nenhum livro encontrado nesta categoria."
+          : "No books found in this category.")
+      : idiomaAtual === "pt"
+        ? "Nenhum livro encontrado nesta categoria."
+        : "No books found in this category.";
+    catalog.appendChild(vazio);
     return;
   }
 
@@ -1997,22 +2524,24 @@ function fecharModalCheckout() {
   document.getElementById("checkoutModal").style.display = "none";
 }
 
-function filtrarCategoria(categoria, event) {
+function filtrarCategoria(categoria) {
   categoriaAtivaAtual = categoria;
-  document
-    .querySelectorAll(".cat-btn")
-    .forEach((btn) => btn.classList.remove("active"));
-  if (event && event.target) event.target.classList.add("active");
+  document.querySelectorAll(".cat-btn").forEach((btn, index) => {
+    const ativo = categoriasLista[index]?.id === categoria;
+    btn.classList.toggle("active", ativo);
+    btn.setAttribute("aria-pressed", String(ativo));
+  });
 
-  if (categoria === "todos") {
-    carregarProdutos(produtos);
-  } else {
-    const filtrados = produtos.filter((p) => p.categoria === categoria);
-    carregarProdutos(filtrados);
-  }
   const categoriaSelecionada = categoriasLista.find(
     (item) => item.id === categoria,
   );
+  const filtrados =
+    categoria === "todos"
+      ? produtos
+      : produtos.filter((produto) =>
+          categoriaSelecionada?.categories?.includes(produto.categoria),
+        );
+  carregarProdutos(filtrados);
   registarAtividade("activityCategory", {
     category: categoriaSelecionada
       ? idiomaAtual === "pt"
@@ -2335,11 +2864,14 @@ async function atualizarSessao(sessao) {
   }
 
   const autenticado = Boolean(utilizadorAtual);
+  const administrador = perfilAtual?.role === "admin";
   document.getElementById("txtBtnLogin").hidden = autenticado;
-  document.getElementById("btnBiblioteca").hidden = !autenticado;
+  document.getElementById("btnBiblioteca").hidden =
+    !autenticado || administrador;
+  document.getElementById("btnVendas").hidden = !autenticado || !administrador;
+  document.getElementById("btnLixeira").hidden = !autenticado;
   document.getElementById("btnLogout").hidden = !autenticado;
-  document.getElementById("btnAdmin").hidden =
-    !autenticado || perfilAtual?.role !== "admin";
+  document.getElementById("btnAdmin").hidden = !autenticado || !administrador;
 
   if (autenticado) {
     document.getElementById("authStatus").innerText = "";
@@ -2568,10 +3100,29 @@ async function terminarSessao() {
 
 function alternarVistaConta(vista) {
   const mostrarConta = Boolean(vista);
+  const multimediaAtiva = vista === "multimedia";
+  if (!multimediaAtiva) pararReproducaoMultimedia();
+
   document.getElementById("catalogMain").hidden = mostrarConta;
   document.getElementById("categoriesNav").hidden = mostrarConta;
   document.getElementById("librarySection").hidden = vista !== "biblioteca";
   document.getElementById("adminSection").hidden = vista !== "admin";
+  document.getElementById("salesSection").hidden = vista !== "vendas";
+  document.getElementById("trashSection").hidden = vista !== "lixeira";
+  document.getElementById("mediaSection").hidden = !multimediaAtiva;
+
+  [
+    ".hero-banner",
+    ".recent-requests-banner",
+    ".how-it-works",
+    "#activitySection",
+    "#requestBookSection",
+    "#feedbackSection",
+    "#quizTrigger",
+  ].forEach((seletor) => {
+    const elemento = document.querySelector(seletor);
+    if (elemento) elemento.hidden = multimediaAtiva;
+  });
 }
 
 async function mostrarBiblioteca() {
@@ -2583,6 +3134,152 @@ async function mostrarBiblioteca() {
   alternarVistaConta("biblioteca");
   registarAtividade("activityLibraryOpened");
   await carregarBiblioteca();
+}
+
+function obterExpiracaoLixeira(deletedAt) {
+  return new Date(
+    new Date(deletedAt).getTime() + 30 * 24 * 60 * 60 * 1000,
+  );
+}
+
+function formatarDiasRestantes(expiraEm) {
+  const milissegundosRestantes = expiraEm.getTime() - Date.now();
+  return Math.max(0, Math.ceil(milissegundosRestantes / (24 * 60 * 60 * 1000)));
+}
+
+async function mostrarLixeira() {
+  if (!utilizadorAtual) {
+    abrirModalLogin();
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].authRequired, true);
+    return;
+  }
+  alternarVistaConta("lixeira");
+  registarAtividade("activityTrashViewed");
+  await carregarLixeira();
+}
+
+async function carregarLixeira() {
+  const lista = document.getElementById("trashOrders");
+  const status = document.getElementById("trashStatus");
+  lista.replaceChildren();
+  status.innerText = traducoes[idiomaAtual].trashLoading;
+  status.className = "account-status";
+
+  const limiteRetencao = new Date(
+    Date.now() - 30 * 24 * 60 * 60 * 1000,
+  ).toISOString();
+  const { data: encomendas, error } = await supabaseClient
+    .from("orders")
+    .select(
+      "id,product_title,quantity,amount,currency,status,deleted_at,profile:profiles!orders_user_id_fkey(full_name,email)",
+    )
+    .not("deleted_at", "is", null)
+    .gte("deleted_at", limiteRetencao)
+    .order("deleted_at", { ascending: false });
+
+  if (error) {
+    console.error("Não foi possível carregar a lixeira:", error);
+    status.innerText = `${traducoes[idiomaAtual].trashLoadError} ${traduzirErroSupabase(error)}`;
+    status.className = "account-status error";
+    return;
+  }
+
+  status.innerText = "";
+  if (!encomendas.length) {
+    status.innerText = traducoes[idiomaAtual].trashEmpty;
+    return;
+  }
+
+  for (const encomenda of encomendas) {
+    const cartao = document.createElement("article");
+    cartao.className = "account-card";
+    const titulo = document.createElement("h3");
+    titulo.textContent = encomenda.product_title;
+    const detalhes = document.createElement("p");
+    detalhes.textContent = `${encomenda.quantity} ${traducoes[idiomaAtual].quantidade} · ${encomenda.amount} ${encomenda.currency}`;
+    const dataRemocao = document.createElement("p");
+    const rotuloRemocao = document.createElement("strong");
+    rotuloRemocao.textContent = `${traducoes[idiomaAtual].trashDeletedAt}: `;
+    dataRemocao.append(
+      rotuloRemocao,
+      criarElementoTimestamp(encomenda.deleted_at),
+    );
+
+    const expiraEm = obterExpiracaoLixeira(encomenda.deleted_at);
+    const dataExpiracao = document.createElement("p");
+    const rotuloExpiracao = document.createElement("strong");
+    rotuloExpiracao.textContent = `${traducoes[idiomaAtual].trashExpiresAt}: `;
+    dataExpiracao.append(
+      rotuloExpiracao,
+      criarElementoTimestamp(expiraEm.toISOString()),
+      document.createTextNode(
+        ` (${formatarDiasRestantes(expiraEm)} ${traducoes[idiomaAtual].trashDaysRemaining})`,
+      ),
+    );
+    cartao.append(titulo, detalhes, dataRemocao, dataExpiracao);
+
+    if (perfilAtual?.role === "admin") {
+      const cliente =
+        encomenda.profile?.full_name || encomenda.profile?.email || "";
+      const clienteEl = document.createElement("p");
+      clienteEl.textContent = `${traducoes[idiomaAtual].lblSolicitante}: ${cliente}`;
+      cartao.appendChild(clienteEl);
+    }
+
+    const botaoRestaurar = document.createElement("button");
+    botaoRestaurar.type = "button";
+    botaoRestaurar.className = "btn-secondary";
+    botaoRestaurar.textContent = traducoes[idiomaAtual].trashRestore;
+    botaoRestaurar.addEventListener("click", () => {
+      void restaurarEncomenda(encomenda);
+    });
+    cartao.appendChild(botaoRestaurar);
+    lista.appendChild(cartao);
+  }
+}
+
+async function restaurarEncomenda(encomenda) {
+  const t = traducoes[idiomaAtual];
+  if (!window.confirm(t.trashRestoreConfirm.replace("{book}", encomenda.product_title))) {
+    return;
+  }
+  const status = document.getElementById("trashStatus");
+  status.innerText = t.trashRestoring;
+  status.className = "account-status";
+  const { data, error } = await supabaseClient
+    .from("orders")
+    .update({ deleted_at: null })
+    .eq("id", encomenda.id)
+    .not("deleted_at", "is", null)
+    .select("id")
+    .maybeSingle();
+
+  if (error || !data) {
+    console.error(
+      "Não foi possível restaurar a compra:",
+      error || "A compra não existe na lixeira ou já expirou.",
+    );
+    status.innerText = error
+      ? `${t.trashRestoreError} ${traduzirErroSupabase(error)}`
+      : t.trashRestoreExpired;
+    status.className = "account-status error";
+    return;
+  }
+
+  registarAtividade("activityOrderRestored", {
+    book: encomenda.product_title,
+  });
+  await carregarLixeira();
+  status.innerText = t.trashRestored;
+  status.className = "account-status success";
+}
+
+function voltarDaLixeira() {
+  if (perfilAtual?.role === "admin") {
+    void mostrarPainelAdmin();
+  } else {
+    voltarAoCatalogo();
+  }
 }
 
 async function carregarBiblioteca() {
@@ -2597,6 +3294,7 @@ async function carregarBiblioteca() {
       "id,product_id,product_title,quantity,amount,currency,status,created_at,reviewed_at",
     )
     .eq("user_id", utilizadorAtual.id)
+    .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -2674,6 +3372,7 @@ async function descarregarEbook(encomenda) {
     .eq("id", encomenda.id)
     .eq("user_id", utilizadorAtual.id)
     .eq("status", "approved")
+    .is("deleted_at", null)
     .single();
   if (erroPedido) {
     console.error("Não foi possível validar o acesso ao livro:", erroPedido);
@@ -2730,6 +3429,111 @@ async function mostrarPainelAdmin() {
   await carregarEncomendasAdmin();
 }
 
+async function mostrarResumoVendas() {
+  if (perfilAtual?.role !== "admin") {
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].adminOnly, true);
+    return;
+  }
+  alternarVistaConta("vendas");
+  registarAtividade("activitySalesViewed");
+  await carregarResumoVendas();
+}
+
+async function carregarResumoVendas() {
+  const status = document.getElementById("salesStatus");
+  status.innerText = traducoes[idiomaAtual].salesLoading;
+  status.className = "account-status";
+
+  const resumo = {
+    orderCount: 0,
+    quantity: 0,
+    revenueMznCents: 0,
+    revenueZarCents: 0,
+  };
+  const pageSize = 1000;
+  let offset = 0;
+
+  try {
+    while (true) {
+      const { data: encomendas, error } = await supabaseClient
+        .from("orders")
+        .select("amount,currency,quantity")
+        .eq("status", "approved")
+        .is("deleted_at", null)
+        .order("created_at", { ascending: true })
+        .range(offset, offset + pageSize - 1);
+      if (error) throw error;
+
+      for (const encomenda of encomendas) {
+        const amount = Number(encomenda.amount);
+        const quantity = Number(encomenda.quantity);
+        if (
+          !Number.isFinite(amount) ||
+          amount < 0 ||
+          !Number.isInteger(quantity) ||
+          quantity < 1
+        ) {
+          throw new TypeError("A venda aprovada contém valores inválidos.");
+        }
+        const amountCents = Math.round(amount * 100);
+        if (encomenda.currency === "MZN") {
+          resumo.revenueMznCents += amountCents;
+        } else if (encomenda.currency === "ZAR") {
+          resumo.revenueZarCents += amountCents;
+        } else {
+          throw new TypeError(
+            `Moeda não suportada no resumo de vendas: ${encomenda.currency}`,
+          );
+        }
+        resumo.orderCount += 1;
+        resumo.quantity += quantity;
+      }
+
+      offset += encomendas.length;
+      if (encomendas.length < pageSize) break;
+    }
+  } catch (error) {
+    console.error("Não foi possível carregar o resumo de vendas:", error);
+    status.innerText = `${traducoes[idiomaAtual].salesLoadError} ${traduzirErroSupabase(error)}`;
+    status.className = "account-status error";
+    return;
+  }
+
+  resumo.generatedAt = new Date().toISOString();
+  resumoVendasAtual = resumo;
+  renderizarResumoVendas(resumo);
+}
+
+function renderizarResumoVendas(resumo) {
+  const status = document.getElementById("salesStatus");
+  status.innerText = "";
+  status.className = "account-status";
+  document.getElementById("salesOrderCount").innerText =
+    new Intl.NumberFormat(idiomaAtual === "pt" ? "pt-MZ" : "en-ZA").format(
+      resumo.orderCount,
+    );
+  document.getElementById("salesBookCount").innerText =
+    new Intl.NumberFormat(idiomaAtual === "pt" ? "pt-MZ" : "en-ZA").format(
+      resumo.quantity,
+    );
+  const locale = idiomaAtual === "pt" ? "pt-MZ" : "en-ZA";
+  const formatarReceita = (centimos, moeda) =>
+    `${new Intl.NumberFormat(locale, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(centimos / 100)} ${moeda}`;
+  document.getElementById("salesRevenueMzn").innerText = formatarReceita(
+    resumo.revenueMznCents,
+    "MZN",
+  );
+  document.getElementById("salesRevenueZar").innerText = formatarReceita(
+    resumo.revenueZarCents,
+    "ZAR",
+  );
+  document.getElementById("salesUpdated").innerText =
+    `${traducoes[idiomaAtual].salesUpdated}: ${formatarTimestamp(resumo.generatedAt)}`;
+}
+
 async function carregarEncomendasAdmin() {
   const lista = document.getElementById("adminOrders");
   const status = document.getElementById("adminStatus");
@@ -2741,6 +3545,7 @@ async function carregarEncomendasAdmin() {
     .select(
       "id,product_title,quantity,amount,currency,region,payment_method,transaction_reference,status,created_at,reviewed_at,profile:profiles!orders_user_id_fkey(full_name,email)",
     )
+    .is("deleted_at", null)
     .order("created_at", { ascending: false });
   if (error) {
     console.error("Não foi possível carregar as encomendas:", error);
@@ -2815,7 +3620,7 @@ async function apagarEncomenda(encomenda, isAdmin = false) {
   }
 
   const t = traducoes[idiomaAtual];
-  const confirmacao = t.confirmDeleteOrder.replace(
+  const confirmacao = t.trashMoveConfirm.replace(
     "{book}",
     encomenda.product_title,
   );
@@ -2829,22 +3634,23 @@ async function apagarEncomenda(encomenda, isAdmin = false) {
 
   let consulta = supabaseClient
     .from("orders")
-    .delete()
+    .update({ deleted_at: new Date().toISOString() })
     .eq("id", encomenda.id)
-    .eq("status", encomenda.status);
+    .eq("status", encomenda.status)
+    .is("deleted_at", null);
   if (!isAdmin) {
     consulta = consulta.eq("user_id", utilizadorAtual.id);
   }
-  const { data, error } = await consulta.select("id");
+  const { data, error } = await consulta.select("id").maybeSingle();
 
-  if (error || !data?.length) {
+  if (error || !data) {
     console.error(
-      "Não foi possível apagar a encomenda:",
+      "Não foi possível mover a encomenda para a lixeira:",
       error ||
-        "A encomenda não foi encontrada ou a política bloqueou a exclusão.",
+        "A encomenda não foi encontrada ou a política bloqueou a alteração.",
     );
     status.innerText = error
-      ? `${t.orderDeleteError} ${traduzirErroSupabase(error)}`
+      ? `${t.trashMoveError} ${traduzirErroSupabase(error)}`
       : t.orderDeleteNoRows;
     status.className = "account-status error";
     return;
@@ -2855,10 +3661,10 @@ async function apagarEncomenda(encomenda, isAdmin = false) {
   } else {
     await carregarBiblioteca();
   }
-  registarAtividade("activityOrderDeleted", {
+  registarAtividade("activityOrderTrashed", {
     book: encomenda.product_title,
   });
-  status.innerText = t.orderDeleted;
+  status.innerText = t.trashMoved;
   status.className = "account-status success";
 }
 
@@ -3300,6 +4106,13 @@ window.onclick = function (event) {
 window.onload = () => {
   carregarHistoricoAtividades();
   inicializarSeletoresTelefone();
+  document.getElementById("mediaAudioPlayer").addEventListener("play", () => {
+    registarAtividade("activityAudioPlayed", {
+      episode: traducoes[idiomaAtual].mediaAudioEpisode,
+    });
+  });
   aplicarIdioma();
+  renderizarCategoriasMultimedia();
+  renderizarVideosMultimedia();
   inicializarSupabase();
 };
