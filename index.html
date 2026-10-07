@@ -385,6 +385,41 @@
           </div>
 
           <div class="form-group">
+            <label id="lblCheckoutPhone" for="checkoutPhoneNumber"
+              >Telefone / WhatsApp (opcional)</label
+            >
+            <div class="phone-field">
+              <select
+                id="checkoutPhoneCode"
+                aria-label="Código de chamada internacional"
+                autocomplete="tel-country-code"
+              ></select>
+              <input
+                type="tel"
+                id="checkoutPhoneNumber"
+                inputmode="tel"
+                autocomplete="tel-national"
+                maxlength="25"
+                pattern="[0-9+(). -]{4,25}"
+                placeholder="Número de telefone"
+              />
+              <input
+                type="text"
+                id="checkoutPhoneCustomCode"
+                class="phone-custom-code"
+                inputmode="tel"
+                maxlength="5"
+                placeholder="+ código"
+                aria-label="Código internacional personalizado"
+                hidden
+              />
+            </div>
+            <small id="checkoutPhoneHelp" class="field-help">
+              O número será incluído no resumo enviado pelo WhatsApp.
+            </small>
+          </div>
+
+          <div class="form-group">
             <label id="lblRegiao" for="regiaoPagamento">País / Região</label>
             <select
               id="regiaoPagamento"
@@ -607,6 +642,40 @@
             />
           </div>
           <div class="form-group">
+            <label id="lblRegPhone" for="regPhoneNumber"
+              >Telefone / WhatsApp (opcional)</label
+            >
+            <div class="phone-field">
+              <select
+                id="regPhoneCode"
+                aria-label="Código de chamada internacional"
+                autocomplete="tel-country-code"
+              ></select>
+              <input
+                type="tel"
+                id="regPhoneNumber"
+                inputmode="tel"
+                autocomplete="tel-national"
+                maxlength="25"
+                pattern="[0-9+(). -]{4,25}"
+                placeholder="Número de telefone"
+              />
+              <input
+                type="text"
+                id="regPhoneCustomCode"
+                class="phone-custom-code"
+                inputmode="tel"
+                maxlength="5"
+                placeholder="+ código"
+                aria-label="Código internacional personalizado"
+                hidden
+              />
+            </div>
+            <small id="regPhoneHelp" class="field-help">
+              Pode adicionar ou actualizar o número mais tarde.
+            </small>
+          </div>
+          <div class="form-group">
             <label id="lblRegPass" for="regPassword">Palavra-passe</label>
             <div class="password-input">
               <input
@@ -794,9 +863,41 @@
             <input
               type="text"
               id="reqContacto"
-              placeholder="O seu nome e contacto (WhatsApp/email) *"
+              placeholder="O seu nome *"
+              autocomplete="name"
               required
             />
+            <div class="phone-field request-phone-field">
+              <select
+                id="requestPhoneCode"
+                aria-label="Código de chamada internacional"
+                autocomplete="tel-country-code"
+              ></select>
+              <input
+                type="tel"
+                id="requestPhoneNumber"
+                inputmode="tel"
+                autocomplete="tel"
+                maxlength="25"
+                pattern="[0-9+(). -]{4,25}"
+                placeholder="Número de WhatsApp *"
+                aria-label="Número de WhatsApp"
+                required
+              />
+              <input
+                type="text"
+                id="requestPhoneCustomCode"
+                class="phone-custom-code"
+                inputmode="tel"
+                maxlength="5"
+                placeholder="+ código"
+                aria-label="Código internacional personalizado"
+                hidden
+              />
+            </div>
+            <small id="requestPhoneHelp" class="field-help">
+              Escolha o país e introduza o número sem repetir o prefixo.
+            </small>
             <button type="submit" id="txtBtnPedir" class="btn-request">
               🚀 Pedir e Notificar a Equipa
             </button>
@@ -854,7 +955,7 @@
     </section>
 
     <button id="quizTrigger" class="quiz-trigger" type="button">
-      🧠 Fazer quiz / Play Quiz
+      🧠 Fazer quiz
     </button>
 
     <div id="quizModal" class="modal" aria-hidden="true">

@@ -37,11 +37,179 @@ const CAMINHOS_PDF = {
 };
 
 const TAXA_CAMBIO_ZAR = 3.5;
+const PREFIXOS_TELEFONICOS = [
+  { codigo: "+258", pais: "Moçambique", paisEn: "Mozambique" },
+  { codigo: "+27", pais: "África do Sul", paisEn: "South Africa" },
+  { codigo: "+244", pais: "Angola", paisEn: "Angola" },
+  { codigo: "+267", pais: "Botswana", paisEn: "Botswana" },
+  { codigo: "+269", pais: "Comores", paisEn: "Comoros" },
+  { codigo: "+243", pais: "RD Congo", paisEn: "DR Congo" },
+  { codigo: "+268", pais: "Eswatini", paisEn: "Eswatini" },
+  { codigo: "+251", pais: "Etiópia", paisEn: "Ethiopia" },
+  { codigo: "+254", pais: "Quénia", paisEn: "Kenya" },
+  { codigo: "+266", pais: "Lesoto", paisEn: "Lesotho" },
+  { codigo: "+261", pais: "Madagáscar", paisEn: "Madagascar" },
+  { codigo: "+265", pais: "Maláui", paisEn: "Malawi" },
+  { codigo: "+230", pais: "Maurícia", paisEn: "Mauritius" },
+  { codigo: "+264", pais: "Namíbia", paisEn: "Namibia" },
+  { codigo: "+248", pais: "Seicheles", paisEn: "Seychelles" },
+  { codigo: "+255", pais: "Tanzânia", paisEn: "Tanzania" },
+  { codigo: "+256", pais: "Uganda", paisEn: "Uganda" },
+  { codigo: "+260", pais: "Zâmbia", paisEn: "Zambia" },
+  { codigo: "+263", pais: "Zimbábue", paisEn: "Zimbabwe" },
+  { codigo: "+1", pais: "Estados Unidos / Canadá", paisEn: "United States / Canada" },
+  { codigo: "+54", pais: "Argentina", paisEn: "Argentina" },
+  { codigo: "+61", pais: "Austrália", paisEn: "Australia" },
+  { codigo: "+55", pais: "Brasil", paisEn: "Brazil" },
+  { codigo: "+86", pais: "China", paisEn: "China" },
+  { codigo: "+20", pais: "Egito", paisEn: "Egypt" },
+  { codigo: "+33", pais: "França", paisEn: "France" },
+  { codigo: "+49", pais: "Alemanha", paisEn: "Germany" },
+  { codigo: "+91", pais: "Índia", paisEn: "India" },
+  { codigo: "+353", pais: "Irlanda", paisEn: "Ireland" },
+  { codigo: "+39", pais: "Itália", paisEn: "Italy" },
+  { codigo: "+81", pais: "Japão", paisEn: "Japan" },
+  { codigo: "+212", pais: "Marrocos", paisEn: "Morocco" },
+  { codigo: "+31", pais: "Países Baixos", paisEn: "Netherlands" },
+  { codigo: "+64", pais: "Nova Zelândia", paisEn: "New Zealand" },
+  { codigo: "+351", pais: "Portugal", paisEn: "Portugal" },
+  { codigo: "+7", pais: "Rússia", paisEn: "Russia" },
+  { codigo: "+966", pais: "Arábia Saudita", paisEn: "Saudi Arabia" },
+  { codigo: "+65", pais: "Singapura", paisEn: "Singapore" },
+  { codigo: "+82", pais: "Coreia do Sul", paisEn: "South Korea" },
+  { codigo: "+34", pais: "Espanha", paisEn: "Spain" },
+  { codigo: "+971", pais: "Emirados Árabes Unidos", paisEn: "United Arab Emirates" },
+  { codigo: "+44", pais: "Reino Unido", paisEn: "United Kingdom" },
+];
 
 function converterPreco(precoMT) {
   const valorNumerico = parseFloat(precoMT.replace(" MT", ""));
   const valorZAR = (valorNumerico / TAXA_CAMBIO_ZAR).toFixed(2);
   return `R ${valorZAR}`;
+}
+
+function inicializarSeletoresTelefone() {
+  const campos = [
+    ["requestPhoneCode", "requestPhoneCustomCode", "requestPhoneNumber"],
+    ["regPhoneCode", "regPhoneCustomCode", "regPhoneNumber"],
+    ["checkoutPhoneCode", "checkoutPhoneCustomCode", "checkoutPhoneNumber"],
+  ];
+  const t = traducoes[idiomaAtual];
+
+  campos.forEach(([selectId, customCodeId, numberId]) => {
+    const select = document.getElementById(selectId);
+    const customCode = document.getElementById(customCodeId);
+    const number = document.getElementById(numberId);
+    if (!select || !customCode || !number) return;
+
+    const opcoesPrincipais = PREFIXOS_TELEFONICOS.slice(0, 2);
+    const opcoesRestantes = PREFIXOS_TELEFONICOS.slice(2);
+    [...opcoesPrincipais, ...opcoesRestantes].forEach((item, index) => {
+      const option = document.createElement("option");
+      option.value = item.codigo;
+      option.textContent = `${index === 0 ? "🇲🇿 " : index === 1 ? "🇿🇦 " : ""}${item.codigo} — ${idiomaAtual === "pt" ? item.pais : item.paisEn}`;
+      select.appendChild(option);
+    });
+
+    const customOption = document.createElement("option");
+    customOption.value = "custom";
+    customOption.id = `${selectId}CustomOption`;
+    customOption.textContent = t.phoneCustomOption;
+    select.appendChild(customOption);
+
+    const atualizarCodigoPersonalizado = () => {
+      const usarPersonalizado = select.value === "custom";
+      customCode.hidden = !usarPersonalizado;
+      customCode.required = usarPersonalizado && Boolean(number.value.trim());
+      customCode.setCustomValidity("");
+    };
+    select.addEventListener("change", atualizarCodigoPersonalizado);
+    number.addEventListener("input", atualizarCodigoPersonalizado);
+    customCode.addEventListener("input", () => customCode.setCustomValidity(""));
+    select.closest("form")?.addEventListener("reset", () => {
+      window.setTimeout(atualizarCodigoPersonalizado, 0);
+    });
+    atualizarCodigoPersonalizado();
+  });
+}
+
+function obterTelefoneInternacional(selectId, numberId, customCodeId) {
+  const select = document.getElementById(selectId);
+  const campoNumero = document.getElementById(numberId);
+  const campoCodigoPersonalizado = document.getElementById(customCodeId);
+  let prefixo = select.value;
+  const digitosNumero = campoNumero.value.replace(/\D/g, "");
+
+  if (!digitosNumero) {
+    return { e164: "", prefixo: "", numero: "", error: "" };
+  }
+
+  if (prefixo === "custom") {
+    const codigoPersonalizado =
+      campoCodigoPersonalizado.value.trim().startsWith("+")
+        ? campoCodigoPersonalizado.value.trim()
+        : `+${campoCodigoPersonalizado.value.trim()}`;
+    if (!/^\+[1-9]\d{0,3}$/.test(codigoPersonalizado)) {
+      return {
+        e164: "",
+        prefixo: "",
+        numero: "",
+        error: traducoes[idiomaAtual].phoneCustomCodeRequired,
+      };
+    }
+    prefixo = codigoPersonalizado;
+  }
+
+  const digitosPrefixo = prefixo.replace(/\D/g, "");
+  let numero = digitosNumero;
+  const numeroInternacional = campoNumero.value.trim().startsWith("+") ||
+    numero.startsWith("00");
+  if (numero.startsWith("00")) numero = numero.slice(2);
+  if (numeroInternacional && !numero.startsWith(digitosPrefixo)) {
+    return {
+      e164: "",
+      prefixo: "",
+      numero: "",
+      error: traducoes[idiomaAtual].phonePrefixMismatch,
+    };
+  }
+  if (numero.startsWith(digitosPrefixo)) {
+    numero = numero.slice(digitosPrefixo.length);
+  }
+  if (numero.startsWith("0")) numero = numero.slice(1);
+  const e164 = `+${digitosPrefixo}${numero}`;
+
+  if (numero.length < 4 || e164.length > 16) {
+    return {
+      e164: "",
+      prefixo: "",
+      numero: "",
+      error: traducoes[idiomaAtual].phoneInvalid,
+    };
+  }
+
+  return { e164, prefixo, numero, error: "" };
+}
+
+function preencherTelefoneInternacional(selectId, numberId, customCodeId, metadata) {
+  const select = document.getElementById(selectId);
+  const number = document.getElementById(numberId);
+  const customCode = document.getElementById(customCodeId);
+  const prefixo = metadata?.phone_country_code || "";
+  const numero = metadata?.phone_number || "";
+  if (!numero) return;
+
+  const optionExists = Array.from(select.options).some(
+    (option) => option.value === prefixo,
+  );
+  if (optionExists) {
+    select.value = prefixo;
+  } else if (prefixo) {
+    select.value = "custom";
+    customCode.value = prefixo;
+  }
+  number.value = numero;
+  select.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
 // --- VARIÁVEIS GLOBAIS ---
@@ -128,7 +296,24 @@ const traducoes = {
       "Indique o título e os seus dados; vamos preparar uma mensagem para enviar à equipa pelo WhatsApp.",
     reqTituloPh: "Nome do livro ou exame *",
     reqAutorPh: "Autor / Categoria (Opcional)",
-    reqContatoPh: "O seu nome e contacto (WhatsApp/email) *",
+    reqContatoPh: "O seu nome *",
+    requestPhoneLabel: "Número de WhatsApp *",
+    requestPhoneHelp: "Escolha o país e introduza o número sem repetir o prefixo.",
+    phoneNumberPh: "Número de telefone",
+    phoneCustomCodePh: "+ código",
+    phoneCustomCodeLabel: "Código internacional personalizado",
+    phoneCodeLabel: "Prefixo internacional",
+    requestPhoneNumberLabel: "Número de WhatsApp *",
+    phoneCustomOption: "Outro código…",
+    phoneCustomCodeRequired: "Indique o código internacional personalizado.",
+    phoneInvalid: "Introduza um número de telefone válido.",
+    phonePrefixMismatch:
+      "O número já contém outro prefixo. Escolha o prefixo correspondente no selector.",
+    phoneOptionalLabel: "Telefone / WhatsApp (opcional)",
+    phoneRegistrationHelp:
+      "O número será guardado no perfil para facilitar o contacto nos pedidos.",
+    phoneCheckoutHelp:
+      "Este número será incluído no resumo enviado pelo WhatsApp.",
     btnPedir: "🚀 Pedir e Notificar a Equipa",
     feedbackTitle: "💡 Ajude-nos a melhorar",
     feedbackDescription:
@@ -172,6 +357,7 @@ const traducoes = {
     languageHelp: "Altere o idioma do site entre Português e English (South Africa).",
     quizTitle: "Descobre o teu perfil de leitor",
     quizKicker: "🧠 Interactividade",
+    quizButton: "🧠 Fazer quiz",
     quizHelp:
       "Responde a cinco perguntas rápidas sobre os teus gostos e recebe sugestões de leitura.",
     quizPrevious: "Anterior",
@@ -291,7 +477,24 @@ const traducoes = {
       "Enter the title and your contact details; we will prepare a message to send to the team on WhatsApp.",
     reqTituloPh: "Book Name or Exam *",
     reqAutorPh: "Author / Category (Optional)",
-    reqContatoPh: "Your Name and Contact (WhatsApp/Email) *",
+    reqContatoPh: "Your name *",
+    requestPhoneLabel: "WhatsApp number *",
+    requestPhoneHelp: "Choose your country and enter the number without repeating the calling code.",
+    phoneNumberPh: "Phone number",
+    phoneCustomCodePh: "+ code",
+    phoneCustomCodeLabel: "Custom international calling code",
+    phoneCodeLabel: "International calling code",
+    requestPhoneNumberLabel: "WhatsApp number *",
+    phoneCustomOption: "Other code…",
+    phoneCustomCodeRequired: "Enter the custom international calling code.",
+    phoneInvalid: "Enter a valid phone number.",
+    phonePrefixMismatch:
+      "The number already contains a different calling code. Select the matching code from the list.",
+    phoneOptionalLabel: "Phone / WhatsApp (optional)",
+    phoneRegistrationHelp:
+      "Your number will be saved to your profile to simplify contact on requests.",
+    phoneCheckoutHelp:
+      "This number will be included in the summary sent on WhatsApp.",
     btnPedir: "🚀 Request & Notify Team",
     feedbackTitle: "💡 Help us improve",
     feedbackDescription:
@@ -335,6 +538,7 @@ const traducoes = {
     languageHelp: "Switch the site language between Portuguese and English (South Africa).",
     quizTitle: "Discover your reader profile",
     quizKicker: "🧠 Interactive",
+    quizButton: "🧠 Play Quiz",
     quizHelp:
       "Answer five quick questions about your reading tastes and get book suggestions.",
     quizPrevious: "Previous",
@@ -663,6 +867,45 @@ function aplicarIdioma() {
   document.getElementById("reqTitulo").placeholder = t.reqTituloPh;
   document.getElementById("reqAutor").placeholder = t.reqAutorPh;
   document.getElementById("reqContacto").placeholder = t.reqContatoPh;
+  document.getElementById("requestPhoneNumber").placeholder =
+    t.requestPhoneLabel;
+  document.getElementById("requestPhoneNumber").setAttribute(
+    "aria-label",
+    t.requestPhoneNumberLabel,
+  );
+  document.getElementById("requestPhoneHelp").innerText = t.requestPhoneHelp;
+  document.getElementById("requestPhoneCustomCode").placeholder =
+    t.phoneCustomCodePh;
+  document.getElementById("requestPhoneCustomCode").setAttribute(
+    "aria-label",
+    t.phoneCustomCodeLabel,
+  );
+  document.getElementById("requestPhoneCodeCustomOption").innerText =
+    t.phoneCustomOption;
+  ["requestPhoneCode", "regPhoneCode", "checkoutPhoneCode"].forEach((id) => {
+    const select = document.getElementById(id);
+    select.setAttribute("aria-label", t.phoneCodeLabel);
+    Array.from(select.options).forEach((option) => {
+      if (option.value === "custom") {
+        option.textContent = t.phoneCustomOption;
+        return;
+      }
+      const country = PREFIXOS_TELEFONICOS.find(
+        (item) => item.codigo === option.value,
+      );
+      if (country) {
+        const countryName =
+          idiomaAtual === "pt" ? country.pais : country.paisEn;
+        const emoji =
+          option.value === "+258"
+            ? "🇲🇿 "
+            : option.value === "+27"
+              ? "🇿🇦 "
+              : "";
+        option.textContent = `${emoji}${country.codigo} — ${countryName}`;
+      }
+    });
+  });
   document.getElementById("txtBtnPedir").innerText = t.btnPedir;
   document.getElementById("feedbackTitle").innerText = t.feedbackTitle;
   document.getElementById("feedbackDescription").innerText =
@@ -697,6 +940,18 @@ function aplicarIdioma() {
 
   document.getElementById("lblNome").innerText = t.lblNome;
   document.getElementById("lblEmail").innerText = t.lblEmail;
+  document.getElementById("lblCheckoutPhone").innerText = t.phoneOptionalLabel;
+  document.getElementById("checkoutPhoneHelp").innerText = t.phoneCheckoutHelp;
+  document.getElementById("checkoutPhoneNumber").placeholder =
+    t.phoneNumberPh;
+  document.getElementById("checkoutPhoneCustomCode").placeholder =
+    t.phoneCustomCodePh;
+  document.getElementById("checkoutPhoneCustomCode").setAttribute(
+    "aria-label",
+    t.phoneCustomCodeLabel,
+  );
+  document.getElementById("checkoutPhoneCodeCustomOption").innerText =
+    t.phoneCustomOption;
   document.getElementById("clienteEmail").placeholder = t.emailCheckoutPh;
   document.getElementById("lblMetodo").innerText = t.lblMetodo;
   document.getElementById("lblRegiao").innerText = t.lblRegiao;
@@ -723,6 +978,7 @@ function aplicarIdioma() {
   document.getElementById("quizHelp").innerText = t.quizHelp;
   document.getElementById("quizTitle").innerText = t.quizTitle;
   document.getElementById("quizKicker").innerText = t.quizKicker;
+  document.getElementById("quizTrigger").innerText = t.quizButton;
   document.getElementById("quizPrev").innerText = t.quizPrevious;
   document.getElementById("quizNext").innerText = t.quizNext;
   document.getElementById("searchInput").title = t.searchHelp;
@@ -754,6 +1010,17 @@ function aplicarIdioma() {
   document.querySelector("#formRegistro input[type='text']").placeholder =
     t.nomeRegPh;
   document.getElementById("lblRegEmail").innerText = t.lblRegEmail;
+  document.getElementById("lblRegPhone").innerText = t.phoneOptionalLabel;
+  document.getElementById("regPhoneHelp").innerText = t.phoneRegistrationHelp;
+  document.getElementById("regPhoneNumber").placeholder = t.phoneNumberPh;
+  document.getElementById("regPhoneCustomCode").placeholder =
+    t.phoneCustomCodePh;
+  document.getElementById("regPhoneCustomCode").setAttribute(
+    "aria-label",
+    t.phoneCustomCodeLabel,
+  );
+  document.getElementById("regPhoneCodeCustomOption").innerText =
+    t.phoneCustomOption;
   document.querySelector("#formRegistro input[type='email']").placeholder =
     t.regEmailPh;
   document.getElementById("lblRegPass").innerText = t.lblRegPass;
@@ -1043,13 +1310,13 @@ function carregarProdutos(lista) {
       <div class="card-purchase">
         <div class="price">${precoExibido}</div>
       <div class="card-actions">
-        <button title="${t.previewHelp}" onclick="abrirModalPreview(${item.id})" class="btn-synopsis">
+        <button type="button" title="${t.previewHelp}" onclick="abrirModalPreview(${item.id})" class="btn-synopsis">
             ${t.btnIntro}
           </button>
-        <button title="${t.addToCartHelp}" onclick="adicionarAoCarrinho(${item.id})" class="btn-cart-add">
+        <button type="button" title="${t.addToCartHelp}" onclick="adicionarAoCarrinho(${item.id})" class="btn-cart-add">
             ${t.btnAdicionarCarrinho}
           </button>
-        <button title="${t.buyNowHelp}" onclick="iniciarCompra(${item.id})" class="btn-buy">
+        <button type="button" title="${t.buyNowHelp}" onclick="iniciarCompra(${item.id})" class="btn-buy">
             ${t.btnComprar}
           </button>
         </div>
@@ -1220,7 +1487,7 @@ function atualizarResumoCheckout() {
   checkoutPreco.innerText = `${idiomaAtual === "pt" ? "Valor a pagar" : "Amount to pay"}: ${total}${nomesItens.length ? ` · ${nomesItens.join(", ")}` : ""}`;
 }
 
-function criarResumoPedidoWhatsApp(referencia, regiao, encomendas) {
+function criarResumoPedidoWhatsApp(referencia, regiao, encomendas, telefone) {
   const nomeCliente =
     perfilAtual?.full_name ||
     utilizadorAtual.user_metadata?.full_name ||
@@ -1250,7 +1517,7 @@ function criarResumoPedidoWhatsApp(referencia, regiao, encomendas) {
     regiao,
   );
   const metodo = document.getElementById("metodoPagamento").selectedOptions[0].text;
-  return `📚 *NOVO PEDIDO (MozBookStore)*\n\n👤 *Cliente:* ${nomeCliente}\n📧 *Email da conta:* ${utilizadorAtual.email || "Não fornecido"}\n\n📖 *Livros:*\n${linhas.join("\n")}\n\n💰 *Total:* ${total}\n💳 *Pagamento:* ${metodo}\n🔖 *Referência:* ${referencia}`;
+  return `📚 *NOVO PEDIDO (MozBookStore)*\n\n👤 *Cliente:* ${nomeCliente}\n📧 *Email da conta:* ${utilizadorAtual.email || "Não fornecido"}${telefone ? `\n📱 *WhatsApp:* ${telefone}` : ""}\n\n📖 *Livros:*\n${linhas.join("\n")}\n\n💰 *Total:* ${total}\n💳 *Pagamento:* ${metodo}\n🔖 *Referência:* ${referencia}`;
 }
 
 function iniciarCheckoutCarrinho() {
@@ -1302,6 +1569,12 @@ function abrirCheckout() {
   document.getElementById("clienteNome").value =
     perfilAtual?.full_name || utilizadorAtual.user_metadata?.full_name || "";
   document.getElementById("clienteEmail").value = utilizadorAtual.email || "";
+  preencherTelefoneInternacional(
+    "checkoutPhoneCode",
+    "checkoutPhoneNumber",
+    "checkoutPhoneCustomCode",
+    utilizadorAtual.user_metadata,
+  );
   atualizarOpcoesPagamento();
 
   document.getElementById("checkoutModal").style.display = "flex";
@@ -1381,6 +1654,19 @@ async function submeterConfirmacaoPagamento(event) {
     return;
   }
 
+  const telefone = obterTelefoneInternacional(
+    "checkoutPhoneCode",
+    "checkoutPhoneNumber",
+    "checkoutPhoneCustomCode",
+  );
+  if (telefone.error) {
+    status.innerText = telefone.error;
+    status.className = "payment-status account-status error";
+    status.style.display = "block";
+    document.getElementById("checkoutPhoneNumber").focus();
+    return;
+  }
+
   const janelaWhatsApp = window.open("about:blank", "_blank");
   botao.disabled = true;
   status.innerText =
@@ -1419,6 +1705,7 @@ async function submeterConfirmacaoPagamento(event) {
     referencia,
     regiao.value,
     encomendas,
+    telefone.e164,
   );
   const urlWhatsApp = `https://wa.me/${CONFIG_NOTIFICACOES.numeroWhatsAppPrincipal}?text=${encodeURIComponent(textoWhatsApp)}`;
   if (janelaWhatsApp) {
@@ -1578,10 +1865,20 @@ function enviarPedidoLivro(event) {
 
   const titulo = document.getElementById("reqTitulo").value;
   const autor = document.getElementById("reqAutor").value || "Não especificado";
-  const contacto = document.getElementById("reqContacto").value;
+  const solicitante = document.getElementById("reqContacto").value.trim();
+  const telefone = obterTelefoneInternacional(
+    "requestPhoneCode",
+    "requestPhoneNumber",
+    "requestPhoneCustomCode",
+  );
   const statusDiv = document.getElementById("statusPedido");
+  if (telefone.error || !telefone.e164) {
+    statusDiv.innerText = telefone.error || traducoes[idiomaAtual].phoneInvalid;
+    statusDiv.className = "status-pedido error";
+    return;
+  }
 
-  const textoMensagem = `📚 *NOVO PEDIDO DE LIVRO (MozBookStore)*\n\n📖 *Livro/Exame:* ${titulo}\n✍ *Autor/Detalhes:* ${autor}\n👤 *Solicitante:* ${contacto}`;
+  const textoMensagem = `📚 *NOVO PEDIDO DE LIVRO (MozBookStore)*\n\n📖 *Livro/Exame:* ${titulo}\n✍ *Autor/Detalhes:* ${autor}\n👤 *Solicitante:* ${solicitante}\n📱 *WhatsApp:* ${telefone.e164}`;
   const urlWa = `https://wa.me/${CONFIG_NOTIFICACOES.numeroWhatsAppPrincipal}?text=${encodeURIComponent(textoMensagem)}`;
   const aberto = abrirWhatsAppComFallback(
     urlWa,
@@ -1935,13 +2232,33 @@ async function registarConta(event) {
     return;
   }
 
+  const telefone = obterTelefoneInternacional(
+    "regPhoneCode",
+    "regPhoneNumber",
+    "regPhoneCustomCode",
+  );
+  if (telefone.error) {
+    mostrarEstadoAutenticacao(telefone.error, true);
+    document.getElementById("regPhoneNumber").focus();
+    return;
+  }
+
   const botao = document.getElementById("btnRegSubmit");
   botao.disabled = true;
   const { data, error } = await supabaseClient.auth.signUp({
     email: document.getElementById("regEmail").value.trim(),
     password: document.getElementById("regPassword").value,
     options: {
-      data: { full_name: document.getElementById("regName").value.trim() },
+      data: {
+        full_name: document.getElementById("regName").value.trim(),
+        ...(telefone.e164
+          ? {
+              phone_e164: telefone.e164,
+              phone_country_code: telefone.prefixo,
+              phone_number: telefone.numero,
+            }
+          : {}),
+      },
     },
   });
   botao.disabled = false;
@@ -2666,6 +2983,7 @@ window.onclick = function (event) {
 };
 
 window.onload = () => {
+  inicializarSeletoresTelefone();
   aplicarIdioma();
   inicializarSupabase();
 };
