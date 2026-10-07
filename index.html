@@ -123,10 +123,7 @@
         </nav>
         <!-- Grupo de botões com a dica de idioma -->
         <div class="top-bar-actions">
-          <span
-            id="txtIdiomaLabel"
-            class="language-label"
-          >
+          <span id="txtIdiomaLabel" class="language-label">
             🌐 Mudar idioma:
           </span>
           <button
@@ -182,6 +179,7 @@
             type="text"
             id="searchInput"
             placeholder="Pesquisar livros, exames, desporto, tecnologia..."
+            aria-label="Pesquisar livros"
             oninput="
               buscarLivro();
               atualizarSugestoes();
@@ -189,10 +187,7 @@
             autocomplete="off"
           />
           <!-- Caixa de Sugestões / Hints -->
-          <div
-            id="searchSuggestions"
-            class="suggestions-box"
-          ></div>
+          <div id="searchSuggestions" class="suggestions-box"></div>
         </div>
       </div>
     </header>
@@ -207,10 +202,18 @@
           sul-africano.
         </p>
         <div class="hero-actions">
-          <a class="hero-action-primary" href="#requestBookSection" id="btnIrPedido">
+          <a
+            class="hero-action-primary"
+            href="#requestBookSection"
+            id="btnIrPedido"
+          >
             📚 Pedir um livro
           </a>
-          <a class="hero-action-secondary" href="#feedbackSection" id="btnIrFeedback">
+          <a
+            class="hero-action-secondary"
+            href="#feedbackSection"
+            id="btnIrFeedback"
+          >
             💡 Enviar feedback
           </a>
         </div>
@@ -273,8 +276,20 @@
       <h2 id="txtCatalogoTit" class="section-title">
         Catálogo de livros disponíveis
       </h2>
-      <section id="cartSection" class="cart-section" aria-labelledby="cartTitle">
+      <p id="catalogHelp" class="section-help">
+        Pesquise ou escolha uma categoria; veja a sinopse, adicione ao carrinho
+        e ajuste as quantidades antes de finalizar.
+      </p>
+      <section
+        id="cartSection"
+        class="cart-section"
+        aria-labelledby="cartTitle"
+      >
         <h3 id="cartTitle">🛒 O seu carrinho</h3>
+        <p id="cartHelp" class="section-help">
+          Confira os títulos, quantidades e total; pode alterar ou remover itens
+          antes do checkout.
+        </p>
         <p id="cartEmpty">Ainda não adicionou livros ao carrinho.</p>
         <div id="cartItems" class="cart-items"></div>
         <p id="cartTotal" class="cart-total">Total: 0 MT</p>
@@ -306,6 +321,10 @@
           Voltar ao catálogo
         </button>
       </div>
+      <p id="libraryHelp" class="section-help">
+        Acompanhe as compras; os PDFs ficam disponíveis após a aprovação do
+        pagamento.
+      </p>
       <div id="libraryStatus" class="account-status" role="status"></div>
       <div id="libraryBooks" class="account-list"></div>
     </section>
@@ -321,6 +340,10 @@
           Voltar ao catálogo
         </button>
       </div>
+      <p id="adminHelp" class="section-help">
+        Reveja as referências e valores pagos; aprove para libertar o acesso ou
+        rejeite a encomenda.
+      </p>
       <div id="adminStatus" class="account-status" role="status"></div>
       <div id="adminOrders" class="account-list"></div>
     </section>
@@ -331,6 +354,10 @@
         <span class="close-btn" onclick="fecharModalCheckout()">&times;</span>
         <h3 id="checkoutTitulo">Pagar e receber o PDF</h3>
         <p id="checkoutPreco" class="checkout-price-highlight"></p>
+        <p id="checkoutHelp" class="section-help">
+          Confirme a região, siga os dados de pagamento, introduza a referência
+          e envie o resumo pelo WhatsApp.
+        </p>
 
         <form id="formCheckout" onsubmit="submeterConfirmacaoPagamento(event)">
           <div class="form-group">
@@ -428,15 +455,11 @@
           >&times;</span
         >
 
-        <h2 id="previewTitulo" class="preview-title">
-          Título do livro
-        </h2>
+        <h2 id="previewTitulo" class="preview-title">Título do livro</h2>
         <p id="previewAutor" class="preview-author"></p>
 
         <div class="preview-synopsis">
-          <h4 id="txtSinopse">
-            📌 Introdução / Sinopse
-          </h4>
+          <h4 id="txtSinopse">📌 Introdução / Sinopse</h4>
           <p id="previewTexto" class="preview-text"></p>
         </div>
 
@@ -484,6 +507,10 @@
             Registar
           </button>
         </div>
+        <p id="loginHelp" class="section-help">
+          Entre na sua conta ou crie uma para guardar compras e aceder aos PDFs
+          aprovados.
+        </p>
 
         <form id="formLogin" class="auth-form active">
           <h3 id="loginTitle">Bem-vindo de volta!</h3>
@@ -633,7 +660,9 @@
         <form id="formNovaPassword" class="auth-form">
           <h3 id="novaPasswordTitle">Definir nova palavra-passe</h3>
           <div class="form-group">
-            <label id="lblNovaPassword" for="novaPassword">Nova palavra-passe</label>
+            <label id="lblNovaPassword" for="novaPassword"
+              >Nova palavra-passe</label
+            >
             <div class="password-input">
               <input
                 type="password"
@@ -679,7 +708,9 @@
             </div>
           </div>
           <div class="form-group">
-            <label id="lblConfirmarPassword" for="confirmarPassword">Confirmar palavra-passe</label>
+            <label id="lblConfirmarPassword" for="confirmarPassword"
+              >Confirmar palavra-passe</label
+            >
             <div class="password-input">
               <input
                 type="password"
@@ -823,19 +854,31 @@
     </section>
 
     <button id="quizTrigger" class="quiz-trigger" type="button">
-      🧠 Fazer quiz
+      🧠 Fazer quiz / Play Quiz
     </button>
 
     <div id="quizModal" class="modal" aria-hidden="true">
       <div class="modal-content quiz-modal-content">
-        <button type="button" class="close-btn" data-close-quiz aria-label="Fechar quiz">×</button>
+        <button
+          type="button"
+          class="close-btn"
+          data-close-quiz
+          aria-label="Fechar quiz"
+        >
+          ×
+        </button>
 
         <div class="quiz-header">
-          <p class="quiz-kicker">🧠 Interactividade</p>
+          <p id="quizKicker" class="quiz-kicker">🧠 Interactividade</p>
           <h2 id="quizTitle">Descobre o teu perfil de leitor</h2>
+          <p id="quizHelp" class="section-help">
+            Responde a cinco perguntas rápidas sobre os teus gostos e recebe
+            sugestões de leitura.
+          </p>
         </div>
 
         <div class="quiz-card">
+          <p id="quizProgress" class="quiz-progress" aria-live="polite"></p>
           <div id="quizQuestion" class="quiz-question">
             Qual das opções descreve melhor a tua forma de aprender?
           </div>
@@ -843,10 +886,19 @@
           <div id="quizOptions" class="quiz-options" aria-live="polite"></div>
 
           <div class="quiz-actions">
-            <button type="button" id="quizPrev" class="btn-quiz btn-quiz-secondary" hidden>
+            <button
+              type="button"
+              id="quizPrev"
+              class="btn-quiz btn-quiz-secondary"
+              hidden
+            >
               Anterior
             </button>
-            <button type="button" id="quizNext" class="btn-quiz btn-quiz-primary">
+            <button
+              type="button"
+              id="quizNext"
+              class="btn-quiz btn-quiz-primary"
+            >
               Próxima
             </button>
           </div>
@@ -869,7 +921,11 @@
         <strong id="pwaInstallTitle"></strong>
         <p id="pwaInstallMessage"></p>
       </div>
-      <button id="pwaInstallAction" class="pwa-install-action" type="button"></button>
+      <button
+        id="pwaInstallAction"
+        class="pwa-install-action"
+        type="button"
+      ></button>
       <button
         id="pwaInstallDismiss"
         class="pwa-install-dismiss"

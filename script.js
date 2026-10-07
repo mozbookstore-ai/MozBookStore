@@ -58,6 +58,7 @@ let catalogOrderWarning = false;
 let deferredInstallPrompt = null;
 let pwaInstallMode = null;
 let pwaInstallDismissed = false;
+const PWA_INSTALL_SEEN_KEY = "mozbookstoreInstallPromptHandled";
 
 // --- DICIONÁRIO DE TRADUÇÕES (PT / en-ZA) ---
 const traducoes = {
@@ -124,14 +125,14 @@ const traducoes = {
     pedirTitulo:
       "📑 Não encontrou o livro que procura? Peça-o e nós adicionamos!",
     pedirSub:
-      "Envie os detalhes do material pretendido. A nossa equipa recebe o pedido de imediato.",
+      "Indique o título e os seus dados; vamos preparar uma mensagem para enviar à equipa pelo WhatsApp.",
     reqTituloPh: "Nome do livro ou exame *",
     reqAutorPh: "Autor / Categoria (Opcional)",
     reqContatoPh: "O seu nome e contacto (WhatsApp/email) *",
     btnPedir: "🚀 Pedir e Notificar a Equipa",
     feedbackTitle: "💡 Ajude-nos a melhorar",
     feedbackDescription:
-      "Partilhe sugestões ou ideias para futuras melhorias da MozBookStore.",
+      "Partilhe sugestões; o WhatsApp abrirá com a mensagem pronta para confirmar o envio.",
     feedbackNamePh: "O seu nome (opcional)",
     feedbackEmailPh: "O seu email (opcional)",
     feedbackMessagePh: "Que melhoria gostaria de ver? *",
@@ -151,6 +152,35 @@ const traducoes = {
     passo3Desc:
       "Após uma verificação rápida, poderá descarregar o seu documento.",
     catalogoTit: "Catálogo de livros disponíveis",
+    catalogHelp:
+      "Pesquise ou escolha uma categoria; veja a sinopse, adicione ao carrinho e ajuste as quantidades antes de finalizar.",
+    cartHelp:
+      "Confira os títulos, quantidades e total; pode alterar ou remover itens antes do checkout.",
+    libraryHelp:
+      "Acompanhe as compras: os PDFs ficam disponíveis para descarregar depois da aprovação do pagamento.",
+    adminHelp:
+      "Reveja as referências e valores pagos; aprove para libertar o acesso ou rejeite a encomenda.",
+    loginHelp:
+      "Entre na sua conta ou crie uma para guardar compras e aceder aos PDFs aprovados.",
+    checkoutHelp:
+      "Confirme a região, siga os dados de pagamento, introduza a referência e envie o resumo pelo WhatsApp.",
+    searchHelp: "Pesquise por título, autor ou tipo de material.",
+    categoryHelp: "Filtre os livros por categoria.",
+    previewHelp: "Leia uma breve apresentação deste livro.",
+    addToCartHelp: "Adicione este livro ao carrinho sem sair do catálogo.",
+    buyNowHelp: "Adicione este livro e avance para o checkout.",
+    languageHelp: "Altere o idioma do site entre Português e English (South Africa).",
+    quizTitle: "Descobre o teu perfil de leitor",
+    quizKicker: "🧠 Interactividade",
+    quizHelp:
+      "Responde a cinco perguntas rápidas sobre os teus gostos e recebe sugestões de leitura.",
+    quizPrevious: "Anterior",
+    quizNext: "Próxima",
+    quizMissingAnswer:
+      "Escolhe uma opção para avançar para a próxima pergunta.",
+    quizMissingAnswers:
+      "Responde a todas as perguntas para descobrir o teu perfil de leitor.",
+    quizRestart: "Fazer novamente",
     btnIntro: "📖 Sinopse",
     btnComprar: "💳 Comprar",
     btnAdicionarCarrinho: "Adicionar",
@@ -258,14 +288,14 @@ const traducoes = {
     btnIrFeedback: "💡 Send feedback",
     pedirTitulo: "📑 Didn't find your book? Request it and we'll add it!",
     pedirSub:
-      "Send the details of the material you want. Our team receives the notification instantly.",
+      "Enter the title and your contact details; we will prepare a message to send to the team on WhatsApp.",
     reqTituloPh: "Book Name or Exam *",
     reqAutorPh: "Author / Category (Optional)",
     reqContatoPh: "Your Name and Contact (WhatsApp/Email) *",
     btnPedir: "🚀 Request & Notify Team",
     feedbackTitle: "💡 Help us improve",
     feedbackDescription:
-      "Share suggestions or ideas for future improvements to MozBookStore.",
+      "Share a suggestion; WhatsApp will open with the message ready for you to send.",
     feedbackNamePh: "Your name (optional)",
     feedbackEmailPh: "Your email (optional)",
     feedbackMessagePh: "What improvement would you like to see? *",
@@ -285,6 +315,34 @@ const traducoes = {
     passo3Desc:
       "After a quick verification, your document will be available for download.",
     catalogoTit: "Available Books Catalogue",
+    catalogHelp:
+      "Search or choose a category; preview a book, add it to your cart, and adjust quantities before checkout.",
+    cartHelp:
+      "Review titles, quantities, and the total; edit or remove items before checkout.",
+    libraryHelp:
+      "Track your purchases: PDFs are available to download after payment approval.",
+    adminHelp:
+      "Review payment references and amounts; approve to unlock access or reject the order.",
+    loginHelp:
+      "Sign in or create an account to keep track of purchases and access approved PDFs.",
+    checkoutHelp:
+      "Confirm your region, follow the payment details, enter the reference, and send the summary on WhatsApp.",
+    searchHelp: "Search by title, author, or material type.",
+    categoryHelp: "Filter books by category.",
+    previewHelp: "Read a short introduction to this book.",
+    addToCartHelp: "Add this book to your cart and keep browsing.",
+    buyNowHelp: "Add this book and continue to checkout.",
+    languageHelp: "Switch the site language between Portuguese and English (South Africa).",
+    quizTitle: "Discover your reader profile",
+    quizKicker: "🧠 Interactive",
+    quizHelp:
+      "Answer five quick questions about your reading tastes and get book suggestions.",
+    quizPrevious: "Previous",
+    quizNext: "Next",
+    quizMissingAnswer: "Choose an option to continue to the next question.",
+    quizMissingAnswers:
+      "Answer every question to discover your reader profile.",
+    quizRestart: "Take it again",
     btnIntro: "📖 Synopsis",
     btnComprar: "💳 Buy",
     btnAdicionarCarrinho: "Add",
@@ -594,6 +652,7 @@ function aplicarIdioma() {
   document.getElementById("btnAdmin").innerText = t.btnAdmin;
   document.getElementById("btnLogout").innerText = t.btnLogout;
   document.getElementById("searchInput").placeholder = t.searchPlaceholder;
+  document.getElementById("searchInput").setAttribute("aria-label", t.searchHelp);
   document.getElementById("txtHeroTitulo").innerText = t.heroTitulo;
   document.getElementById("txtHeroSub").innerText = t.heroSub;
   document.getElementById("btnIrPedido").innerText = t.btnIrPedido;
@@ -656,6 +715,29 @@ function aplicarIdioma() {
   document.getElementById("cartTitle").innerText = t.carrinhoTitulo;
   document.getElementById("cartEmpty").innerText = t.carrinhoVazio;
   document.getElementById("cartCheckout").innerText = t.carrinhoFinalizar;
+  document.getElementById("catalogHelp").innerText = t.catalogHelp;
+  document.getElementById("libraryHelp").innerText = t.libraryHelp;
+  document.getElementById("adminHelp").innerText = t.adminHelp;
+  document.getElementById("loginHelp").innerText = t.loginHelp;
+  document.getElementById("checkoutHelp").innerText = t.checkoutHelp;
+  document.getElementById("quizHelp").innerText = t.quizHelp;
+  document.getElementById("quizTitle").innerText = t.quizTitle;
+  document.getElementById("quizKicker").innerText = t.quizKicker;
+  document.getElementById("quizPrev").innerText = t.quizPrevious;
+  document.getElementById("quizNext").innerText = t.quizNext;
+  document.getElementById("searchInput").title = t.searchHelp;
+  document.getElementById("btnTraduzir").title = t.languageHelp;
+  document.getElementById("txtBtnLogin").title = t.loginHelp;
+  document.getElementById("btnBiblioteca").title = t.libraryHelp;
+  document.getElementById("btnAdmin").title = t.adminHelp;
+  document.getElementById("cartCheckout").title = t.cartHelp;
+  document.getElementById("quizTrigger").title = t.quizHelp;
+  document.getElementById("libraryBackButton").title = t.catalogHelp;
+  document.getElementById("adminBackButton").title = t.catalogHelp;
+  document.getElementById("btnEsqueceuPassword").title =
+    idiomaAtual === "pt"
+      ? "Receba por email uma ligação para criar uma nova palavra-passe."
+      : "Receive an email link to create a new password.";
 
   document.getElementById("tabLoginBtn").innerText = t.tabLogin;
   document.getElementById("tabRegisterBtn").innerText = t.tabRegister;
@@ -715,6 +797,10 @@ function aplicarIdioma() {
   if (document.getElementById("checkoutModal").style.display === "flex") {
     atualizarOpcoesPagamento();
   }
+  if (document.getElementById("quizModal").style.display === "flex") {
+    renderizarQuiz();
+    if (quizEstado.concluido) concluirQuiz();
+  }
 }
 
 function atualizarTextoInstalacaoPwa() {
@@ -743,6 +829,9 @@ function atualizarTextoInstalacaoPwa() {
   document.getElementById("pwaInstallAction").innerText = portugues
     ? "Instalar"
     : "Install";
+  document.getElementById("pwaInstallAction").title = portugues
+    ? "Toque para instalar ou ver instruções; esta sugestão não voltará a aparecer."
+    : "Tap to install or view instructions; this suggestion will not appear again.";
   document.getElementById("pwaInstallDialogTitle").innerText = portugues
     ? "Como instalar a MozBookStore"
     : "How to install MozBookStore";
@@ -757,6 +846,9 @@ function atualizarTextoInstalacaoPwa() {
       "aria-label",
       portugues ? "Fechar sugestão de instalação" : "Close install suggestion",
     );
+  document.getElementById("pwaInstallDismiss").title = portugues
+    ? "Fechar e não mostrar novamente"
+    : "Dismiss and do not show again";
 }
 
 function obterInstrucoesInstalacaoPwa(portugues) {
@@ -787,17 +879,42 @@ function inicializarSugestaoInstalacaoPwa() {
     window.matchMedia?.("(display-mode: standalone)")?.matches ||
     navigator.standalone === true;
 
-  if (!banner || appInstalada) return;
+  try {
+    pwaInstallDismissed =
+      localStorage.getItem(PWA_INSTALL_SEEN_KEY) === "true";
+  } catch (error) {
+    console.warn("Não foi possível ler a preferência de instalação:", error);
+  }
+
+  const guardarPreferenciaInstalacaoPwa = () => {
+    pwaInstallDismissed = true;
+    try {
+      localStorage.setItem(PWA_INSTALL_SEEN_KEY, "true");
+    } catch (error) {
+      console.warn("Não foi possível guardar a preferência de instalação:", error);
+    }
+  };
+
+  if (appInstalada) {
+    guardarPreferenciaInstalacaoPwa();
+    return;
+  }
+  if (!banner || pwaInstallDismissed) return;
 
   const ocultarSugestao = () => {
-    pwaInstallDismissed = true;
+    guardarPreferenciaInstalacaoPwa();
     banner.hidden = true;
   };
 
   fechar.addEventListener("click", ocultarSugestao);
-  fecharDialogo.addEventListener("click", () => dialogoInstalacao.close());
+  fecharDialogo.addEventListener("click", () => {
+    ocultarSugestao();
+    dialogoInstalacao.close();
+  });
+  dialogoInstalacao.addEventListener("close", ocultarSugestao);
 
   botaoInstalar.addEventListener("click", async () => {
+    ocultarSugestao();
     if (!deferredInstallPrompt) {
       if (typeof dialogoInstalacao.showModal === "function") {
         dialogoInstalacao.showModal();
@@ -812,7 +929,7 @@ function inicializarSugestaoInstalacaoPwa() {
     try {
       await installPrompt.prompt();
       const escolha = await installPrompt.userChoice;
-      if (escolha.outcome === "accepted") banner.hidden = true;
+      if (escolha.outcome === "accepted") guardarPreferenciaInstalacaoPwa();
     } catch (error) {
       console.error("Não foi possível iniciar a instalação da PWA:", error);
       if (typeof dialogoInstalacao.showModal === "function") {
@@ -832,6 +949,7 @@ function inicializarSugestaoInstalacaoPwa() {
 
   window.addEventListener("appinstalled", () => {
     deferredInstallPrompt = null;
+    guardarPreferenciaInstalacaoPwa();
     banner.hidden = true;
   });
 
@@ -862,6 +980,7 @@ function renderizarCategorias() {
     const nomeCat = idiomaAtual === "pt" ? cat.pt : cat.en;
     const btn = document.createElement("button");
     btn.className = `cat-btn ${categoriaAtivaAtual === cat.id ? "active" : ""}`;
+    btn.title = traducoes[idiomaAtual].categoryHelp;
     btn.onclick = (e) => filtrarCategoria(cat.id, e);
     btn.innerText = nomeCat;
     container.appendChild(btn);
@@ -924,13 +1043,13 @@ function carregarProdutos(lista) {
       <div class="card-purchase">
         <div class="price">${precoExibido}</div>
       <div class="card-actions">
-        <button onclick="abrirModalPreview(${item.id})" class="btn-synopsis">
+        <button title="${t.previewHelp}" onclick="abrirModalPreview(${item.id})" class="btn-synopsis">
             ${t.btnIntro}
           </button>
-        <button onclick="adicionarAoCarrinho(${item.id})" class="btn-cart-add">
+        <button title="${t.addToCartHelp}" onclick="adicionarAoCarrinho(${item.id})" class="btn-cart-add">
             ${t.btnAdicionarCarrinho}
           </button>
-        <button onclick="iniciarCompra(${item.id})" class="btn-buy">
+        <button title="${t.buyNowHelp}" onclick="iniciarCompra(${item.id})" class="btn-buy">
             ${t.btnComprar}
           </button>
         </div>
@@ -2160,51 +2279,116 @@ async function reverEncomenda(encomenda, estado) {
 
 const quizPerguntas = [
   {
-    pergunta: "Qual das opções descreve melhor a tua forma de aprender?",
+    pergunta: {
+      pt: "Se tivesses uma tarde livre, que aventura de leitura escolhias?",
+      en: "If you had a free afternoon, what reading adventure would you choose?",
+    },
     opcoes: [
       {
-        texto: "Gosto de aprender com passos claros e objetivos simples.",
+        pt: "Aprender uma habilidade que possa experimentar hoje.",
+        en: "Learn a skill I can try out today.",
         valor: "pratico",
       },
       {
-        texto: "Prefiro descobrir ideias novas e explorar temas interessantes.",
+        pt: "Viajar para um mundo novo ou descobrir uma grande história.",
+        en: "Travel to a new world or discover a great story.",
         valor: "curioso",
       },
       {
-        texto:
-          "Adoro ensinar-me a mim mesmo e aplicar o que aprendo rapidamente.",
+        pt: "Explorar um tema a fundo e ligar todas as ideias.",
+        en: "Explore a topic deeply and connect all the ideas.",
         valor: "estrategico",
       },
     ],
   },
   {
-    pergunta: "Quando escolhes um livro ou guia, o que mais te atrai?",
+    pergunta: {
+      pt: "Escolhe o teu companheiro ideal para uma viagem longa.",
+      en: "Choose your ideal companion for a long journey.",
+    },
     opcoes: [
       {
-        texto:
-          "Conteúdos práticos, receitas, exercícios e exemplos do dia a dia.",
+        pt: "Um guia prático cheio de dicas úteis.",
+        en: "A practical guide packed with useful tips.",
         valor: "pratico",
       },
       {
-        texto: "Histórias, curiosidades e temas que abram a minha mente.",
+        pt: "Um romance ou coleção de histórias surpreendentes.",
+        en: "A novel or collection of surprising stories.",
         valor: "curioso",
       },
       {
-        texto: "Estruturas bem organizadas e metas que me ajudem a evoluir.",
+        pt: "Um livro de estratégia, ciência ou grandes ideias.",
+        en: "A book about strategy, science, or big ideas.",
         valor: "estrategico",
       },
     ],
   },
   {
-    pergunta: "Como reagiste ao fim de uma leitura?",
+    pergunta: {
+      pt: "Qual destes superpoderes escolherias para aprender?",
+      en: "Which of these learning superpowers would you choose?",
+    },
     opcoes: [
-      { texto: "Vou já aplicar algo no meu dia a dia.", valor: "pratico" },
       {
-        texto: "Procuro mais conteúdos semelhantes para continuar a explorar.",
+        pt: "Transformar qualquer explicação num plano de acção simples.",
+        en: "Turn any explanation into a simple action plan.",
+        valor: "pratico",
+      },
+      {
+        pt: "Fazer perguntas infinitas e descobrir ligações inesperadas.",
+        en: "Ask endless questions and discover unexpected connections.",
         valor: "curioso",
       },
       {
-        texto: "Faço um plano para evoluir passo a passo.",
+        pt: "Lembrar tudo e organizar ideias como um mapa perfeito.",
+        en: "Remember everything and organize ideas like a perfect map.",
+        valor: "estrategico",
+      },
+    ],
+  },
+  {
+    pergunta: {
+      pt: "Depois de terminares um livro de que gostaste, o que acontece?",
+      en: "After finishing a book you loved, what happens next?",
+    },
+    opcoes: [
+      {
+        pt: "Experimento uma das ideias logo no dia seguinte.",
+        en: "I try one of its ideas the very next day.",
+        valor: "pratico",
+      },
+      {
+        pt: "Procuro outra história ou um assunto completamente diferente.",
+        en: "I look for another story or a completely different subject.",
+        valor: "curioso",
+      },
+      {
+        pt: "Anoto o que aprendi e defino o próximo objectivo.",
+        en: "I write down what I learned and set my next goal.",
+        valor: "estrategico",
+      },
+    ],
+  },
+  {
+    pergunta: {
+      pt: "Que ambiente combina mais contigo numa sessão de leitura?",
+      en: "Which setting suits you best for a reading session?",
+    },
+    opcoes: [
+      {
+        pt: "Uma pausa curta com algo que me ajude a resolver um desafio.",
+        en: "A short break with something that helps solve a challenge.",
+        valor: "pratico",
+      },
+      {
+        pt: "Um cantinho acolhedor e uma história que me prenda.",
+        en: "A cozy corner and a story that pulls me in.",
+        valor: "curioso",
+      },
+      {
+        pt: "Um espaço tranquilo para estudar e avançar por etapas.",
+        en: "A quiet space to study and make progress step by step.",
         valor: "estrategico",
       },
     ],
@@ -2213,28 +2397,44 @@ const quizPerguntas = [
 
 const quizResultadoPorPerfil = {
   pratico: {
-    titulo: "Perfil: Leitor Prático",
-    descricao:
-      "Gostas de conteúdos úteis, diretos e fáceis de pôr em prática. O melhor para ti é começar por guias que te ajudam a evoluir com ação imediata.",
-    recomendacao: "Culinária para Iniciantes ou Natação para Iniciantes",
+    titulo: { pt: "Leitor Prático", en: "The Practical Reader" },
+    descricao: {
+      pt: "Gostas de ideias úteis que saem depressa da página e chegam ao dia-a-dia. Aprender fazendo é o teu estilo!",
+      en: "You love useful ideas that quickly move from the page into everyday life. Learning by doing is your style!",
+    },
+    recomendacao: {
+      pt: "Culinária para Iniciantes ou Natação para Iniciantes",
+      en: "Cooking for Beginners or Swimming for Beginners",
+    },
   },
   curioso: {
-    titulo: "Perfil: Leitor Curioso",
-    descricao:
-      "A tua mente gosta de aprender, explorar e descobrir novos temas. Vais apreciar materiais que expandem o teu conhecimento e te inspiram a seguir.",
-    recomendacao: "Calistenia para Iniciantes ou Ciclismo para Iniciantes",
+    titulo: { pt: "Leitor Explorador", en: "The Curious Explorer" },
+    descricao: {
+      pt: "A tua curiosidade não tem botão de pausa: adoras histórias, surpresas e descobrir assuntos novos.",
+      en: "Your curiosity has no pause button: you love stories, surprises, and discovering new subjects.",
+    },
+    recomendacao: {
+      pt: "Calistenia para Iniciantes ou Ciclismo para Iniciantes",
+      en: "Calisthenics for Beginners or Cycling for Beginners",
+    },
   },
   estrategico: {
-    titulo: "Perfil: Leitor Estratégico",
-    descricao:
-      "Buscas organização, progresso e um caminho claro para evoluir. A melhor escolha para ti é um guia bem estruturado e com foco em resultados.",
-    recomendacao: "Futebol para Iniciantes ou Musculação para Iniciantes",
+    titulo: { pt: "Leitor Estratega", en: "The Strategic Reader" },
+    descricao: {
+      pt: "Gostas de ligar pontos, aprofundar temas e transformar conhecimento num plano para chegar mais longe.",
+      en: "You enjoy connecting the dots, exploring topics deeply, and turning knowledge into a plan for what comes next.",
+    },
+    recomendacao: {
+      pt: "Futebol para Iniciantes ou Musculação para Iniciantes",
+      en: "Football for Beginners or Weight Training for Beginners",
+    },
   },
 };
 
 const quizEstado = {
   index: 0,
   respostas: {},
+  concluido: false,
 };
 
 function abrirQuizModal() {
@@ -2266,14 +2466,19 @@ function renderizarQuiz() {
 
   if (!perguntaAtual) return;
 
-  perguntaEl.textContent = perguntaAtual.pergunta;
+  const portugues = idiomaAtual === "pt";
+  const t = traducoes[idiomaAtual];
+  perguntaEl.textContent = perguntaAtual.pergunta[portugues ? "pt" : "en"];
+  document.getElementById("quizProgress").textContent = portugues
+    ? `Pergunta ${quizEstado.index + 1} de ${quizPerguntas.length}`
+    : `Question ${quizEstado.index + 1} of ${quizPerguntas.length}`;
   opcoesEl.innerHTML = "";
 
   perguntaAtual.opcoes.forEach((opcao) => {
     const botao = document.createElement("button");
     botao.type = "button";
     botao.className = "quiz-option";
-    botao.textContent = opcao.texto;
+    botao.textContent = opcao[portugues ? "pt" : "en"];
 
     if (quizEstado.respostas[quizEstado.index] === opcao.valor) {
       botao.classList.add("selected");
@@ -2281,6 +2486,7 @@ function renderizarQuiz() {
 
     botao.addEventListener("click", () => {
       quizEstado.respostas[quizEstado.index] = opcao.valor;
+      quizEstado.concluido = false;
       renderizarQuiz();
     });
 
@@ -2289,7 +2495,13 @@ function renderizarQuiz() {
 
   const ultimaPergunta = quizEstado.index === quizPerguntas.length - 1;
   anteriorBtn.hidden = quizEstado.index === 0;
-  proximaBtn.textContent = ultimaPergunta ? "Ver resultado" : "Próxima";
+  proximaBtn.textContent = quizEstado.concluido
+    ? t.quizRestart
+    : ultimaPergunta
+      ? portugues
+        ? "Ver resultado"
+        : "See my result"
+      : t.quizNext;
   resultadoEl.hidden = true;
 }
 
@@ -2297,8 +2509,8 @@ function concluirQuiz() {
   const respostas = Object.values(quizEstado.respostas);
   if (respostas.length < quizPerguntas.length) {
     document.getElementById("quizResult").hidden = false;
-    document.getElementById("quizResult").innerHTML =
-      "<strong>Falta só uma resposta!</strong> Escolhe uma opção em cada pergunta para ver o teu perfil.";
+    document.getElementById("quizResult").textContent =
+      traducoes[idiomaAtual].quizMissingAnswers;
     return;
   }
 
@@ -2311,21 +2523,23 @@ function concluirQuiz() {
 
   const perfil = Object.entries(contagem).sort((a, b) => b[1] - a[1])[0][0];
   const resultado = quizResultadoPorPerfil[perfil];
+  const portugues = idiomaAtual === "pt";
   const resultadoEl = document.getElementById("quizResult");
   resultadoEl.hidden = false;
   resultadoEl.innerHTML = `
-    <strong>${resultado.titulo}</strong><br>
-    ${resultado.descricao}<br>
-    <strong>Sugestão:</strong> ${resultado.recomendacao}
+    <strong>${portugues ? "Perfil:" : "Profile:"} ${resultado.titulo[portugues ? "pt" : "en"]}</strong><br>
+    ${resultado.descricao[portugues ? "pt" : "en"]}<br>
+    <strong>${portugues ? "Sugestão:" : "Try:"}</strong> ${resultado.recomendacao[portugues ? "pt" : "en"]}
   `;
-
-  document.getElementById("quizNext").textContent = "Reiniciar quiz";
+  quizEstado.concluido = true;
+  document.getElementById("quizNext").textContent =
+    traducoes[idiomaAtual].quizRestart;
 }
 
 function reiniciarQuiz() {
   quizEstado.index = 0;
   quizEstado.respostas = {};
-  document.getElementById("quizNext").textContent = "Próxima";
+  quizEstado.concluido = false;
   document.getElementById("quizResult").hidden = true;
   renderizarQuiz();
 }
@@ -2348,8 +2562,8 @@ function inicializarQuiz() {
     if (quizEstado.index < quizPerguntas.length - 1) {
       if (!(quizEstado.index in quizEstado.respostas)) {
         document.getElementById("quizResult").hidden = false;
-        document.getElementById("quizResult").innerHTML =
-          "<strong>Falta uma resposta!</strong> Escolhe uma opção antes de continuar.";
+        document.getElementById("quizResult").textContent =
+          traducoes[idiomaAtual].quizMissingAnswer;
         return;
       }
       quizEstado.index += 1;
@@ -2358,7 +2572,7 @@ function inicializarQuiz() {
       return;
     }
 
-    if (document.getElementById("quizNext").textContent === "Reiniciar quiz") {
+    if (quizEstado.concluido) {
       reiniciarQuiz();
       return;
     }
@@ -2368,6 +2582,7 @@ function inicializarQuiz() {
 
   anteriorBtn.addEventListener("click", () => {
     if (quizEstado.index > 0) {
+      quizEstado.concluido = false;
       quizEstado.index -= 1;
       document.getElementById("quizResult").hidden = true;
       renderizarQuiz();
