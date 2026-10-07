@@ -96,6 +96,10 @@ const traducoes = {
     noPurchases: "Ainda não tem compras.",
     adminOnly: "Esta área está disponível apenas para a administração.",
     orderSaved: "Estado da encomenda actualizado.",
+    orderStatusEmailFailed:
+      "O estado foi actualizado, mas não foi possível notificar o cliente por email.",
+    orderChangedElsewhere:
+      "A encomenda já foi actualizada. Actualize a lista e tente novamente.",
     btnDeleteOrder: "Apagar compra",
     orderDeleting: "A apagar a compra...",
     orderDeleteError: "Não foi possível apagar a compra.",
@@ -225,6 +229,10 @@ const traducoes = {
     noPurchases: "You have no purchases yet.",
     adminOnly: "This area is available to administrators only.",
     orderSaved: "Order status updated.",
+    orderStatusEmailFailed:
+      "The status was updated, but the customer could not be notified by email.",
+    orderChangedElsewhere:
+      "This order has already been updated. Refresh the list and try again.",
     btnDeleteOrder: "Delete purchase",
     orderDeleting: "Deleting purchase...",
     orderDeleteError: "The purchase could not be deleted.",
@@ -722,22 +730,32 @@ function atualizarTextoInstalacaoPwa() {
   titulo.innerText = portugues
     ? "Instale a MozBookStore"
     : "Install MozBookStore";
-  document.getElementById("pwaInstallMessage").innerText =
-    pwaInstallMode === "ios"
-      ? portugues
-        ? "Toque em Partilhar e escolha “Adicionar ao ecrã principal”."
-        : "Tap Share, then choose “Add to Home Screen”."
-      : portugues
-        ? "Aceda aos seus livros mais rapidamente, directamente do ecrã inicial."
-        : "Get to your books faster, right from your home screen.";
-  document.getElementById("pwaInstallAction").innerText =
-    pwaInstallMode === "ios"
-      ? portugues
-        ? "Entendi"
-        : "Got it"
-      : portugues
-        ? "Instalar"
-        : "Install";
+  let mensagemInstalacao;
+  if (pwaInstallMode === "ios") {
+    mensagemInstalacao = portugues
+      ? "Adicione a MozBookStore ao ecrã inicial pelo menu Partilhar do navegador."
+      : "Add MozBookStore to your home screen from your browser’s Share menu.";
+  } else if (pwaInstallMode === "android") {
+    mensagemInstalacao = portugues
+      ? "Instale pelo menu do navegador ou toque abaixo para ver os passos."
+      : "Install from your browser menu, or tap below to see the steps.";
+  } else {
+    mensagemInstalacao = portugues
+      ? "Instale pelo navegador ou toque abaixo para ver os passos."
+      : "Install from your browser, or tap below to see the steps.";
+  }
+  document.getElementById("pwaInstallMessage").innerText = mensagemInstalacao;
+  document.getElementById("pwaInstallAction").innerText = portugues
+    ? "Instalar"
+    : "Install";
+  document.getElementById("pwaInstallDialogTitle").innerText = portugues
+    ? "Como instalar a MozBookStore"
+    : "How to install MozBookStore";
+  document.getElementById("pwaInstallDialogMessage").innerText =
+    obterInstrucoesInstalacaoPwa(portugues);
+  document.getElementById("pwaInstallDialogClose").innerText = portugues
+    ? "Fechar"
+    : "Close";
   document
     .getElementById("pwaInstallDismiss")
     .setAttribute(
@@ -746,10 +764,30 @@ function atualizarTextoInstalacaoPwa() {
     );
 }
 
+function obterInstrucoesInstalacaoPwa(portugues) {
+  if (pwaInstallMode === "ios") {
+    return portugues
+      ? "No Safari, toque em Partilhar, escolha “Adicionar ao ecrã principal” e confirme em “Adicionar”. Se estiver noutro navegador, abra este site no Safari."
+      : "In Safari, tap Share, choose “Add to Home Screen”, then tap “Add”. If you are using another browser, open this site in Safari.";
+  }
+
+  if (pwaInstallMode === "android") {
+    return portugues
+      ? "Toque no menu ⋮ do navegador e escolha “Instalar app” ou “Adicionar ao ecrã inicial”. Depois confirme. Se a opção não aparecer, abra o site no Chrome."
+      : "Tap your browser’s ⋮ menu and choose “Install app” or “Add to Home screen”, then confirm. If that option is not available, open the site in Chrome.";
+  }
+
+  return portugues
+    ? "No Chrome ou Edge, use o ícone de instalação junto à barra de endereço ou abra o menu do navegador e escolha “Instalar MozBookStore”. No Safari do Mac, escolha Ficheiro > Adicionar à Dock."
+    : "In Chrome or Edge, use the install icon beside the address bar or open the browser menu and choose “Install MozBookStore”. In Safari on Mac, choose File > Add to Dock.";
+}
+
 function inicializarSugestaoInstalacaoPwa() {
   const banner = document.getElementById("pwaInstallBanner");
   const botaoInstalar = document.getElementById("pwaInstallAction");
   const fechar = document.getElementById("pwaInstallDismiss");
+  const dialogoInstalacao = document.getElementById("pwaInstallDialog");
+  const fecharDialogo = document.getElementById("pwaInstallDialogClose");
   const appInstalada =
     window.matchMedia?.("(display-mode: standalone)")?.matches ||
     navigator.standalone === true;
@@ -762,10 +800,15 @@ function inicializarSugestaoInstalacaoPwa() {
   };
 
   fechar.addEventListener("click", ocultarSugestao);
+  fecharDialogo.addEventListener("click", () => dialogoInstalacao.close());
 
   botaoInstalar.addEventListener("click", async () => {
     if (!deferredInstallPrompt) {
-      ocultarSugestao();
+      if (typeof dialogoInstalacao.showModal === "function") {
+        dialogoInstalacao.showModal();
+      } else {
+        window.alert(obterInstrucoesInstalacaoPwa(idiomaAtual === "pt"));
+      }
       return;
     }
 
@@ -773,18 +816,21 @@ function inicializarSugestaoInstalacaoPwa() {
     deferredInstallPrompt = null;
     try {
       await installPrompt.prompt();
-      await installPrompt.userChoice;
-      banner.hidden = true;
+      const escolha = await installPrompt.userChoice;
+      if (escolha.outcome === "accepted") banner.hidden = true;
     } catch (error) {
       console.error("Não foi possível iniciar a instalação da PWA:", error);
-      banner.hidden = true;
+      if (typeof dialogoInstalacao.showModal === "function") {
+        dialogoInstalacao.showModal();
+      } else {
+        window.alert(obterInstrucoesInstalacaoPwa(idiomaAtual === "pt"));
+      }
     }
   });
 
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
     deferredInstallPrompt = event;
-    pwaInstallMode = "prompt";
     atualizarTextoInstalacaoPwa();
     if (!pwaInstallDismissed) banner.hidden = false;
   });
@@ -797,15 +843,17 @@ function inicializarSugestaoInstalacaoPwa() {
   const dispositivoApple =
     /iphone|ipad|ipod/i.test(navigator.userAgent) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  if (dispositivoApple) {
-    pwaInstallMode = "ios";
-    atualizarTextoInstalacaoPwa();
-    window.setTimeout(() => {
-      if (!pwaInstallDismissed && !deferredInstallPrompt) {
-        banner.hidden = false;
-      }
-    }, 1500);
-  }
+  pwaInstallMode = dispositivoApple
+    ? "ios"
+    : /android/i.test(navigator.userAgent)
+      ? "android"
+      : "desktop";
+  atualizarTextoInstalacaoPwa();
+  window.setTimeout(() => {
+    if (!pwaInstallDismissed && !deferredInstallPrompt) {
+      banner.hidden = false;
+    }
+  }, 1500);
 }
 
 inicializarSugestaoInstalacaoPwa();
@@ -1103,6 +1151,11 @@ async function submeterConfirmacaoPagamento(event) {
       author: produtoSelecionado.autor || "",
       metodo: metodoPagamento.selectedOptions[0].text,
       referencia,
+      order_status: idiomaAtual === "pt" ? "Pendente" : "Pending",
+      status_message:
+        idiomaAtual === "pt"
+          ? "Recebemos o seu pedido. A equipa irá verificar o pagamento e avisar quando houver uma decisão."
+          : "We received your order. Our team will verify the payment and notify you when a decision is made.",
     };
     const resultadosEmail = await Promise.allSettled([
       Promise.resolve().then(() =>
@@ -1988,7 +2041,7 @@ async function carregarEncomendasAdmin() {
       botao.className = classe;
       botao.innerText = rotulo;
       botao.addEventListener("click", () => {
-        void reverEncomenda(encomenda.id, novoEstado);
+        void reverEncomenda(encomenda, novoEstado);
       });
       cartao.appendChild(botao);
     }
@@ -2057,22 +2110,104 @@ async function apagarEncomenda(encomenda, isAdmin = false) {
   status.className = "account-status success";
 }
 
-async function reverEncomenda(id, estado) {
+async function notificarAlteracaoEstadoEncomenda(encomenda, estado) {
+  const emailCliente = encomenda.profile?.email;
+  if (
+    CONFIG_NOTIFICACOES.emailJsPublicKey === "SUA_PUBLIC_KEY_AQUI" ||
+    typeof emailjs === "undefined" ||
+    !emailCliente
+  ) {
+    console.error(
+      "Não foi possível notificar o cliente sobre o estado da encomenda: EmailJS ou email do cliente indisponível.",
+    );
+    return false;
+  }
+
+  const portugues = idiomaAtual === "pt";
+  const estadoEmail =
+    estado === "approved"
+      ? portugues
+        ? "Aprovado"
+        : "Approved"
+      : estado === "rejected"
+        ? portugues
+          ? "Recusado / acesso revogado"
+          : "Rejected / access revoked"
+        : portugues
+          ? "Pendente de revisão"
+          : "Pending review";
+  const mensagemEmail =
+    estado === "approved"
+      ? portugues
+        ? "O pagamento foi aprovado. Já pode iniciar sessão e descarregar o livro em Minhas compras."
+        : "Your payment was approved. You can now sign in and download the book from My purchases."
+      : estado === "rejected"
+        ? portugues
+          ? "O pagamento foi recusado ou o acesso ao livro foi revogado. Contacte a equipa se precisar de ajuda."
+          : "The payment was rejected or access to the book was revoked. Contact the team if you need help."
+        : portugues
+          ? "O seu pedido voltou ao estado pendente e será revisto pela equipa."
+          : "Your order is pending again and will be reviewed by the team.";
+
+  try {
+    await emailjs.send(
+      CONFIG_NOTIFICACOES.emailJsServiceId,
+      CONFIG_NOTIFICACOES.emailJsTemplateIdAutoReply,
+      {
+        to_email: emailCliente,
+        email: emailCliente,
+        name: encomenda.profile?.full_name || emailCliente,
+        title: encomenda.product_title,
+        author: "",
+        metodo: encomenda.payment_method,
+        referencia: encomenda.transaction_reference,
+        order_status: estadoEmail,
+        status_message: mensagemEmail,
+      },
+    );
+    return true;
+  } catch (error) {
+    console.error(
+      "Não foi possível enviar a atualização do pedido ao cliente:",
+      error,
+    );
+    return false;
+  }
+}
+
+async function reverEncomenda(encomenda, estado) {
   const status = document.getElementById("adminStatus");
   status.innerText = idiomaAtual === "pt" ? "A actualizar..." : "Updating...";
-  const { error } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from("orders")
     .update({ status: estado })
-    .eq("id", id);
+    .eq("id", encomenda.id)
+    .eq("status", encomenda.status)
+    .select("id")
+    .maybeSingle();
   if (error) {
     console.error("Não foi possível actualizar o estado da encomenda:", error);
     status.innerText = traduzirErroSupabase(error);
     status.className = "account-status error";
     return;
   }
-  status.innerText = traducoes[idiomaAtual].orderSaved;
-  status.className = "account-status success";
+
+  if (!data) {
+    status.innerText = traducoes[idiomaAtual].orderChangedElsewhere;
+    status.className = "account-status error";
+    await carregarEncomendasAdmin();
+    return;
+  }
+
+  const emailEnviado = await notificarAlteracaoEstadoEncomenda(
+    encomenda,
+    estado,
+  );
   await carregarEncomendasAdmin();
+  status.innerText = emailEnviado
+    ? traducoes[idiomaAtual].orderSaved
+    : `${traducoes[idiomaAtual].orderSaved} ${traducoes[idiomaAtual].orderStatusEmailFailed}`;
+  status.className = `account-status${emailEnviado ? " success" : " error"}`;
 }
 
 const quizPerguntas = [

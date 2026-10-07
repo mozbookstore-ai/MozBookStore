@@ -60,13 +60,19 @@ estes passos:
   calculados no banco de dados a partir de `products.price_mzn`, não aceites do
   navegador.
 - Depois de registar uma encomenda, o site envia uma notificação de aprovação
-  pendente para `emailDestino` em `../script.js` e um auto-reply para o cliente,
-  através dos templates EmailJS `template_qgdxq0d` e `template_ikogr4i`.
+  pendente para `emailDestino` em `../script.js` e um email ao cliente, através
+  dos templates EmailJS `template_qgdxq0d` e `template_ikogr4i`.
   Ambos recebem `to_email`, `name`, `email`, `title`, `author`, `metodo` e
-  `referencia`. No painel EmailJS, configure o destinatário da notificação da
-  loja como `{{to_email}}` e o destinatário do auto-reply como `{{email}}`.
-  Se um dos envios falhar, a encomenda continua registada e pendente, e o
-  cliente recebe um aviso.
+  `referencia`; o template do cliente também recebe `order_status` e
+  `status_message`. No painel EmailJS, configure o destinatário da notificação
+  da loja como `{{to_email}}` e o do template do cliente como `{{email}}`.
+  No template `template_ikogr4i`, use `{{order_status}}` no assunto e
+  `{{order_status}}` e `{{status_message}}` no corpo: estes campos informam o
+  cliente quando o pedido fica pendente, é aprovado, recusado/revogado ou volta
+  para revisão. O mesmo template é usado para enviar estas actualizações após
+  a gravação do estado no Supabase. Se o email falhar, a encomenda permanece
+  registada e a administração vê um aviso para contactar o cliente por outro
+  meio.
 - O catálogo segue a ordem numérica dos IDs (1–13), não a ordem alfabética.
 - `mozbookstore@gmail.com` vê as encomendas no botão **Administração** e pode
   aprovar ou rejeitar. A aprovação concede acesso ao PDF privado.

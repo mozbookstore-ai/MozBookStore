@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mozbookstore-v1';
+const CACHE_NAME = 'mozbookstore-v2';
 const urlsToCache = [
   './index.html',
   './script.js'

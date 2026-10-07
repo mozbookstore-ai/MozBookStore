@@ -18,6 +18,9 @@
 
     <!-- PWA Manifest & Theme -->
     <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="MozBookStore" />
     <meta name="theme-color" content="#0b2545" />
 
     <!-- Service Worker Registration -->
@@ -864,6 +867,20 @@
         &times;
       </button>
     </aside>
+
+    <dialog
+      id="pwaInstallDialog"
+      class="pwa-install-dialog"
+      aria-labelledby="pwaInstallDialogTitle"
+    >
+      <h2 id="pwaInstallDialogTitle"></h2>
+      <p id="pwaInstallDialogMessage"></p>
+      <button
+        id="pwaInstallDialogClose"
+        class="pwa-install-action"
+        type="button"
+      ></button>
+    </dialog>
 
     <!-- Rodapé -->
     <footer>
