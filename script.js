@@ -1,11 +1,6 @@
 // --- CONFIGURAÇÃO DE CONTACTOS & DADOS BANCÁRIOS SA ---
 const CONFIG_NOTIFICACOES = {
   numeroWhatsAppPrincipal: "258867568918",
-  emailJsPublicKey: "-ft_UtWIa-tk49VHy",
-  emailJsServiceId: "service_ldwmjo9",
-  emailJsTemplateId: "template_qgdxq0d",
-  emailJsTemplateIdAutoReply: "template_ikogr4i",
-  emailDestino: "mozbookstore@gmail.com",
 };
 
 const CONFIG_SUPABASE = {
@@ -57,6 +52,8 @@ let supabaseClient = null;
 let utilizadorAtual = null;
 let perfilAtual = null;
 let produtoCompraPendente = null;
+let checkoutCarrinhoPendente = false;
+let carrinho = [];
 let catalogOrderWarning = false;
 let deferredInstallPrompt = null;
 let pwaInstallMode = null;
@@ -89,15 +86,11 @@ const traducoes = {
     authRequired: "Inicie sessão para comprar e aceder à sua biblioteca.",
     authNotConfigured: "A ligação à plataforma ainda não está configurada.",
     orderPending:
-      "Confirmação enviada. O acesso ao livro será libertado após a aprovação do pagamento.",
-    orderNotificationFailed:
-      "A encomenda ficou registada e pendente de aprovação, mas não foi possível enviar todos os emails de confirmação.",
+      "Pedido registado. Confirme o envio no WhatsApp; o acesso ao livro será libertado após a aprovação do pagamento.",
     noOrders: "Ainda não existem encomendas.",
     noPurchases: "Ainda não tem compras.",
     adminOnly: "Esta área está disponível apenas para a administração.",
     orderSaved: "Estado da encomenda actualizado.",
-    orderStatusEmailFailed:
-      "O estado foi actualizado, mas não foi possível notificar o cliente por email.",
     orderChangedElsewhere:
       "A encomenda já foi actualizada. Actualize a lista e tente novamente.",
     btnDeleteOrder: "Apagar compra",
@@ -143,11 +136,8 @@ const traducoes = {
     feedbackEmailPh: "O seu email (opcional)",
     feedbackMessagePh: "Que melhoria gostaria de ver? *",
     feedbackSubmit: "Enviar feedback",
-    feedbackSending: "A enviar o seu feedback...",
-    feedbackSuccess: "Obrigado! O seu feedback foi enviado à equipa.",
     feedbackUnavailable:
-      "Não foi possível enviar o feedback agora. Tente novamente mais tarde.",
-    feedbackError: "O envio falhou. Verifique a ligação e tente novamente.",
+      "Não foi possível abrir o WhatsApp. Use a ligação abaixo para continuar.",
     ultimosLivros: "🔥 Últimos livros adicionados a pedido:",
     badge1: "✅ Natação para Iniciantes",
     badge2: "✅ Treino de Força para Iniciantes",
@@ -163,13 +153,22 @@ const traducoes = {
     catalogoTit: "Catálogo de livros disponíveis",
     btnIntro: "📖 Sinopse",
     btnComprar: "💳 Comprar",
+    btnAdicionarCarrinho: "Adicionar",
+    carrinhoTitulo: "🛒 O seu carrinho",
+    carrinhoVazio: "Ainda não adicionou livros ao carrinho.",
+    carrinhoTotal: "Total",
+    carrinhoFinalizar: "Finalizar pedido",
+    quantidade: "Quantidade",
+    remover: "Remover",
+    adicionarSucesso: "Livro adicionado ao carrinho.",
+    quantidadeInvalida: "Introduza uma quantidade inteira válida.",
     checkoutTitulo: "Pagar e receber o PDF",
     lblNome: "Nome completo *",
-    lblEmail: "O seu email (para receber o PDF) *",
+    lblEmail: "Email da conta *",
     lblMetodo: "Forma de pagamento",
     saBankOption: "Banco/cartão sul-africano (ZAR)",
     nomeCheckoutPh: "Ex.: José da Silva",
-    emailCheckoutPh: "exemplo@gmail.com",
+    emailCheckoutPh: "Email associado à sua conta",
     referenciaPh: "Ex.: PP240929.1830.A12345 / número de referência",
     lblRef: "Código / Referência da transacção *",
     btnConfirmar: "📱 Confirmar e enviar pelo WhatsApp",
@@ -222,15 +221,11 @@ const traducoes = {
     authRequired: "Sign in to purchase and access your library.",
     authNotConfigured: "The platform connection has not been configured yet.",
     orderPending:
-      "Confirmation submitted. Book access will be released after payment approval.",
-    orderNotificationFailed:
-      "The order was recorded and is pending approval, but not all confirmation emails could be sent.",
+      "Order recorded. Confirm sending in WhatsApp; book access will be released after payment approval.",
     noOrders: "There are no orders yet.",
     noPurchases: "You have no purchases yet.",
     adminOnly: "This area is available to administrators only.",
     orderSaved: "Order status updated.",
-    orderStatusEmailFailed:
-      "The status was updated, but the customer could not be notified by email.",
     orderChangedElsewhere:
       "This order has already been updated. Refresh the list and try again.",
     btnDeleteOrder: "Delete purchase",
@@ -275,11 +270,8 @@ const traducoes = {
     feedbackEmailPh: "Your email (optional)",
     feedbackMessagePh: "What improvement would you like to see? *",
     feedbackSubmit: "Send feedback",
-    feedbackSending: "Sending your feedback...",
-    feedbackSuccess: "Thank you! Your feedback has been sent to the team.",
     feedbackUnavailable:
-      "Feedback could not be sent right now. Please try again later.",
-    feedbackError: "Sending failed. Check your connection and try again.",
+      "Could not open WhatsApp. Use the link below to continue.",
     ultimosLivros: "🔥 Latest Books Added by Request:",
     badge1: "✅ Swimming for Beginners",
     badge2: "✅ Weight Training for Beginners",
@@ -295,13 +287,22 @@ const traducoes = {
     catalogoTit: "Available Books Catalogue",
     btnIntro: "📖 Synopsis",
     btnComprar: "💳 Buy",
+    btnAdicionarCarrinho: "Add",
+    carrinhoTitulo: "🛒 Your cart",
+    carrinhoVazio: "You have not added any books to the cart yet.",
+    carrinhoTotal: "Total",
+    carrinhoFinalizar: "Checkout",
+    quantidade: "Quantity",
+    remover: "Remove",
+    adicionarSucesso: "Book added to cart.",
+    quantidadeInvalida: "Enter a valid whole-number quantity.",
     checkoutTitulo: "Pay & Receive PDF",
     lblNome: "Full Name *",
-    lblEmail: "Your E-mail (To receive the PDF) *",
+    lblEmail: "Account email *",
     lblMetodo: "Payment Method",
     saBankOption: "South African Bank / Card (ZAR)",
     nomeCheckoutPh: "E.g. Jose da Silva",
-    emailCheckoutPh: "example@gmail.com",
+    emailCheckoutPh: "Email linked to your account",
     referenciaPh: "E.g. PP240929.1830.A12345 / Reference number",
     lblRef: "Transaction Code / Reference Number *",
     btnConfirmar: "📱 Confirm & Send on WhatsApp",
@@ -572,16 +573,6 @@ const produtos = [
   },
 ];
 
-// Inicialização EmailJS
-(function () {
-  if (
-    CONFIG_NOTIFICACOES.emailJsPublicKey !== "SUA_PUBLIC_KEY_AQUI" &&
-    typeof emailjs !== "undefined"
-  ) {
-    emailjs.init(CONFIG_NOTIFICACOES.emailJsPublicKey);
-  }
-})();
-
 function alternarIdioma() {
   idiomaAtual = idiomaAtual === "pt" ? "en-ZA" : "pt";
   aplicarIdioma();
@@ -662,6 +653,9 @@ function aplicarIdioma() {
   document.getElementById("txtAvisoPDF").innerText = t.txtAvisoPDF;
   document.getElementById("btnFecharModal").innerText = t.btnFechar;
   document.getElementById("btnComprarModal").innerText = t.btnComprarModal;
+  document.getElementById("cartTitle").innerText = t.carrinhoTitulo;
+  document.getElementById("cartEmpty").innerText = t.carrinhoVazio;
+  document.getElementById("cartCheckout").innerText = t.carrinhoFinalizar;
 
   document.getElementById("tabLoginBtn").innerText = t.tabLogin;
   document.getElementById("tabRegisterBtn").innerText = t.tabRegister;
@@ -709,6 +703,7 @@ function aplicarIdioma() {
 
   renderizarCategorias();
   renderizarRodapé();
+  renderizarCarrinho();
   document.getElementById("catalogStatus").innerText = catalogOrderWarning
     ? t.productOrderWarning
     : "";
@@ -932,6 +927,9 @@ function carregarProdutos(lista) {
         <button onclick="abrirModalPreview(${item.id})" class="btn-synopsis">
             ${t.btnIntro}
           </button>
+        <button onclick="adicionarAoCarrinho(${item.id})" class="btn-cart-add">
+            ${t.btnAdicionarCarrinho}
+          </button>
         <button onclick="iniciarCompra(${item.id})" class="btn-buy">
             ${t.btnComprar}
           </button>
@@ -970,10 +968,193 @@ function irParaCheckoutDoPreview() {
   }
 }
 
+function obterProdutoCarrinho(id) {
+  return produtos.find((produto) => produto.id === id);
+}
+
+function obterTotalCarrinhoMZN() {
+  return carrinho.reduce(
+    (total, item) =>
+      total + parseFloat(item.product.preco.replace(" MT", "")) * item.quantity,
+    0,
+  );
+}
+
+function obterTotalCarrinho(regiao = "mozambique") {
+  return carrinho.reduce((total, item) => {
+    const precoUnitario = parseFloat(item.product.preco.replace(" MT", ""));
+    const precoLinha =
+      regiao === "other"
+        ? Number(((precoUnitario * item.quantity) / TAXA_CAMBIO_ZAR).toFixed(2))
+        : precoUnitario * item.quantity;
+    return total + precoLinha;
+  }, 0);
+}
+
+function formatarTotal(total, regiao = "mozambique") {
+  if (regiao === "other") {
+    return `R ${total.toFixed(2)}`;
+  }
+  return `${total.toFixed(2)} MT`;
+}
+
+function adicionarAoCarrinho(id, incrementar = true) {
+  const product = obterProdutoCarrinho(id);
+  if (!product) return;
+  const itemExistente = carrinho.find((item) => item.product.id === id);
+  if (itemExistente) {
+    if (incrementar && itemExistente.quantity < 2147483647) {
+      itemExistente.quantity += 1;
+    }
+  } else {
+    carrinho.push({ product, quantity: 1 });
+  }
+  renderizarCarrinho();
+  const status = document.getElementById("cartStatus");
+  status.innerText = traducoes[idiomaAtual].adicionarSucesso;
+  status.className = "account-status success";
+}
+
+function alterarQuantidadeCarrinho(id, quantidade) {
+  const item = carrinho.find((linha) => linha.product.id === id);
+  const quantidadeNumerica = Number(quantidade);
+  if (!item) return;
+  if (
+    !Number.isInteger(quantidadeNumerica) ||
+    quantidadeNumerica < 1 ||
+    quantidadeNumerica > 2147483647
+  ) {
+    const status = document.getElementById("cartStatus");
+    status.innerText = traducoes[idiomaAtual].quantidadeInvalida;
+    status.className = "account-status error";
+    renderizarCarrinho();
+    return;
+  }
+  item.quantity = quantidadeNumerica;
+  renderizarCarrinho();
+}
+
+function removerDoCarrinho(id) {
+  carrinho = carrinho.filter((item) => item.product.id !== id);
+  renderizarCarrinho();
+}
+
+function renderizarCarrinho() {
+  const lista = document.getElementById("cartItems");
+  if (!lista) return;
+  const t = traducoes[idiomaAtual];
+  lista.innerHTML = "";
+  document.getElementById("cartEmpty").hidden = carrinho.length > 0;
+  document.getElementById("cartCheckout").disabled = carrinho.length === 0;
+
+  carrinho.forEach(({ product, quantity }) => {
+    const linha = document.createElement("div");
+    linha.className = "cart-item";
+    const titulo = document.createElement("strong");
+    titulo.innerText =
+      idiomaAtual === "en-ZA" ? product.tituloEn : product.titulo;
+    const precoUnitario = parseFloat(product.preco.replace(" MT", ""));
+    const preco = document.createElement("span");
+    preco.className = "cart-item-price";
+    preco.innerText = `${formatarTotal(precoUnitario * quantity)} (${quantity} × ${formatarTotal(precoUnitario)})`;
+
+    const quantidadeLabel = document.createElement("label");
+    quantidadeLabel.innerText = t.quantidade;
+    const quantidadeInput = document.createElement("input");
+    quantidadeInput.type = "number";
+    quantidadeInput.min = "1";
+    quantidadeInput.max = "2147483647";
+    quantidadeInput.step = "1";
+    quantidadeInput.value = String(quantity);
+    quantidadeInput.setAttribute(
+      "aria-label",
+      `${t.quantidade}: ${titulo.innerText}`,
+    );
+    quantidadeInput.addEventListener("change", () => {
+      alterarQuantidadeCarrinho(product.id, quantidadeInput.value);
+    });
+
+    const remover = document.createElement("button");
+    remover.type = "button";
+    remover.className = "cart-remove";
+    remover.innerText = t.remover;
+    remover.addEventListener("click", () => removerDoCarrinho(product.id));
+    linha.append(titulo, preco, quantidadeLabel, quantidadeInput, remover);
+    lista.appendChild(linha);
+  });
+
+  document.getElementById("cartTotal").innerText =
+    `${t.carrinhoTotal}: ${formatarTotal(obterTotalCarrinhoMZN())}`;
+  atualizarResumoCheckout();
+}
+
+function atualizarResumoCheckout() {
+  const checkoutPreco = document.getElementById("checkoutPreco");
+  if (!checkoutPreco) return;
+  const regiao =
+    document.getElementById("regiaoPagamento")?.value || "mozambique";
+  const nomesItens = carrinho.map(
+    ({ product, quantity }) =>
+      `${idiomaAtual === "en-ZA" ? product.tituloEn : product.titulo} × ${quantity}`,
+  );
+  const total = formatarTotal(obterTotalCarrinho(regiao), regiao);
+  checkoutPreco.innerText = `${idiomaAtual === "pt" ? "Valor a pagar" : "Amount to pay"}: ${total}${nomesItens.length ? ` · ${nomesItens.join(", ")}` : ""}`;
+}
+
+function criarResumoPedidoWhatsApp(referencia, regiao, encomendas) {
+  const nomeCliente =
+    perfilAtual?.full_name ||
+    utilizadorAtual.user_metadata?.full_name ||
+    utilizadorAtual.email ||
+    "";
+  const linhas = encomendas.map((encomenda) => {
+    const product = obterProdutoCarrinho(encomenda.product_id);
+    const titulo =
+      idiomaAtual === "en-ZA"
+        ? product?.tituloEn || encomenda.product_title
+        : product?.titulo || encomenda.product_title;
+    const totalLinha = Number(encomenda.amount);
+    const precoUnitario = totalLinha / encomenda.quantity;
+    const moeda = encomenda.currency === "ZAR" ? "other" : "mozambique";
+    const unidades =
+      encomenda.quantity === 1
+        ? idiomaAtual === "pt"
+          ? "exemplar"
+          : "copy"
+        : idiomaAtual === "pt"
+          ? "exemplares"
+          : "copies";
+    return `• ${titulo} — ${encomenda.quantity} ${unidades} × ${formatarTotal(precoUnitario, moeda)} = ${formatarTotal(totalLinha, moeda)}`;
+  });
+  const total = formatarTotal(
+    encomendas.reduce((soma, encomenda) => soma + Number(encomenda.amount), 0),
+    regiao,
+  );
+  const metodo = document.getElementById("metodoPagamento").selectedOptions[0].text;
+  return `📚 *NOVO PEDIDO (MozBookStore)*\n\n👤 *Cliente:* ${nomeCliente}\n📧 *Email da conta:* ${utilizadorAtual.email || "Não fornecido"}\n\n📖 *Livros:*\n${linhas.join("\n")}\n\n💰 *Total:* ${total}\n💳 *Pagamento:* ${metodo}\n🔖 *Referência:* ${referencia}`;
+}
+
+function iniciarCheckoutCarrinho() {
+  if (!carrinho.length) return;
+  if (!supabaseClient) {
+    abrirModalLogin();
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].authNotConfigured, true);
+    return;
+  }
+  if (!utilizadorAtual) {
+    checkoutCarrinhoPendente = true;
+    abrirModalLogin();
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].authRequired, true);
+    return;
+  }
+  abrirCheckout();
+}
+
 function iniciarCompra(id) {
   produtoSelecionado = produtos.find((p) => p.id === id);
   if (!produtoSelecionado) return;
 
+  adicionarAoCarrinho(id, false);
   if (!supabaseClient) {
     abrirModalLogin();
     mostrarEstadoAutenticacao(traducoes[idiomaAtual].authNotConfigured, true);
@@ -991,18 +1172,11 @@ function iniciarCompra(id) {
 }
 
 function abrirCheckout() {
-  if (!produtoSelecionado || !utilizadorAtual) return;
+  if (!carrinho.length || !utilizadorAtual) return;
 
   document.getElementById("clienteNome").value =
     perfilAtual?.full_name || utilizadorAtual.user_metadata?.full_name || "";
   document.getElementById("clienteEmail").value = utilizadorAtual.email || "";
-  const precoAtual =
-    idiomaAtual === "en-ZA"
-      ? converterPreco(produtoSelecionado.preco)
-      : produtoSelecionado.preco;
-
-  document.getElementById("checkoutPreco").innerText =
-    `${idiomaAtual === "pt" ? "Valor a pagar" : "Amount to pay"}: ${precoAtual}`;
   document.getElementById("statusPagamento").style.display = "none";
   document.getElementById("statusPagamento").innerText = "";
   document.getElementById("formCheckout").reset();
@@ -1034,24 +1208,15 @@ function atualizarOpcoesPagamento() {
   } else if (regiao === "other" && metodoPagamento.value !== "sabank") {
     metodoPagamento.value = "sabank";
   }
-  if (produtoSelecionado) {
-    const valor =
-      regiao === "mozambique"
-        ? produtoSelecionado.preco
-        : converterPreco(produtoSelecionado.preco);
-    document.getElementById("checkoutPreco").innerText =
-      `${idiomaAtual === "pt" ? "Valor a pagar" : "Amount to pay"}: ${valor}`;
-  }
+  atualizarResumoCheckout();
   atualizarInstrucoesPagamento();
 }
 
 function atualizarInstrucoesPagamento() {
   const metodo = document.getElementById("metodoPagamento").value;
   const caixaInstrucoes = document.getElementById("instrucoesPagamento");
-  const precoMT = produtoSelecionado ? produtoSelecionado.preco : "";
-  const precoZAR = produtoSelecionado
-    ? converterPreco(produtoSelecionado.preco)
-    : "";
+  const precoMT = `${obterTotalCarrinho().toFixed(2)} MT`;
+  const precoZAR = `R ${obterTotalCarrinho("other").toFixed(2)}`;
 
   if (metodo === "mpesa") {
     caixaInstrucoes.innerHTML =
@@ -1079,7 +1244,7 @@ async function submeterConfirmacaoPagamento(event) {
   const botao = document.getElementById("btnConfirmar");
   const t = traducoes[idiomaAtual];
 
-  if (!supabaseClient || !utilizadorAtual || !produtoSelecionado) {
+  if (!supabaseClient || !utilizadorAtual || !carrinho.length) {
     status.innerText = !supabaseClient ? t.authNotConfigured : t.authRequired;
     status.style.display = "block";
     return;
@@ -1097,6 +1262,7 @@ async function submeterConfirmacaoPagamento(event) {
     return;
   }
 
+  const janelaWhatsApp = window.open("about:blank", "_blank");
   botao.disabled = true;
   status.innerText =
     idiomaAtual === "pt"
@@ -1106,19 +1272,21 @@ async function submeterConfirmacaoPagamento(event) {
 
   const regiao = document.getElementById("regiaoPagamento");
   const metodoPagamento = document.getElementById("metodoPagamento");
-  const { data: encomenda, error } = await supabaseClient
+  const itensPedido = carrinho.map((item) => ({
+    user_id: utilizadorAtual.id,
+    product_id: item.product.id,
+    quantity: item.quantity,
+    region: regiao.value,
+    payment_method: metodoPagamento.value,
+    transaction_reference: referencia,
+  }));
+  const { data: encomendas, error } = await supabaseClient
     .from("orders")
-    .insert({
-      user_id: utilizadorAtual.id,
-      product_id: produtoSelecionado.id,
-      region: regiao.value,
-      payment_method: metodoPagamento.value,
-      transaction_reference: referencia,
-    })
-    .select("product_title,amount,currency")
-    .single();
+    .insert(itensPedido)
+    .select("product_id,product_title,quantity,amount,currency");
 
   if (error) {
+    if (janelaWhatsApp) janelaWhatsApp.close();
     botao.disabled = false;
     console.error("Erro ao registar a confirmação de pagamento:", error);
     status.innerText =
@@ -1128,71 +1296,21 @@ async function submeterConfirmacaoPagamento(event) {
     return;
   }
 
-  let mensagemEstado = t.orderPending;
-  if (
-    CONFIG_NOTIFICACOES.emailJsPublicKey === "SUA_PUBLIC_KEY_AQUI" ||
-    typeof emailjs === "undefined"
-  ) {
-    console.error(
-      "EmailJS não está configurado para notificar novas encomendas.",
-    );
-    mensagemEstado = t.orderNotificationFailed;
-  } else {
-    const nomeCliente =
-      perfilAtual?.full_name ||
-      utilizadorAtual.user_metadata?.full_name ||
-      utilizadorAtual.email ||
-      "";
-    const templateParams = {
-      to_email: CONFIG_NOTIFICACOES.emailDestino,
-      name: nomeCliente,
-      email: utilizadorAtual.email || "",
-      title: encomenda.product_title,
-      author: produtoSelecionado.autor || "",
-      metodo: metodoPagamento.selectedOptions[0].text,
-      referencia,
-      order_status: idiomaAtual === "pt" ? "Pendente" : "Pending",
-      status_message:
-        idiomaAtual === "pt"
-          ? "Recebemos o seu pedido. A equipa irá verificar o pagamento e avisar quando houver uma decisão."
-          : "We received your order. Our team will verify the payment and notify you when a decision is made.",
-    };
-    const resultadosEmail = await Promise.allSettled([
-      Promise.resolve().then(() =>
-        emailjs.send(
-          CONFIG_NOTIFICACOES.emailJsServiceId,
-          CONFIG_NOTIFICACOES.emailJsTemplateId,
-          templateParams,
-        ),
-      ),
-      Promise.resolve().then(() =>
-        emailjs.send(
-          CONFIG_NOTIFICACOES.emailJsServiceId,
-          CONFIG_NOTIFICACOES.emailJsTemplateIdAutoReply,
-          templateParams,
-        ),
-      ),
-    ]);
-
-    const emailsFalhados = resultadosEmail
-      .map((resultado, indice) => {
-        if (resultado.status === "fulfilled") return null;
-        const tipoEmail = indice === 0 ? "notificação da loja" : "auto-reply";
-        console.error(
-          `Falha no envio do email (${tipoEmail}):`,
-          resultado.reason,
-        );
-        return tipoEmail;
-      })
-      .filter(Boolean);
-
-    if (emailsFalhados.length > 0) {
-      mensagemEstado = t.orderNotificationFailed;
-    }
+  const textoWhatsApp = criarResumoPedidoWhatsApp(
+    referencia,
+    regiao.value,
+    encomendas,
+  );
+  const urlWhatsApp = `https://wa.me/${CONFIG_NOTIFICACOES.numeroWhatsAppPrincipal}?text=${encodeURIComponent(textoWhatsApp)}`;
+  if (janelaWhatsApp) {
+    janelaWhatsApp.opener = null;
+    janelaWhatsApp.location.href = urlWhatsApp;
   }
 
   botao.disabled = false;
-  status.innerText = mensagemEstado;
+  const mensagemEstado = t.orderPending;
+  carrinho = [];
+  renderizarCarrinho();
   document.getElementById("formCheckout").reset();
   document.getElementById("clienteNome").value =
     perfilAtual?.full_name || utilizadorAtual.user_metadata?.full_name || "";
@@ -1202,9 +1320,18 @@ async function submeterConfirmacaoPagamento(event) {
   fecharModalCheckout();
   alternarVistaConta("biblioteca");
   await carregarBiblioteca();
-  document.getElementById("libraryStatus").innerText = mensagemEstado;
-  document.getElementById("libraryStatus").className =
-    `account-status${mensagemEstado === t.orderPending ? " success" : " error"}`;
+  const estadoBiblioteca = document.getElementById("libraryStatus");
+  estadoBiblioteca.innerText = `${mensagemEstado} `;
+  estadoBiblioteca.className = "account-status success";
+  if (!janelaWhatsApp) {
+    const linkWhatsApp = document.createElement("a");
+    linkWhatsApp.href = urlWhatsApp;
+    linkWhatsApp.target = "_blank";
+    linkWhatsApp.rel = "noopener noreferrer";
+    linkWhatsApp.innerText =
+      idiomaAtual === "pt" ? "Abrir WhatsApp" : "Open WhatsApp";
+    estadoBiblioteca.appendChild(linkWhatsApp);
+  }
 }
 
 function fecharModalCheckout() {
@@ -1308,10 +1435,22 @@ function abrirWhatsAppComFallback(urlWa, statusElement, mensagemFallback) {
   const janelaWhatsApp = window.open(urlWa, "_blank");
 
   if (janelaWhatsApp === null) {
-    statusElement.innerHTML = `${mensagemFallback} <a href="${urlWa}" target="_blank" rel="noopener">💬 Abrir no WhatsApp</a>`;
+    statusElement.innerText = `${mensagemFallback} `;
+    const link = document.createElement("a");
+    link.href = urlWa;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.innerText =
+      idiomaAtual === "pt" ? "💬 Abrir no WhatsApp" : "💬 Open WhatsApp";
+    statusElement.appendChild(link);
     return false;
   }
 
+  janelaWhatsApp.opener = null;
+  statusElement.innerText =
+    idiomaAtual === "pt"
+      ? "✅ Mensagem pronta no WhatsApp. Confirme o envio na aplicação."
+      : "✅ Message ready in WhatsApp. Confirm sending in the app.";
   return true;
 }
 
@@ -1325,79 +1464,14 @@ function enviarPedidoLivro(event) {
 
   const textoMensagem = `📚 *NOVO PEDIDO DE LIVRO (MozBookStore)*\n\n📖 *Livro/Exame:* ${titulo}\n✍ *Autor/Detalhes:* ${autor}\n👤 *Solicitante:* ${contacto}`;
   const urlWa = `https://wa.me/${CONFIG_NOTIFICACOES.numeroWhatsAppPrincipal}?text=${encodeURIComponent(textoMensagem)}`;
-
-  statusDiv.innerHTML =
+  const aberto = abrirWhatsAppComFallback(
+    urlWa,
+    statusDiv,
     idiomaAtual === "pt"
-      ? "⏳ A enviar o pedido por email..."
-      : "⏳ Sending the request by email...";
-
-  if (
-    CONFIG_NOTIFICACOES.emailJsPublicKey === "SUA_PUBLIC_KEY_AQUI" ||
-    typeof emailjs === "undefined"
-  ) {
-    console.error(
-      "EmailJS não está configurado para enviar pedidos de livros.",
-    );
-    const mensagemFallback =
-      idiomaAtual === "pt"
-        ? "⚠️ Não foi possível enviar o email."
-        : "⚠️ The email could not be sent.";
-    abrirWhatsAppComFallback(urlWa, statusDiv, mensagemFallback);
-    return;
-  }
-
-  const janelaWhatsApp = window.open(urlWa, "_blank");
-  if (janelaWhatsApp === null) {
-    statusDiv.innerHTML =
-      (idiomaAtual === "pt"
-        ? "⚠️ O navegador bloqueou a janela do WhatsApp. "
-        : "⚠️ Your browser blocked the WhatsApp tab. ") +
-      `<a href="${urlWa}" target="_blank" rel="noopener">${idiomaAtual === "pt" ? "💬 Abrir no WhatsApp" : "💬 Open in WhatsApp"}</a>`;
-  }
-
-  emailjs
-    .send(
-      CONFIG_NOTIFICACOES.emailJsServiceId,
-      CONFIG_NOTIFICACOES.emailJsTemplateId,
-      {
-        cliente_nome: "Pedido de livro pelo site",
-        cliente_email: contacto,
-        to_email: CONFIG_NOTIFICACOES.emailDestino,
-        reply_to: contacto,
-        livro_titulo: titulo,
-        referencia: autor,
-        metodo: "Pedido de livro",
-        tipo_notificacao: "Pedido de livro",
-        solicitante_contacto: contacto,
-        detalhes_pedido: autor,
-        mensagem: textoMensagem,
-      },
-    )
-    .then(() => {
-      const avisoWhatsApp =
-        janelaWhatsApp === null
-          ? idiomaAtual === "pt"
-            ? ` <a href="${urlWa}" target="_blank" rel="noopener">Abrir WhatsApp</a> e confirmar o envio.`
-            : ` <a href="${urlWa}" target="_blank" rel="noopener">Open WhatsApp</a> and confirm sending.`
-          : idiomaAtual === "pt"
-            ? " O WhatsApp foi aberto; confirme o envio da mensagem."
-            : " WhatsApp was opened; confirm sending the message.";
-
-      statusDiv.innerHTML =
-        (idiomaAtual === "pt"
-          ? '<span style="color: #10b981;">✅ Pedido enviado para o email da equipa.'
-          : '<span style="color: #10b981;">✅ Request emailed to the team.') +
-        avisoWhatsApp +
-        "</span>";
-      document.getElementById("formPedirLivro").reset();
-    })
-    .catch((err) => {
-      console.error("Erro EmailJS ao enviar pedido de livro:", err);
-      statusDiv.innerHTML =
-        idiomaAtual === "pt"
-          ? "⚠️ O WhatsApp foi aberto, mas o email não foi enviado. Verifique a ligação e tente novamente."
-          : "⚠️ WhatsApp was opened, but the email was not sent. Check your connection and try again.";
-    });
+      ? "⚠️ O navegador bloqueou a abertura automática."
+      : "⚠️ Your browser blocked the automatic opening.",
+  );
+  if (aberto) document.getElementById("formPedirLivro").reset();
 }
 
 function enviarFeedback(event) {
@@ -1406,76 +1480,18 @@ function enviarFeedback(event) {
   const t = traducoes[idiomaAtual];
   const form = document.getElementById("formFeedback");
   const status = document.getElementById("feedbackStatus");
-  const submitButton = document.getElementById("feedbackSubmit");
   const nome = document.getElementById("feedbackName").value.trim();
   const email = document.getElementById("feedbackEmail").value.trim();
   const mensagem = document.getElementById("feedbackMessage").value.trim();
 
   const textoMensagemWhatsApp = `💡 *NOVO FEEDBACK (MozBookStore)*\n\n👤 *Nome:* ${nome || "Anónimo"}\n📧 *Email:* ${email || "Não fornecido"}\n\n💬 *Sugestão:*\n${mensagem}`;
   const urlWhatsApp = `https://wa.me/${CONFIG_NOTIFICACOES.numeroWhatsAppPrincipal}?text=${encodeURIComponent(textoMensagemWhatsApp)}`;
-  const janelaWhatsApp = window.open(urlWhatsApp, "_blank");
-
-  if (
-    CONFIG_NOTIFICACOES.emailJsPublicKey === "SUA_PUBLIC_KEY_AQUI" ||
-    typeof emailjs === "undefined"
-  ) {
-    console.error("EmailJS não está configurado para receber feedback.");
-    status.innerHTML =
-      janelaWhatsApp !== null
-        ? `${t.feedbackUnavailable} ${idiomaAtual === "pt" ? "O WhatsApp também foi aberto para confirmação." : "WhatsApp was also opened for confirmation."}`
-        : `${t.feedbackUnavailable} <a href="${urlWhatsApp}" target="_blank" rel="noopener">${idiomaAtual === "pt" ? "💬 Abrir no WhatsApp" : "💬 Open in WhatsApp"}</a>`;
-    return;
-  }
-
-  const mensagemEmail = `NOVO FEEDBACK (MozBookStore)\n\nNome: ${nome || "Anónimo"}\nEmail: ${email || "Não fornecido"}\n\nSugestão:\n${mensagem}`;
-  status.innerText = t.feedbackSending;
-  submitButton.disabled = true;
-
-  emailjs
-    .send(
-      CONFIG_NOTIFICACOES.emailJsServiceId,
-      CONFIG_NOTIFICACOES.emailJsTemplateId,
-      {
-        cliente_nome: nome || "Utilizador anónimo",
-        cliente_email: email || "Não fornecido",
-        to_email: CONFIG_NOTIFICACOES.emailDestino,
-        reply_to: email || "noreply@mozbookstore.com",
-        livro_titulo: "Feedback do utilizador",
-        referencia: "Sugestão para melhorias",
-        metodo: "Feedback do site",
-        tipo_notificacao: "Feedback / Sugestão",
-        solicitante_contacto: email || nome || "Anónimo",
-        detalhes_pedido: mensagem,
-        mensagem: mensagemEmail,
-      },
-    )
-    .then(() => {
-      const avisoWhatsApp =
-        janelaWhatsApp === null
-          ? idiomaAtual === "pt"
-            ? ` <a href="${urlWhatsApp}" target="_blank" rel="noopener">💬 Abrir no WhatsApp</a> e confirmar o envio.`
-            : ` <a href="${urlWhatsApp}" target="_blank" rel="noopener">💬 Open in WhatsApp</a> and confirm sending.`
-          : idiomaAtual === "pt"
-            ? " O WhatsApp foi aberto; confirme o envio da mensagem."
-            : " WhatsApp was opened; confirm sending the message.";
-
-      status.innerHTML =
-        (idiomaAtual === "pt"
-          ? '<span style="color: #10b981;">✅ Feedback enviado para o email e também enviado para o WhatsApp.</span>'
-          : '<span style="color: #10b981;">✅ Feedback sent by email and also sent to WhatsApp.</span>') +
-        avisoWhatsApp;
-      form.reset();
-    })
-    .catch((error) => {
-      console.error("Erro EmailJS ao enviar feedback:", error);
-      status.innerHTML =
-        janelaWhatsApp !== null
-          ? `${t.feedbackError} ${idiomaAtual === "pt" ? "O WhatsApp foi aberto para confirmação." : "WhatsApp was opened for confirmation."}`
-          : `${t.feedbackError} <a href="${urlWhatsApp}" target="_blank" rel="noopener">${idiomaAtual === "pt" ? "💬 Abrir no WhatsApp" : "💬 Open in WhatsApp"}</a>`;
-    })
-    .finally(() => {
-      submitButton.disabled = false;
-    });
+  const aberto = abrirWhatsAppComFallback(
+    urlWhatsApp,
+    status,
+    t.feedbackUnavailable,
+  );
+  if (aberto) form.reset();
 }
 
 function escaparHTML(valor) {
@@ -1646,7 +1662,10 @@ async function atualizarSessao(sessao) {
   if (autenticado) {
     document.getElementById("authStatus").innerText = "";
     fecharModalLogin();
-    if (produtoCompraPendente !== null) {
+    if (checkoutCarrinhoPendente) {
+      checkoutCarrinhoPendente = false;
+      abrirCheckout();
+    } else if (produtoCompraPendente !== null) {
       produtoSelecionado =
         produtos.find((produto) => produto.id === produtoCompraPendente) ||
         null;
@@ -1865,7 +1884,7 @@ async function carregarBiblioteca() {
 
   const { data: encomendas, error } = await supabaseClient
     .from("orders")
-    .select("id,product_id,product_title,amount,currency,status,created_at")
+    .select("id,product_id,product_title,quantity,amount,currency,status,created_at")
     .eq("user_id", utilizadorAtual.id)
     .order("created_at", { ascending: false });
 
@@ -1893,7 +1912,7 @@ async function carregarBiblioteca() {
     const titulo = document.createElement("h3");
     titulo.innerText = encomenda.product_title;
     const detalhes = document.createElement("p");
-    detalhes.innerText = `${encomenda.amount} ${encomenda.currency} · ${rotulosEstado[encomenda.status]}`;
+    detalhes.innerText = `${encomenda.quantity} ${traducoes[idiomaAtual].quantidade} · ${encomenda.amount} ${encomenda.currency} · ${rotulosEstado[encomenda.status]}`;
     cartao.append(titulo, detalhes);
     if (encomenda.status === "approved") {
       const botao = document.createElement("button");
@@ -1992,7 +2011,7 @@ async function carregarEncomendasAdmin() {
   const { data: encomendas, error } = await supabaseClient
     .from("orders")
     .select(
-      "id,product_title,amount,currency,region,payment_method,transaction_reference,status,created_at,profile:profiles!orders_user_id_fkey(full_name,email)",
+      "id,product_title,quantity,amount,currency,region,payment_method,transaction_reference,status,created_at,profile:profiles!orders_user_id_fkey(full_name,email)",
     )
     .order("created_at", { ascending: false });
   if (error) {
@@ -2024,7 +2043,7 @@ async function carregarEncomendasAdmin() {
       <h3>${escaparHTML(encomenda.product_title)}</h3>
       <p><strong>${t.lblSolicitante}:</strong> ${escaparHTML(cliente)} (${escaparHTML(encomenda.profile?.email || "")})</p>
       <p><strong>${t.lblReferenciaAdmin}:</strong> ${escaparHTML(encomenda.transaction_reference)}</p>
-      <p>${escaparHTML(encomenda.payment_method.toUpperCase())} · ${escaparHTML(encomenda.region)} · ${escaparHTML(encomenda.amount)} ${escaparHTML(encomenda.currency)}</p>
+      <p>${escaparHTML(encomenda.quantity)} ${t.quantidade} · ${escaparHTML(encomenda.payment_method.toUpperCase())} · ${escaparHTML(encomenda.region)} · ${escaparHTML(encomenda.amount)} ${escaparHTML(encomenda.currency)}</p>
       <p><strong>${t.lblStatusPedido}:</strong> ${escaparHTML(statusEncomenda)}</p>
     `;
     const accoes =
@@ -2110,71 +2129,6 @@ async function apagarEncomenda(encomenda, isAdmin = false) {
   status.className = "account-status success";
 }
 
-async function notificarAlteracaoEstadoEncomenda(encomenda, estado) {
-  const emailCliente = encomenda.profile?.email;
-  if (
-    CONFIG_NOTIFICACOES.emailJsPublicKey === "SUA_PUBLIC_KEY_AQUI" ||
-    typeof emailjs === "undefined" ||
-    !emailCliente
-  ) {
-    console.error(
-      "Não foi possível notificar o cliente sobre o estado da encomenda: EmailJS ou email do cliente indisponível.",
-    );
-    return false;
-  }
-
-  const portugues = idiomaAtual === "pt";
-  const estadoEmail =
-    estado === "approved"
-      ? portugues
-        ? "Aprovado"
-        : "Approved"
-      : estado === "rejected"
-        ? portugues
-          ? "Recusado / acesso revogado"
-          : "Rejected / access revoked"
-        : portugues
-          ? "Pendente de revisão"
-          : "Pending review";
-  const mensagemEmail =
-    estado === "approved"
-      ? portugues
-        ? "O pagamento foi aprovado. Já pode iniciar sessão e descarregar o livro em Minhas compras."
-        : "Your payment was approved. You can now sign in and download the book from My purchases."
-      : estado === "rejected"
-        ? portugues
-          ? "O pagamento foi recusado ou o acesso ao livro foi revogado. Contacte a equipa se precisar de ajuda."
-          : "The payment was rejected or access to the book was revoked. Contact the team if you need help."
-        : portugues
-          ? "O seu pedido voltou ao estado pendente e será revisto pela equipa."
-          : "Your order is pending again and will be reviewed by the team.";
-
-  try {
-    await emailjs.send(
-      CONFIG_NOTIFICACOES.emailJsServiceId,
-      CONFIG_NOTIFICACOES.emailJsTemplateIdAutoReply,
-      {
-        to_email: emailCliente,
-        email: emailCliente,
-        name: encomenda.profile?.full_name || emailCliente,
-        title: encomenda.product_title,
-        author: "",
-        metodo: encomenda.payment_method,
-        referencia: encomenda.transaction_reference,
-        order_status: estadoEmail,
-        status_message: mensagemEmail,
-      },
-    );
-    return true;
-  } catch (error) {
-    console.error(
-      "Não foi possível enviar a atualização do pedido ao cliente:",
-      error,
-    );
-    return false;
-  }
-}
-
 async function reverEncomenda(encomenda, estado) {
   const status = document.getElementById("adminStatus");
   status.innerText = idiomaAtual === "pt" ? "A actualizar..." : "Updating...";
@@ -2199,15 +2153,9 @@ async function reverEncomenda(encomenda, estado) {
     return;
   }
 
-  const emailEnviado = await notificarAlteracaoEstadoEncomenda(
-    encomenda,
-    estado,
-  );
   await carregarEncomendasAdmin();
-  status.innerText = emailEnviado
-    ? traducoes[idiomaAtual].orderSaved
-    : `${traducoes[idiomaAtual].orderSaved} ${traducoes[idiomaAtual].orderStatusEmailFailed}`;
-  status.className = `account-status${emailEnviado ? " success" : " error"}`;
+  status.innerText = traducoes[idiomaAtual].orderSaved;
+  status.className = "account-status success";
 }
 
 const quizPerguntas = [

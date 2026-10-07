@@ -138,6 +138,7 @@ create table if not exists public.orders (
   user_id uuid not null references public.profiles (id) on delete cascade,
   product_id integer not null references public.products (id),
   product_title text not null,
+  quantity integer not null default 1 check (quantity > 0),
   amount numeric(10, 2) not null,
   currency text not null check (currency in ('MZN', 'ZAR')),
   region text not null check (region in ('mozambique', 'other')),
@@ -149,6 +150,10 @@ create table if not exists public.orders (
   reviewed_at timestamptz,
   reviewed_by uuid references public.profiles (id)
 );
+
+alter table public.orders
+  add column if not exists quantity integer not null default 1
+  check (quantity > 0);
 
 create unique index if not exists orders_one_approved_product_per_user
   on public.orders (user_id, product_id)
@@ -359,13 +364,13 @@ begin
     if new.payment_method not in ('mpesa', 'emola') then
       raise exception 'Choose M-Pesa or e-Mola for Mozambique.';
     end if;
-    new.amount := product_price_mzn;
+    new.amount := product_price_mzn * new.quantity;
     new.currency := 'MZN';
   elsif new.region = 'other' then
     if new.payment_method <> 'sa_bank' then
       raise exception 'Choose bank transfer for South Africa and other countries.';
     end if;
-    new.amount := round(product_price_mzn / 3.5, 2);
+    new.amount := round(product_price_mzn * new.quantity / 3.5, 2);
     new.currency := 'ZAR';
   else
     raise exception 'The selected region is not supported.';
@@ -398,6 +403,7 @@ begin
      or new.user_id <> old.user_id
      or new.product_id <> old.product_id
      or new.product_title <> old.product_title
+     or new.quantity <> old.quantity
      or new.amount <> old.amount
      or new.currency <> old.currency
      or new.region <> old.region
