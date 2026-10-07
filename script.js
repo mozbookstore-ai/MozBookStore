@@ -88,6 +88,137 @@ function converterPreco(precoMT) {
   return `R ${valorZAR}`;
 }
 
+function formatarTimestamp(timestamp) {
+  const data = new Date(timestamp);
+  if (!Number.isFinite(data.getTime())) {
+    console.error("Timestamp inválido no registo de atividade:", timestamp);
+    return String(timestamp);
+  }
+  return new Intl.DateTimeFormat(idiomaAtual === "pt" ? "pt-MZ" : "en-ZA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+    timeZoneName: "short",
+  }).format(data);
+}
+
+function criarElementoTimestamp(timestamp) {
+  const elemento = document.createElement("time");
+  const data = new Date(timestamp);
+  elemento.dateTime = Number.isFinite(data.getTime())
+    ? data.toISOString()
+    : String(timestamp);
+  elemento.textContent = formatarTimestamp(timestamp);
+  return elemento;
+}
+
+function carregarHistoricoAtividades() {
+  try {
+    const dados = localStorage.getItem(ACTIVITY_LOG_KEY);
+    if (!dados) return;
+
+    const eventos = JSON.parse(dados);
+    if (!Array.isArray(eventos)) {
+      throw new TypeError("O registo de atividade guardado não é uma lista.");
+    }
+    historicoAtividades = eventos.filter(
+      (evento) =>
+        evento &&
+        typeof evento.timestamp === "string" &&
+        Number.isFinite(Date.parse(evento.timestamp)) &&
+        typeof evento.messageKey === "string" &&
+        Object.prototype.hasOwnProperty.call(
+          traducoes.pt,
+          evento.messageKey,
+        ) &&
+        evento.details &&
+        typeof evento.details === "object" &&
+        !Array.isArray(evento.details),
+    );
+    if (historicoAtividades.length !== eventos.length) {
+      erroHistoricoAtividades = true;
+      console.error(
+        "Algumas entradas inválidas do registo de atividade foram ignoradas.",
+      );
+    }
+  } catch (error) {
+    erroHistoricoAtividades = true;
+    console.error("Não foi possível carregar o registo de atividade:", error);
+  }
+}
+
+function descricaoAtividade(evento) {
+  const modelo = traducoes[idiomaAtual][evento.messageKey];
+  if (!modelo) {
+    console.error(
+      "Não existe tradução para a atividade registada:",
+      evento.messageKey,
+    );
+    return evento.messageKey;
+  }
+  return modelo.replace(/\{(\w+)\}/g, (_, chave) =>
+    String(evento.details[chave] ?? ""),
+  );
+}
+
+function renderizarHistoricoAtividades() {
+  const lista = document.getElementById("activityLog");
+  const estado = document.getElementById("activityStatus");
+  if (!lista || !estado) return;
+
+  const t = traducoes[idiomaAtual];
+  lista.replaceChildren();
+  estado.textContent = erroHistoricoAtividades ? t.activityStorageError : "";
+  estado.className = `account-status${erroHistoricoAtividades ? " error" : ""}`;
+
+  if (historicoAtividades.length === 0) {
+    const vazio = document.createElement("li");
+    vazio.className = "activity-empty";
+    vazio.textContent = t.activityEmpty;
+    lista.appendChild(vazio);
+    return;
+  }
+
+  historicoAtividades.forEach((evento) => {
+    const item = document.createElement("li");
+    item.className = "activity-entry";
+    const descricao = document.createElement("p");
+    descricao.className = "activity-description";
+    descricao.textContent = descricaoAtividade(evento);
+    const timestamp = criarElementoTimestamp(evento.timestamp);
+    timestamp.className = "activity-timestamp";
+    timestamp.setAttribute("aria-label", `${t.activityTimestamp}: ${timestamp.textContent}`);
+    item.append(descricao, timestamp);
+    lista.appendChild(item);
+  });
+}
+
+function registarAtividade(messageKey, details = {}) {
+  if (!Object.prototype.hasOwnProperty.call(traducoes.pt, messageKey)) {
+    console.error("Tentativa de registar uma atividade desconhecida:", messageKey);
+    return;
+  }
+
+  const evento = {
+    timestamp: new Date().toISOString(),
+    messageKey,
+    details,
+  };
+  historicoAtividades.unshift(evento);
+  try {
+    localStorage.setItem(ACTIVITY_LOG_KEY, JSON.stringify(historicoAtividades));
+    erroHistoricoAtividades = false;
+  } catch (error) {
+    erroHistoricoAtividades = true;
+    console.error("Não foi possível guardar o registo de atividade:", error);
+  }
+  renderizarHistoricoAtividades();
+}
+
 function inicializarSeletoresTelefone() {
   const campos = [
     ["requestPhoneCode", "requestPhoneCustomCode", "requestPhoneNumber"],
@@ -227,6 +358,9 @@ let deferredInstallPrompt = null;
 let pwaInstallMode = null;
 let pwaInstallDismissed = false;
 const PWA_INSTALL_SEEN_KEY = "mozbookstoreInstallPromptHandled";
+const ACTIVITY_LOG_KEY = "mozbookstoreActivityLog";
+let historicoAtividades = [];
+let erroHistoricoAtividades = false;
 
 // --- DICIONÁRIO DE TRADUÇÕES (PT / en-ZA) ---
 const traducoes = {
@@ -411,6 +545,42 @@ const traducoes = {
     footerSocialTitle:
       "Siga-nos nas redes sociais para ficar a par das atualizações",
     topBarSocialTitle: "Siga-nos para atualizações:",
+    activityTitle: "Registo de atividade",
+    activityDescription:
+      "As ações ficam guardadas apenas neste dispositivo. Cada entrada mostra a data e hora local, incluindo os segundos.",
+    activityEmpty: "Ainda não há atividades registadas.",
+    activityStorageError:
+      "Não foi possível guardar o registo neste dispositivo. As novas ações só ficarão visíveis enquanto esta página estiver aberta.",
+    activityTimestamp: "Realizado em",
+    activityReviewedAt: "Última revisão",
+    activityCartAdded:
+      "Livro adicionado ao carrinho: {book} (quantidade: {quantity}).",
+    activityQuantityChanged:
+      "Quantidade do livro {book} alterada para {quantity}.",
+    activityCartRemoved: "Livro removido do carrinho: {book}.",
+    activityCheckoutStarted: "Checkout iniciado ({items} artigo(s)).",
+    activityOrderSubmitted: "Pedido submetido: {books}.",
+    activityBookRequest: "Formulário de pedido de livro preparado no WhatsApp.",
+    activityFeedback: "Formulário de feedback preparado no WhatsApp.",
+    activityLogin: "Sessão iniciada.",
+    activityRegister: "Conta criada.",
+    activityLogout: "Sessão terminada.",
+    activityPasswordRecovery: "Pedido de recuperação de palavra-passe enviado.",
+    activityPasswordChanged: "Palavra-passe actualizada.",
+    activityLibraryOpened: "Histórico de compras consultado.",
+    activityAdminOpened: "Painel de administração consultado.",
+    activityDownload: "PDF descarregado: {book}.",
+    activityOrderDeleted: "Compra apagada: {book}.",
+    activityOrderReviewed: "Encomenda {book}: {status}.",
+    activityPreview: "Sinopse consultada: {book}.",
+    activityCategory: "Categoria seleccionada: {category}.",
+    activitySearch: "Livro seleccionado nas sugestões de pesquisa: {book}.",
+    activityCatalogOpened: "Catálogo consultado.",
+    activityLanguageChanged: "Idioma alterado para {language}.",
+    activityQuizStarted: "Quiz iniciado.",
+    activityQuizAnswer: "Resposta seleccionada na pergunta {question}.",
+    activityQuizCompleted: "Quiz concluído.",
+    activityQuizRestarted: "Quiz reiniciado.",
   },
   "en-ZA": {
     idiomaLabel: "🌐 Mudar idioma / Change language:",
@@ -590,6 +760,42 @@ const traducoes = {
     footerCopy: "&copy; 2026 MozBookStore - All rights reserved.",
     footerSocialTitle: "Follow us on social media for updates",
     topBarSocialTitle: "Follow us for updates:",
+    activityTitle: "Activity log",
+    activityDescription:
+      "Actions are stored only on this device. Each entry shows the local date and time, including seconds.",
+    activityEmpty: "There is no activity recorded yet.",
+    activityStorageError:
+      "The log could not be saved on this device. New actions will only remain visible while this page is open.",
+    activityTimestamp: "Performed at",
+    activityReviewedAt: "Last reviewed",
+    activityCartAdded:
+      "Book added to cart: {book} (quantity: {quantity}).",
+    activityQuantityChanged:
+      "Quantity for {book} changed to {quantity}.",
+    activityCartRemoved: "Book removed from cart: {book}.",
+    activityCheckoutStarted: "Checkout started ({items} item(s)).",
+    activityOrderSubmitted: "Order submitted: {books}.",
+    activityBookRequest: "Book request form prepared in WhatsApp.",
+    activityFeedback: "Feedback form prepared in WhatsApp.",
+    activityLogin: "Signed in.",
+    activityRegister: "Account created.",
+    activityLogout: "Signed out.",
+    activityPasswordRecovery: "Password recovery request sent.",
+    activityPasswordChanged: "Password updated.",
+    activityLibraryOpened: "Purchase history viewed.",
+    activityAdminOpened: "Administration panel viewed.",
+    activityDownload: "PDF downloaded: {book}.",
+    activityOrderDeleted: "Purchase deleted: {book}.",
+    activityOrderReviewed: "Order {book}: {status}.",
+    activityPreview: "Book synopsis viewed: {book}.",
+    activityCategory: "Category selected: {category}.",
+    activitySearch: "Book selected from search suggestions: {book}.",
+    activityCatalogOpened: "Catalogue viewed.",
+    activityLanguageChanged: "Language changed to {language}.",
+    activityQuizStarted: "Quiz started.",
+    activityQuizAnswer: "Answer selected for question {question}.",
+    activityQuizCompleted: "Quiz completed.",
+    activityQuizRestarted: "Quiz restarted.",
   },
 };
 
@@ -838,6 +1044,9 @@ const produtos = [
 function alternarIdioma() {
   idiomaAtual = idiomaAtual === "pt" ? "en-ZA" : "pt";
   aplicarIdioma();
+  registarAtividade("activityLanguageChanged", {
+    language: idiomaAtual === "pt" ? "Português (MZ)" : "English (SA)",
+  });
 }
 
 function aplicarIdioma() {
@@ -970,6 +1179,9 @@ function aplicarIdioma() {
   document.getElementById("cartTitle").innerText = t.carrinhoTitulo;
   document.getElementById("cartEmpty").innerText = t.carrinhoVazio;
   document.getElementById("cartCheckout").innerText = t.carrinhoFinalizar;
+  document.getElementById("activityTitle").innerText = t.activityTitle;
+  document.getElementById("activityDescription").innerText =
+    t.activityDescription;
   document.getElementById("catalogHelp").innerText = t.catalogHelp;
   document.getElementById("libraryHelp").innerText = t.libraryHelp;
   document.getElementById("adminHelp").innerText = t.adminHelp;
@@ -1068,6 +1280,7 @@ function aplicarIdioma() {
     renderizarQuiz();
     if (quizEstado.concluido) concluirQuiz();
   }
+  renderizarHistoricoAtividades();
 }
 
 function atualizarTextoInstalacaoPwa() {
@@ -1341,6 +1554,7 @@ function abrirModalPreview(id) {
     `${idiomaAtual === "pt" ? "Por" : "By"}: ${produto.autor}`;
   document.getElementById("previewTexto").innerText = introExibida;
   document.getElementById("previewModal").style.display = "flex";
+  registarAtividade("activityPreview", { book: tituloExibido });
 }
 
 function fecharModalPreview() {
@@ -1388,17 +1602,27 @@ function adicionarAoCarrinho(id, incrementar = true) {
   const product = obterProdutoCarrinho(id);
   if (!product) return;
   const itemExistente = carrinho.find((item) => item.product.id === id);
+  let alterado = false;
   if (itemExistente) {
     if (incrementar && itemExistente.quantity < 2147483647) {
       itemExistente.quantity += 1;
+      alterado = true;
     }
   } else {
     carrinho.push({ product, quantity: 1 });
+    alterado = true;
   }
   renderizarCarrinho();
   const status = document.getElementById("cartStatus");
   status.innerText = traducoes[idiomaAtual].adicionarSucesso;
   status.className = "account-status success";
+  if (alterado) {
+    const itemCarrinho = carrinho.find((item) => item.product.id === id);
+    registarAtividade("activityCartAdded", {
+      book: idiomaAtual === "en-ZA" ? product.tituloEn : product.titulo,
+      quantity: itemCarrinho.quantity,
+    });
+  }
 }
 
 function alterarQuantidadeCarrinho(id, quantidade) {
@@ -1416,13 +1640,31 @@ function alterarQuantidadeCarrinho(id, quantidade) {
     renderizarCarrinho();
     return;
   }
+  const quantidadeAnterior = item.quantity;
   item.quantity = quantidadeNumerica;
   renderizarCarrinho();
+  if (quantidadeAnterior !== quantidadeNumerica) {
+    registarAtividade("activityQuantityChanged", {
+      book:
+        idiomaAtual === "en-ZA"
+          ? item.product.tituloEn
+          : item.product.titulo,
+      quantity: quantidadeNumerica,
+    });
+  }
 }
 
 function removerDoCarrinho(id) {
+  const item = carrinho.find((linha) => linha.product.id === id);
+  if (!item) return;
   carrinho = carrinho.filter((item) => item.product.id !== id);
   renderizarCarrinho();
+  registarAtividade("activityCartRemoved", {
+    book:
+      idiomaAtual === "en-ZA"
+        ? item.product.tituloEn
+        : item.product.titulo,
+  });
 }
 
 function renderizarCarrinho() {
@@ -1522,6 +1764,9 @@ function criarResumoPedidoWhatsApp(referencia, regiao, encomendas, telefone) {
 
 function iniciarCheckoutCarrinho() {
   if (!carrinho.length) return;
+  registarAtividade("activityCheckoutStarted", {
+    items: carrinho.reduce((total, item) => total + item.quantity, 0),
+  });
   if (!supabaseClient) {
     abrirModalLogin();
     mostrarEstadoAutenticacao(traducoes[idiomaAtual].authNotConfigured, true);
@@ -1541,6 +1786,9 @@ function iniciarCompra(id) {
   if (!produtoSelecionado) return;
 
   adicionarAoCarrinho(id, false);
+  registarAtividade("activityCheckoutStarted", {
+    items: carrinho.reduce((total, item) => total + item.quantity, 0),
+  });
   if (!supabaseClient) {
     abrirModalLogin();
     mostrarEstadoAutenticacao(traducoes[idiomaAtual].authNotConfigured, true);
@@ -1701,6 +1949,11 @@ async function submeterConfirmacaoPagamento(event) {
     return;
   }
 
+  registarAtividade("activityOrderSubmitted", {
+    books: encomendas
+      .map((encomenda) => encomenda.product_title)
+      .join(", "),
+  });
   const textoWhatsApp = criarResumoPedidoWhatsApp(
     referencia,
     regiao.value,
@@ -1757,6 +2010,16 @@ function filtrarCategoria(categoria, event) {
     const filtrados = produtos.filter((p) => p.categoria === categoria);
     carregarProdutos(filtrados);
   }
+  const categoriaSelecionada = categoriasLista.find(
+    (item) => item.id === categoria,
+  );
+  registarAtividade("activityCategory", {
+    category: categoriaSelecionada
+      ? idiomaAtual === "pt"
+        ? categoriaSelecionada.pt
+        : categoriaSelecionada.en
+      : categoria,
+  });
 }
 
 function buscarLivro() {
@@ -1824,6 +2087,7 @@ function selecionarSugestao(tituloLivro) {
   input.value = tituloLivro;
   document.getElementById("searchSuggestions").style.display = "none";
   buscarLivro();
+  registarAtividade("activitySearch", { book: tituloLivro });
 }
 
 // Fechar sugestões ao clicar fora
@@ -1887,6 +2151,7 @@ function enviarPedidoLivro(event) {
       ? "⚠️ O navegador bloqueou a abertura automática."
       : "⚠️ Your browser blocked the automatic opening.",
   );
+  registarAtividade("activityBookRequest");
   if (aberto) document.getElementById("formPedirLivro").reset();
 }
 
@@ -1907,6 +2172,7 @@ function enviarFeedback(event) {
     status,
     t.feedbackUnavailable,
   );
+  registarAtividade("activityFeedback");
   if (aberto) form.reset();
 }
 
@@ -2111,7 +2377,9 @@ async function iniciarSessao(event) {
   if (error) {
     console.error("Erro ao iniciar sessão:", error);
     mostrarEstadoAutenticacao(traduzirErroSupabase(error), true);
+    return;
   }
+  registarAtividade("activityLogin");
 }
 
 async function solicitarRecuperacaoPassword() {
@@ -2143,6 +2411,7 @@ async function solicitarRecuperacaoPassword() {
       return;
     }
     mostrarEstadoAutenticacao(traducoes[idiomaAtual].resetPasswordSent);
+    registarAtividade("activityPasswordRecovery");
   } catch (error) {
     console.error("Falha de rede na recuperação da palavra-passe:", error);
     mostrarEstadoAutenticacao(
@@ -2196,6 +2465,7 @@ async function guardarNovaPassword(event) {
     mostrarEstadoAutenticacao(traduzirErroSupabase(error), true);
     return;
   }
+  registarAtividade("activityPasswordChanged");
 
   let signOutError;
   try {
@@ -2268,6 +2538,7 @@ async function registarConta(event) {
     mostrarEstadoAutenticacao(traduzirErroSupabase(error), true);
     return;
   }
+  registarAtividade("activityRegister");
   if (!data.session) {
     mostrarEstadoAutenticacao(
       idiomaAtual === "pt"
@@ -2291,6 +2562,7 @@ async function terminarSessao() {
     mostrarEstadoAutenticacao(traduzirErroSupabase(error), true);
   } else {
     voltarAoCatalogo();
+    registarAtividade("activityLogout");
   }
 }
 
@@ -2309,6 +2581,7 @@ async function mostrarBiblioteca() {
     return;
   }
   alternarVistaConta("biblioteca");
+  registarAtividade("activityLibraryOpened");
   await carregarBiblioteca();
 }
 
@@ -2320,7 +2593,9 @@ async function carregarBiblioteca() {
 
   const { data: encomendas, error } = await supabaseClient
     .from("orders")
-    .select("id,product_id,product_title,quantity,amount,currency,status,created_at")
+    .select(
+      "id,product_id,product_title,quantity,amount,currency,status,created_at,reviewed_at",
+    )
     .eq("user_id", utilizadorAtual.id)
     .order("created_at", { ascending: false });
 
@@ -2350,6 +2625,21 @@ async function carregarBiblioteca() {
     const detalhes = document.createElement("p");
     detalhes.innerText = `${encomenda.quantity} ${traducoes[idiomaAtual].quantidade} · ${encomenda.amount} ${encomenda.currency} · ${rotulosEstado[encomenda.status]}`;
     cartao.append(titulo, detalhes);
+    const dataCriacao = document.createElement("p");
+    const rotuloCriacao = document.createElement("strong");
+    rotuloCriacao.textContent = `${traducoes[idiomaAtual].activityTimestamp}: `;
+    dataCriacao.append(rotuloCriacao, criarElementoTimestamp(encomenda.created_at));
+    cartao.appendChild(dataCriacao);
+    if (encomenda.reviewed_at) {
+      const dataRevisao = document.createElement("p");
+      const rotuloRevisao = document.createElement("strong");
+      rotuloRevisao.textContent = `${traducoes[idiomaAtual].activityReviewedAt}: `;
+      dataRevisao.append(
+        rotuloRevisao,
+        criarElementoTimestamp(encomenda.reviewed_at),
+      );
+      cartao.appendChild(dataRevisao);
+    }
     if (encomenda.status === "approved") {
       const botao = document.createElement("button");
       botao.className = "btn-primary";
@@ -2427,6 +2717,7 @@ async function descarregarEbook(encomenda) {
   link.click();
   link.remove();
   status.innerText = "";
+  registarAtividade("activityDownload", { book: pedido.product_title });
 }
 
 async function mostrarPainelAdmin() {
@@ -2435,6 +2726,7 @@ async function mostrarPainelAdmin() {
     return;
   }
   alternarVistaConta("admin");
+  registarAtividade("activityAdminOpened");
   await carregarEncomendasAdmin();
 }
 
@@ -2447,7 +2739,7 @@ async function carregarEncomendasAdmin() {
   const { data: encomendas, error } = await supabaseClient
     .from("orders")
     .select(
-      "id,product_title,quantity,amount,currency,region,payment_method,transaction_reference,status,created_at,profile:profiles!orders_user_id_fkey(full_name,email)",
+      "id,product_title,quantity,amount,currency,region,payment_method,transaction_reference,status,created_at,reviewed_at,profile:profiles!orders_user_id_fkey(full_name,email)",
     )
     .order("created_at", { ascending: false });
   if (error) {
@@ -2481,6 +2773,8 @@ async function carregarEncomendasAdmin() {
       <p><strong>${t.lblReferenciaAdmin}:</strong> ${escaparHTML(encomenda.transaction_reference)}</p>
       <p>${escaparHTML(encomenda.quantity)} ${t.quantidade} · ${escaparHTML(encomenda.payment_method.toUpperCase())} · ${escaparHTML(encomenda.region)} · ${escaparHTML(encomenda.amount)} ${escaparHTML(encomenda.currency)}</p>
       <p><strong>${t.lblStatusPedido}:</strong> ${escaparHTML(statusEncomenda)}</p>
+      <p><strong>${t.activityTimestamp}:</strong> ${escaparHTML(formatarTimestamp(encomenda.created_at))}</p>
+      ${encomenda.reviewed_at ? `<p><strong>${t.activityReviewedAt}:</strong> ${escaparHTML(formatarTimestamp(encomenda.reviewed_at))}</p>` : ""}
     `;
     const accoes =
       encomenda.status === "pending"
@@ -2561,11 +2855,15 @@ async function apagarEncomenda(encomenda, isAdmin = false) {
   } else {
     await carregarBiblioteca();
   }
+  registarAtividade("activityOrderDeleted", {
+    book: encomenda.product_title,
+  });
   status.innerText = t.orderDeleted;
   status.className = "account-status success";
 }
 
 async function reverEncomenda(encomenda, estado) {
+  const t = traducoes[idiomaAtual];
   const status = document.getElementById("adminStatus");
   status.innerText = idiomaAtual === "pt" ? "A actualizar..." : "Updating...";
   const { data, error } = await supabaseClient
@@ -2590,6 +2888,15 @@ async function reverEncomenda(encomenda, estado) {
   }
 
   await carregarEncomendasAdmin();
+  registarAtividade("activityOrderReviewed", {
+    book: encomenda.product_title,
+    status:
+      estado === "approved"
+        ? t.statusAprovado
+        : estado === "rejected"
+          ? t.statusRejeitado
+          : t.statusPendente,
+  });
   status.innerText = traducoes[idiomaAtual].orderSaved;
   status.className = "account-status success";
 }
@@ -2804,6 +3111,9 @@ function renderizarQuiz() {
     botao.addEventListener("click", () => {
       quizEstado.respostas[quizEstado.index] = opcao.valor;
       quizEstado.concluido = false;
+      registarAtividade("activityQuizAnswer", {
+        question: quizEstado.index + 1,
+      });
       renderizarQuiz();
     });
 
@@ -2842,6 +3152,7 @@ function concluirQuiz() {
   const resultado = quizResultadoPorPerfil[perfil];
   const portugues = idiomaAtual === "pt";
   const resultadoEl = document.getElementById("quizResult");
+  const jaConcluido = quizEstado.concluido;
   resultadoEl.hidden = false;
   resultadoEl.innerHTML = `
     <strong>${portugues ? "Perfil:" : "Profile:"} ${resultado.titulo[portugues ? "pt" : "en"]}</strong><br>
@@ -2851,6 +3162,7 @@ function concluirQuiz() {
   quizEstado.concluido = true;
   document.getElementById("quizNext").textContent =
     traducoes[idiomaAtual].quizRestart;
+  if (!jaConcluido) registarAtividade("activityQuizCompleted");
 }
 
 function reiniciarQuiz() {
@@ -2873,6 +3185,7 @@ function inicializarQuiz() {
   quizTrigger?.addEventListener("click", () => {
     reiniciarQuiz();
     abrirQuizModal();
+    registarAtividade("activityQuizStarted");
   });
 
   proximaBtn.addEventListener("click", () => {
@@ -2890,6 +3203,7 @@ function inicializarQuiz() {
     }
 
     if (quizEstado.concluido) {
+      registarAtividade("activityQuizRestarted");
       reiniciarQuiz();
       return;
     }
@@ -2924,6 +3238,7 @@ if (document.readyState === "loading") {
 
 function voltarAoCatalogo() {
   alternarVistaConta(null);
+  registarAtividade("activityCatalogOpened");
 }
 
 function abrirModalLogin() {
@@ -2983,6 +3298,7 @@ window.onclick = function (event) {
 };
 
 window.onload = () => {
+  carregarHistoricoAtividades();
   inicializarSeletoresTelefone();
   aplicarIdioma();
   inicializarSupabase();

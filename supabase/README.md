@@ -66,6 +66,12 @@ estes passos:
   pedidos e feedback também abrem mensagens pré-preenchidas no WhatsApp. O site
   não utiliza EmailJS para notificar pedidos ou alterações de estado.
 - O catálogo segue a ordem numérica dos IDs (1–13), não a ordem alfabética.
+- O registo de atividade apresenta ações principais (carrinho, formulários,
+  autenticação, compras, navegação e quiz) com data e hora local até aos
+  segundos. Esse registo fica guardado apenas no navegador/dispositivo actual;
+  não inclui palavras-passe, referências de pagamento nem o conteúdo submetido
+  nos formulários. As compras apresentam também as datas de criação e revisão
+  guardadas no Supabase.
 - `mozbookstore@gmail.com` vê as encomendas no botão **Administração** e pode
   aprovar ou rejeitar. A aprovação concede acesso ao PDF privado.
 - **Minhas compras** mostra o histórico e só apresenta o botão de download para
