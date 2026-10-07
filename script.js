@@ -2872,6 +2872,7 @@ async function atualizarSessao(sessao) {
   document.getElementById("btnLixeira").hidden = !autenticado;
   document.getElementById("btnLogout").hidden = !autenticado;
   document.getElementById("btnAdmin").hidden = !autenticado || !administrador;
+  atualizarVisibilidadeFormulariosPublicos();
 
   if (autenticado) {
     document.getElementById("authStatus").innerText = "";
@@ -2889,6 +2890,20 @@ async function atualizarSessao(sessao) {
   } else {
     document.getElementById("authStatus").innerText = "";
   }
+}
+
+function atualizarVisibilidadeFormulariosPublicos() {
+  const administrador = perfilAtual?.role === "admin";
+  const multimediaAtiva = !document.getElementById("mediaSection").hidden;
+  const ocultar = administrador || multimediaAtiva;
+  [
+    "btnIrPedido",
+    "btnIrFeedback",
+    "requestBookSection",
+    "feedbackSection",
+  ].forEach((id) => {
+    document.getElementById(id).hidden = ocultar;
+  });
 }
 
 async function iniciarSessao(event) {
@@ -3123,6 +3138,7 @@ function alternarVistaConta(vista) {
     const elemento = document.querySelector(seletor);
     if (elemento) elemento.hidden = multimediaAtiva;
   });
+  atualizarVisibilidadeFormulariosPublicos();
 }
 
 async function mostrarBiblioteca() {
