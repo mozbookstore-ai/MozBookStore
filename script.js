@@ -3111,6 +3111,7 @@ async function terminarSessao() {
 function alternarVistaConta(vista) {
   const mostrarConta = Boolean(vista);
   const multimediaAtiva = vista === "multimedia";
+  const administracaoAtiva = ["admin", "vendas", "lixeira"].includes(vista);
   if (!multimediaAtiva) pararReproducaoMultimedia();
 
   document.getElementById("catalogMain").hidden = mostrarConta;
@@ -3129,9 +3130,11 @@ function alternarVistaConta(vista) {
     "#requestBookSection",
     "#feedbackSection",
     "#quizTrigger",
+    ".search-bar",
+    "#btnMedia",
   ].forEach((seletor) => {
     const elemento = document.querySelector(seletor);
-    if (elemento) elemento.hidden = multimediaAtiva;
+    if (elemento) elemento.hidden = multimediaAtiva || administracaoAtiva;
   });
   atualizarVisibilidadeFormulariosPublicos();
 }
