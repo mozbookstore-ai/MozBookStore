@@ -409,6 +409,8 @@ let historicoAtividades = [];
 let erroHistoricoAtividades = false;
 let avisoHistoricoAtividades = "";
 let resumoVendasAtual = null;
+let encomendasAdminAtual = [];
+let ultimaAtualizacaoAdmin = null;
 let categoriaMultimediaAtiva = "exams-classes";
 let videoMultimediaAtivo = null;
 
@@ -521,7 +523,36 @@ const traducoes = {
     mediaBackTitle: "Voltar ao catálogo de livros",
     btnLogout: "Sair",
     libraryTitle: "🛒 As Minhas compras",
-    adminTitle: "⚙️ Aprovar pagamentos",
+    adminTitle: "Painel de administração",
+    adminEyebrow: "CENTRO DE OPERAÇÕES",
+    adminWorkspaceLabel: "Navegação administrativa",
+    adminNavOrders: "Encomendas",
+    adminNavSales: "Vendas e receitas",
+    adminNavTrash: "Lixeira",
+    adminStatsLabel: "Resumo das encomendas",
+    adminRefreshButton: "Actualizar encomendas",
+    adminStoreButton: "Ver loja",
+    adminLastUpdated: "Actualizado",
+    adminTotalLabel: "Total de encomendas",
+    adminTotalHint: "Encomendas activas",
+    adminPendingLabel: "A aguardar revisão",
+    adminPendingHint: "Precisam da sua atenção",
+    adminApprovedLabel: "Aprovadas",
+    adminApprovedHint: "Acesso libertado",
+    adminRejectedLabel: "Rejeitadas",
+    adminRejectedHint: "Requerem acompanhamento",
+    adminSearchLabel: "Pesquisar encomendas",
+    adminSearchPlaceholder: "Cliente, livro, email ou referência",
+    adminFilterLabel: "Estado",
+    adminFilterAll: "Todos os estados",
+    adminFilterPending: "Pendentes",
+    adminFilterApproved: "Aprovadas",
+    adminFilterRejected: "Rejeitadas",
+    adminExportButton: "Exportar resultados",
+    adminNoFilteredOrders: "Nenhuma encomenda corresponde a estes filtros.",
+    adminExportEmpty: "Não há encomendas para exportar.",
+    adminExportError: "Não foi possível exportar as encomendas.",
+    adminExported: "Resultados exportados com sucesso.",
     backCatalog: "Voltar ao catálogo",
     backAdmin: "Voltar à administração",
     salesTitle: "📊 Vendas e receitas",
@@ -561,6 +592,11 @@ const traducoes = {
     statusPendente: "Pendente de aprovação",
     statusAprovado: "Aprovado",
     statusRejeitado: "Rejeitado",
+    customerNameUnavailable: "Nome não disponível",
+    orderSummary: "Detalhes",
+    orderEmail: "Email",
+    orderProduct: "Livro",
+    orderAmount: "Valor",
     btnDownload: "⬇️ Descarregar PDF",
     btnApprove: "Aprovar",
     btnReject: "Rejeitar / Revogar",
@@ -659,7 +695,7 @@ const traducoes = {
     libraryHelp:
       "Acompanhe as compras: os PDFs ficam disponíveis para descarregar depois da aprovação do pagamento.",
     adminHelp:
-      "Reveja as referências e valores pagos; aprove para libertar o acesso ou rejeite a encomenda.",
+      "Faça a gestão de pagamentos, encomendas e actividade da loja.",
     loginHelp:
       "Entre na sua conta ou crie uma para guardar compras e aceder aos PDFs aprovados.",
     checkoutHelp:
@@ -825,7 +861,36 @@ const traducoes = {
     mediaBackTitle: "Return to the book catalogue",
     btnLogout: "Log out",
     libraryTitle: "🛒 My purchases",
-    adminTitle: "⚙️ Approve payments",
+    adminTitle: "Administration dashboard",
+    adminEyebrow: "OPERATIONS CENTRE",
+    adminWorkspaceLabel: "Administration navigation",
+    adminNavOrders: "Orders",
+    adminNavSales: "Sales & revenue",
+    adminNavTrash: "Trash",
+    adminStatsLabel: "Orders overview",
+    adminRefreshButton: "Refresh orders",
+    adminStoreButton: "View shop",
+    adminLastUpdated: "Updated",
+    adminTotalLabel: "Total orders",
+    adminTotalHint: "Active orders",
+    adminPendingLabel: "Awaiting review",
+    adminPendingHint: "Need your attention",
+    adminApprovedLabel: "Approved",
+    adminApprovedHint: "Access granted",
+    adminRejectedLabel: "Rejected",
+    adminRejectedHint: "Need follow-up",
+    adminSearchLabel: "Search orders",
+    adminSearchPlaceholder: "Customer, book, email or reference",
+    adminFilterLabel: "Status",
+    adminFilterAll: "All statuses",
+    adminFilterPending: "Pending",
+    adminFilterApproved: "Approved",
+    adminFilterRejected: "Rejected",
+    adminExportButton: "Export results",
+    adminNoFilteredOrders: "No orders match these filters.",
+    adminExportEmpty: "There are no orders to export.",
+    adminExportError: "Could not export the orders.",
+    adminExported: "Results exported successfully.",
     backCatalog: "Back to catalogue",
     backAdmin: "Back to administration",
     salesTitle: "📊 Sales & revenue",
@@ -865,6 +930,11 @@ const traducoes = {
     statusPendente: "Awaiting approval",
     statusAprovado: "Approved",
     statusRejeitado: "Rejected",
+    customerNameUnavailable: "Name unavailable",
+    orderSummary: "Details",
+    orderEmail: "Email",
+    orderProduct: "Book",
+    orderAmount: "Amount",
     btnDownload: "⬇️ Download PDF",
     btnApprove: "Approve",
     btnReject: "Reject / Revoke",
@@ -962,7 +1032,7 @@ const traducoes = {
     libraryHelp:
       "Track your purchases: PDFs are available to download after payment approval.",
     adminHelp:
-      "Review payment references and amounts; approve to unlock access or reject the order.",
+      "Manage payments, orders, and store activity from one place.",
     loginHelp:
       "Sign in or create an account to keep track of purchases and access approved PDFs.",
     checkoutHelp:
@@ -1675,7 +1745,6 @@ function aplicarIdioma() {
   document.getElementById("cartCheckout").title = t.cartHelp;
   document.getElementById("quizTrigger").title = t.quizHelp;
   document.getElementById("libraryBackButton").title = t.catalogHelp;
-  document.getElementById("adminBackButton").title = t.catalogHelp;
   document.getElementById("btnEsqueceuPassword").title =
     idiomaAtual === "pt"
       ? "Receba por email uma ligação para criar uma nova palavra-passe."
@@ -1732,10 +1801,47 @@ function aplicarIdioma() {
   document.getElementById("topBarSocialTitle").innerText = t.topBarSocialTitle;
   document.getElementById("libraryTitle").innerText = t.libraryTitle;
   document.getElementById("adminTitle").innerText = t.adminTitle;
+  document.getElementById("adminEyebrow").innerText = t.adminEyebrow;
+  document.getElementById("adminWorkspaceNav").setAttribute(
+    "aria-label",
+    t.adminWorkspaceLabel,
+  );
+  document.getElementById("adminNavOrders").innerText = t.adminNavOrders;
+  document.getElementById("adminNavSales").innerText = t.adminNavSales;
+  document.getElementById("adminNavTrash").innerText = t.adminNavTrash;
+  document
+    .getElementById("adminStatsGrid")
+    .setAttribute("aria-label", t.adminStatsLabel);
+  document.getElementById("adminRefreshButton").innerText =
+    t.adminRefreshButton;
+  document.getElementById("adminStoreButton").innerText = t.adminStoreButton;
+  document.getElementById("adminTotalLabel").innerText = t.adminTotalLabel;
+  document.getElementById("adminTotalHint").innerText = t.adminTotalHint;
+  document.getElementById("adminPendingLabel").innerText =
+    t.adminPendingLabel;
+  document.getElementById("adminPendingHint").innerText = t.adminPendingHint;
+  document.getElementById("adminApprovedLabel").innerText =
+    t.adminApprovedLabel;
+  document.getElementById("adminApprovedHint").innerText = t.adminApprovedHint;
+  document.getElementById("adminRejectedLabel").innerText =
+    t.adminRejectedLabel;
+  document.getElementById("adminRejectedHint").innerText = t.adminRejectedHint;
+  document.getElementById("adminSearchLabel").innerText = t.adminSearchLabel;
+  document.getElementById("adminOrderSearch").placeholder =
+    t.adminSearchPlaceholder;
+  document.getElementById("adminFilterLabel").innerText = t.adminFilterLabel;
+  document.getElementById("adminFilterAll").innerText = t.adminFilterAll;
+  document.getElementById("adminFilterPending").innerText =
+    t.adminFilterPending;
+  document.getElementById("adminFilterApproved").innerText =
+    t.adminFilterApproved;
+  document.getElementById("adminFilterRejected").innerText =
+    t.adminFilterRejected;
+  document.getElementById("adminExportButton").innerText =
+    t.adminExportButton;
+  atualizarTextoUltimaAtualizacaoAdmin();
   document.getElementById("libraryBackButton").innerText = t.backCatalog;
-  document.getElementById("adminBackButton").innerText = t.backCatalog;
   document.getElementById("salesTitle").innerText = t.salesTitle;
-  document.getElementById("salesBackButton").innerText = t.backAdmin;
   document.getElementById("salesHelp").innerText = t.salesHelp;
   document.getElementById("salesOrdersLabel").innerText = t.salesOrdersLabel;
   document.getElementById("salesBooksLabel").innerText = t.salesBooksLabel;
@@ -1743,10 +1849,10 @@ function aplicarIdioma() {
   document.getElementById("salesZarLabel").innerText = t.salesZarLabel;
   document.getElementById("trashTitle").innerText = t.trashTitle;
   document.getElementById("trashHelp").innerText = t.trashHelp;
-  document.getElementById("trashBackButton").innerText = t.backCatalog;
+  document.getElementById("trashBackButton").innerText =
+    perfilAtual?.role === "admin" ? t.backAdmin : t.backCatalog;
   document.getElementById("btnVendas").title = t.salesHelp;
   document.getElementById("btnLixeira").title = t.trashHelp;
-  document.getElementById("salesBackButton").title = t.adminHelp;
   document.getElementById("mediaEyebrow").innerText = t.mediaEyebrow;
   document.getElementById("mediaTitle").innerText = t.mediaTitle;
   document.getElementById("mediaDescription").innerText = t.mediaDescription;
@@ -1788,6 +1894,9 @@ function aplicarIdioma() {
   }
   if (document.getElementById("checkoutModal").style.display === "flex") {
     atualizarOpcoesPagamento();
+  }
+  if (!document.getElementById("adminSection").hidden) {
+    renderizarEncomendasAdmin();
   }
   if (document.getElementById("quizModal").style.display === "flex") {
     renderizarQuiz();
@@ -3111,16 +3220,34 @@ async function terminarSessao() {
 function alternarVistaConta(vista) {
   const mostrarConta = Boolean(vista);
   const multimediaAtiva = vista === "multimedia";
-  const administracaoAtiva = ["admin", "vendas", "lixeira"].includes(vista);
+  const administracaoAtiva =
+    perfilAtual?.role === "admin" &&
+    ["admin", "vendas", "lixeira"].includes(vista);
   if (!multimediaAtiva) pararReproducaoMultimedia();
 
+  document.body.classList.toggle("admin-view-active", administracaoAtiva);
   document.getElementById("catalogMain").hidden = mostrarConta;
   document.getElementById("categoriesNav").hidden = mostrarConta;
   document.getElementById("librarySection").hidden = vista !== "biblioteca";
   document.getElementById("adminSection").hidden = vista !== "admin";
   document.getElementById("salesSection").hidden = vista !== "vendas";
   document.getElementById("trashSection").hidden = vista !== "lixeira";
+  document.getElementById("adminWorkspaceNav").hidden = !administracaoAtiva;
   document.getElementById("mediaSection").hidden = !multimediaAtiva;
+
+  const navegacaoAdmin = {
+    admin: "adminNavOrders",
+    vendas: "adminNavSales",
+    lixeira: "adminNavTrash",
+  };
+  Object.values(navegacaoAdmin).forEach((id) => {
+    document.getElementById(id).removeAttribute("aria-current");
+  });
+  if (administracaoAtiva && navegacaoAdmin[vista]) {
+    document
+      .getElementById(navegacaoAdmin[vista])
+      .setAttribute("aria-current", "page");
+  }
 
   [
     ".hero-banner",
@@ -3443,6 +3570,14 @@ async function mostrarPainelAdmin() {
   await carregarEncomendasAdmin();
 }
 
+async function actualizarEncomendasAdmin() {
+  if (perfilAtual?.role !== "admin") {
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].adminOnly, true);
+    return;
+  }
+  await carregarEncomendasAdmin();
+}
+
 async function mostrarResumoVendas() {
   if (perfilAtual?.role !== "admin") {
     mostrarEstadoAutenticacao(traducoes[idiomaAtual].adminOnly, true);
@@ -3549,51 +3684,180 @@ function renderizarResumoVendas(resumo) {
 }
 
 async function carregarEncomendasAdmin() {
-  const lista = document.getElementById("adminOrders");
   const status = document.getElementById("adminStatus");
-  lista.innerHTML = "";
   status.innerText = idiomaAtual === "pt" ? "A carregar..." : "Loading...";
+  status.className = "account-status";
 
-  const { data: encomendas, error } = await supabaseClient
-    .from("orders")
-    .select(
-      "id,product_title,quantity,amount,currency,region,payment_method,transaction_reference,status,created_at,reviewed_at,profile:profiles!orders_user_id_fkey(full_name,email)",
-    )
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false });
-  if (error) {
+  const encomendas = [];
+  const tamanhoPagina = 1000;
+  let deslocamento = 0;
+  try {
+    while (true) {
+      const { data, error } = await supabaseClient
+        .from("orders")
+        .select(
+          "id,product_title,quantity,amount,currency,region,payment_method,transaction_reference,status,created_at,reviewed_at,profile:profiles!orders_user_id_fkey(full_name,email)",
+        )
+        .is("deleted_at", null)
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: true })
+        .range(deslocamento, deslocamento + tamanhoPagina - 1);
+      if (error) throw error;
+
+      encomendas.push(...data);
+      deslocamento += data.length;
+      if (data.length < tamanhoPagina) break;
+    }
+  } catch (error) {
     console.error("Não foi possível carregar as encomendas:", error);
     status.innerText = traduzirErroSupabase(error);
     status.className = "account-status error";
     return;
   }
 
+  encomendasAdminAtual = encomendas;
+  ultimaAtualizacaoAdmin = new Date().toISOString();
+  atualizarTextoUltimaAtualizacaoAdmin();
+  renderizarEncomendasAdmin();
+}
+
+function atualizarTextoUltimaAtualizacaoAdmin() {
+  const elemento = document.getElementById("adminLastUpdated");
+  if (!elemento) return;
+  elemento.innerText = ultimaAtualizacaoAdmin
+    ? `${traducoes[idiomaAtual].adminLastUpdated}: ${formatarTimestamp(ultimaAtualizacaoAdmin)}`
+    : "";
+}
+
+function renderizarResumoEncomendasAdmin() {
+  const contagens = {
+    all: encomendasAdminAtual.length,
+    pending: encomendasAdminAtual.filter(
+      (encomenda) => encomenda.status === "pending",
+    ).length,
+    approved: encomendasAdminAtual.filter(
+      (encomenda) => encomenda.status === "approved",
+    ).length,
+    rejected: encomendasAdminAtual.filter(
+      (encomenda) => encomenda.status === "rejected",
+    ).length,
+  };
+  const formatador = new Intl.NumberFormat(
+    idiomaAtual === "pt" ? "pt-MZ" : "en-ZA",
+  );
+  document.getElementById("adminTotalCount").innerText = formatador.format(
+    contagens.all,
+  );
+  document.getElementById("adminPendingCount").innerText = formatador.format(
+    contagens.pending,
+  );
+  document.getElementById("adminApprovedCount").innerText = formatador.format(
+    contagens.approved,
+  );
+  document.getElementById("adminRejectedCount").innerText = formatador.format(
+    contagens.rejected,
+  );
+}
+
+function filtrarEncomendasAdmin(estado) {
+  if (estado) {
+    document.getElementById("adminOrderStatusFilter").value = estado;
+  }
+  renderizarEncomendasAdmin();
+}
+
+function obterEncomendasFiltradasAdmin() {
+  const termo = document
+    .getElementById("adminOrderSearch")
+    .value.trim()
+    .toLocaleLowerCase(idiomaAtual === "pt" ? "pt-MZ" : "en-ZA");
+  const filtroEstado = document.getElementById("adminOrderStatusFilter").value;
+  return encomendasAdminAtual.filter((encomenda) => {
+    const correspondeEstado =
+      filtroEstado === "all" || encomenda.status === filtroEstado;
+    if (!correspondeEstado) return false;
+    if (!termo) return true;
+
+    const camposPesquisa = [
+      encomenda.product_title,
+      encomenda.profile?.full_name,
+      encomenda.profile?.email,
+      encomenda.transaction_reference,
+      encomenda.payment_method,
+      encomenda.region,
+      encomenda.status,
+      encomenda.status === "pending"
+        ? traducoes[idiomaAtual].statusPendente
+        : encomenda.status === "approved"
+          ? traducoes[idiomaAtual].statusAprovado
+          : traducoes[idiomaAtual].statusRejeitado,
+      encomenda.amount,
+      encomenda.currency,
+      encomenda.id,
+    ];
+    return camposPesquisa
+      .filter(Boolean)
+      .join(" ")
+      .toLocaleLowerCase(idiomaAtual === "pt" ? "pt-MZ" : "en-ZA")
+      .includes(termo);
+  });
+}
+
+function renderizarEncomendasAdmin() {
+  const lista = document.getElementById("adminOrders");
+  const status = document.getElementById("adminStatus");
+  const t = traducoes[idiomaAtual];
+  const encomendasVisiveis = obterEncomendasFiltradasAdmin();
+  renderizarResumoEncomendasAdmin();
+  document.querySelectorAll(".admin-stat-card").forEach((cartao) => {
+    cartao.setAttribute(
+      "aria-pressed",
+      String(
+        cartao.dataset.statusFilter ===
+          document.getElementById("adminOrderStatusFilter").value,
+      ),
+    );
+  });
+  lista.innerHTML = "";
   status.innerText = "";
-  if (!encomendas.length) {
-    status.innerText = traducoes[idiomaAtual].noOrders;
+  status.className = "account-status";
+  if (!encomendasAdminAtual.length) {
+    status.innerText = t.noOrders;
+    return;
+  }
+  if (!encomendasVisiveis.length) {
+    status.innerText = t.adminNoFilteredOrders;
     return;
   }
 
-  const t = traducoes[idiomaAtual];
-  encomendas.forEach((encomenda) => {
+  encomendasVisiveis.forEach((encomenda) => {
     const cartao = document.createElement("article");
-    cartao.className = "account-card";
+    cartao.className = `account-card admin-order-card admin-order-card-${encomenda.status}`;
     const cliente =
-      encomenda.profile?.full_name || encomenda.profile?.email || "";
+      encomenda.profile?.full_name || t.customerNameUnavailable;
+    const email = encomenda.profile?.email || "";
     const statusEncomenda =
       encomenda.status === "pending"
         ? t.statusPendente
         : encomenda.status === "approved"
           ? t.statusAprovado
           : t.statusRejeitado;
+    const metodoPagamento = String(encomenda.payment_method || "—").toUpperCase();
     cartao.innerHTML = `
-      <h3>${escaparHTML(encomenda.product_title)}</h3>
-      <p><strong>${t.lblSolicitante}:</strong> ${escaparHTML(cliente)} (${escaparHTML(encomenda.profile?.email || "")})</p>
-      <p><strong>${t.lblReferenciaAdmin}:</strong> ${escaparHTML(encomenda.transaction_reference)}</p>
-      <p>${escaparHTML(encomenda.quantity)} ${t.quantidade} · ${escaparHTML(encomenda.payment_method.toUpperCase())} · ${escaparHTML(encomenda.region)} · ${escaparHTML(encomenda.amount)} ${escaparHTML(encomenda.currency)}</p>
-      <p><strong>${t.lblStatusPedido}:</strong> ${escaparHTML(statusEncomenda)}</p>
-      <p><strong>${t.activityTimestamp}:</strong> ${escaparHTML(formatarTimestamp(encomenda.created_at))}</p>
-      ${encomenda.reviewed_at ? `<p><strong>${t.activityReviewedAt}:</strong> ${escaparHTML(formatarTimestamp(encomenda.reviewed_at))}</p>` : ""}
+      <div class="admin-order-heading">
+        <div>
+          <p class="admin-order-reference">${escaparHTML(t.lblReferenciaAdmin)} · ${escaparHTML(encomenda.transaction_reference || "—")}</p>
+          <h3>${escaparHTML(encomenda.product_title || "—")}</h3>
+        </div>
+        <span class="admin-order-status admin-order-status-${escaparHTML(encomenda.status)}">${escaparHTML(statusEncomenda)}</span>
+      </div>
+      <div class="admin-order-details">
+        <p><strong>${escaparHTML(t.lblSolicitante)}:</strong> ${escaparHTML(cliente)}${email ? ` · ${escaparHTML(email)}` : ""}</p>
+        <p><strong>${escaparHTML(t.orderSummary)}:</strong> ${escaparHTML(encomenda.quantity)} ${escaparHTML(t.quantidade)} · ${escaparHTML(metodoPagamento)} · ${escaparHTML(encomenda.region || "—")}</p>
+        <p><strong>${escaparHTML(t.orderAmount)}:</strong> ${escaparHTML(encomenda.amount)} ${escaparHTML(encomenda.currency)}</p>
+        <p><strong>${escaparHTML(t.activityTimestamp)}:</strong> ${escaparHTML(formatarTimestamp(encomenda.created_at))}</p>
+        ${encomenda.reviewed_at ? `<p><strong>${escaparHTML(t.activityReviewedAt)}:</strong> ${escaparHTML(formatarTimestamp(encomenda.reviewed_at))}</p>` : ""}
+      </div>
     `;
     const accoes =
       encomenda.status === "pending"
@@ -3624,6 +3888,79 @@ async function carregarEncomendasAdmin() {
     }
     lista.appendChild(cartao);
   });
+}
+
+function exportarEncomendasAdmin() {
+  const status = document.getElementById("adminStatus");
+  if (perfilAtual?.role !== "admin") {
+    mostrarEstadoAutenticacao(traducoes[idiomaAtual].adminOnly, true);
+    return;
+  }
+
+  const encomendas = obterEncomendasFiltradasAdmin();
+  if (!encomendas.length) {
+    status.innerText = traducoes[idiomaAtual].adminExportEmpty;
+    status.className = "account-status";
+    return;
+  }
+
+  const t = traducoes[idiomaAtual];
+  const rotuloEstado = (estado) =>
+    estado === "pending"
+      ? t.statusPendente
+      : estado === "approved"
+        ? t.statusAprovado
+        : t.statusRejeitado;
+  const protegerCampoCSV = (valor) => {
+    let texto = String(valor ?? "");
+    if (/^[\t\r\n ]*[=+\-@]/.test(texto)) texto = `'${texto}`;
+    return `"${texto.replaceAll('"', '""')}"`;
+  };
+  const linhas = [
+    [
+      t.lblSolicitante,
+      t.orderEmail,
+      t.orderProduct,
+      t.lblReferenciaAdmin,
+      t.lblStatusPedido,
+      t.orderSummary,
+      t.orderAmount,
+      t.activityTimestamp,
+    ],
+    ...encomendas.map((encomenda) => [
+      encomenda.profile?.full_name || encomenda.profile?.email || "",
+      encomenda.profile?.email || "",
+      encomenda.product_title,
+      encomenda.transaction_reference,
+      rotuloEstado(encomenda.status),
+      `${encomenda.quantity ?? "—"} ${t.quantidade} · ${encomenda.payment_method || "—"} · ${encomenda.region || "—"}`,
+      `${encomenda.amount} ${encomenda.currency}`,
+      encomenda.created_at,
+    ]),
+  ];
+
+  try {
+    const conteudo = linhas
+      .map((linha) => linha.map(protegerCampoCSV).join(","))
+      .join("\r\n");
+    const ficheiro = new Blob(["\uFEFF", conteudo], {
+      type: "text/csv;charset=utf-8",
+    });
+    const url = URL.createObjectURL(ficheiro);
+    const ligacao = document.createElement("a");
+    ligacao.href = url;
+    ligacao.download = `mozbookstore-encomendas-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(ligacao);
+    ligacao.click();
+    ligacao.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    status.innerText = t.adminExported;
+    status.className = "account-status success";
+  } catch (error) {
+    console.error("Não foi possível exportar as encomendas:", error);
+    status.innerText = t.adminExportError;
+    status.className = "account-status error";
+  }
 }
 
 async function apagarEncomenda(encomenda, isAdmin = false) {

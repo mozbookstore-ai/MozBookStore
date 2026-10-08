@@ -485,35 +485,153 @@
       <div id="libraryBooks" class="account-list"></div>
     </section>
 
+    <nav
+      id="adminWorkspaceNav"
+      class="admin-workspace-nav container"
+      aria-label="Navegação administrativa"
+      hidden
+    >
+      <button
+        id="adminNavOrders"
+        type="button"
+        onclick="mostrarPainelAdmin()"
+        aria-current="page"
+      >
+        Encomendas
+      </button>
+      <button
+        id="adminNavSales"
+        type="button"
+        onclick="mostrarResumoVendas()"
+      >
+        Vendas e receitas
+      </button>
+      <button
+        id="adminNavTrash"
+        type="button"
+        onclick="mostrarLixeira()"
+      >
+        Lixeira
+      </button>
+    </nav>
+
     <section id="adminSection" class="account-section container" hidden>
-      <div class="account-heading">
-        <h2 id="adminTitle">⚙️ Aprovar pagamentos</h2>
+      <header class="admin-page-header">
+        <div>
+          <p id="adminEyebrow" class="admin-eyebrow">CENTRO DE OPERAÇÕES</p>
+          <h1 id="adminTitle">Painel de administração</h1>
+          <p id="adminHelp" class="section-help">
+            Faça a gestão de pagamentos, encomendas e actividade da loja.
+          </p>
+        </div>
+        <div class="admin-page-actions">
+          <p id="adminLastUpdated" class="admin-last-updated"></p>
+          <button
+            id="adminRefreshButton"
+            class="btn-secondary"
+            type="button"
+            onclick="actualizarEncomendasAdmin()"
+          >
+            Actualizar encomendas
+          </button>
+          <button
+            id="adminStoreButton"
+            class="btn-secondary"
+            type="button"
+            onclick="voltarAoCatalogo()"
+          >
+            Ver loja
+          </button>
+        </div>
+      </header>
+      <div
+        id="adminStatsGrid"
+        class="admin-stats-grid"
+        aria-label="Resumo das encomendas"
+      >
         <button
-          class="btn-secondary"
-          onclick="voltarAoCatalogo()"
-          id="adminBackButton"
+          class="admin-stat-card"
+          type="button"
+          data-status-filter="all"
+          onclick="filtrarEncomendasAdmin('all')"
         >
-          Voltar ao catálogo
+          <span id="adminTotalLabel">Total de encomendas</span>
+          <strong id="adminTotalCount">—</strong>
+          <small id="adminTotalHint">Encomendas activas</small>
+        </button>
+        <button
+          class="admin-stat-card admin-stat-pending"
+          type="button"
+          data-status-filter="pending"
+          onclick="filtrarEncomendasAdmin('pending')"
+        >
+          <span id="adminPendingLabel">A aguardar revisão</span>
+          <strong id="adminPendingCount">—</strong>
+          <small id="adminPendingHint">Precisam da sua atenção</small>
+        </button>
+        <button
+          class="admin-stat-card admin-stat-approved"
+          type="button"
+          data-status-filter="approved"
+          onclick="filtrarEncomendasAdmin('approved')"
+        >
+          <span id="adminApprovedLabel">Aprovadas</span>
+          <strong id="adminApprovedCount">—</strong>
+          <small id="adminApprovedHint">Acesso libertado</small>
+        </button>
+        <button
+          class="admin-stat-card admin-stat-rejected"
+          type="button"
+          data-status-filter="rejected"
+          onclick="filtrarEncomendasAdmin('rejected')"
+        >
+          <span id="adminRejectedLabel">Rejeitadas</span>
+          <strong id="adminRejectedCount">—</strong>
+          <small id="adminRejectedHint">Requerem acompanhamento</small>
         </button>
       </div>
-      <p id="adminHelp" class="section-help">
-        Reveja as referências e valores pagos; aprove para libertar o acesso ou
-        rejeite a encomenda.
-      </p>
+      <div class="admin-orders-toolbar">
+        <div class="admin-order-search">
+          <label id="adminSearchLabel" for="adminOrderSearch"
+            >Pesquisar encomendas</label
+          >
+          <input
+            id="adminOrderSearch"
+            type="search"
+            placeholder="Cliente, livro, email ou referência"
+            oninput="filtrarEncomendasAdmin()"
+          />
+        </div>
+        <div class="admin-order-filter">
+          <label id="adminFilterLabel" for="adminOrderStatusFilter"
+            >Estado</label
+          >
+          <select
+            id="adminOrderStatusFilter"
+            onchange="filtrarEncomendasAdmin()"
+          >
+            <option id="adminFilterAll" value="all">Todos os estados</option>
+            <option id="adminFilterPending" value="pending">Pendentes</option>
+            <option id="adminFilterApproved" value="approved">Aprovadas</option>
+            <option id="adminFilterRejected" value="rejected">Rejeitadas</option>
+          </select>
+        </div>
+        <button
+          id="adminExportButton"
+          class="btn-secondary admin-export-button"
+          type="button"
+          onclick="exportarEncomendasAdmin()"
+        >
+          Exportar resultados
+        </button>
+      </div>
       <div id="adminStatus" class="account-status" role="status"></div>
-      <div id="adminOrders" class="account-list"></div>
+      <div id="adminOrders" class="account-list" aria-live="polite"></div>
     </section>
 
     <section id="salesSection" class="account-section container" hidden>
       <div class="account-heading">
         <h2 id="salesTitle">📊 Vendas e receitas</h2>
-        <button
-          class="btn-secondary"
-          onclick="mostrarPainelAdmin()"
-          id="salesBackButton"
-        >
-          Voltar à administração
-        </button>
       </div>
       <p id="salesHelp" class="section-help">
         Resumo apenas de encomendas aprovadas. Os totais são apresentados
@@ -545,9 +663,9 @@
       <div class="account-heading">
         <h2 id="trashTitle">🗑️ Lixeira</h2>
         <button
+          id="trashBackButton"
           class="btn-secondary"
           onclick="voltarDaLixeira()"
-          id="trashBackButton"
         >
           Voltar
         </button>
