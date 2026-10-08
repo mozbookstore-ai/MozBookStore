@@ -2099,14 +2099,6 @@ function obterProdutoCarrinho(id) {
   return produtos.find((produto) => produto.id === id);
 }
 
-function obterTotalCarrinhoMZN() {
-  return carrinho.reduce(
-    (total, item) =>
-      total + parseFloat(item.product.preco.replace(" MT", "")) * item.quantity,
-    0,
-  );
-}
-
 function obterTotalCarrinho(regiao = "mozambique") {
   return carrinho.reduce((total, item) => {
     const precoUnitario = parseFloat(item.product.preco.replace(" MT", ""));
@@ -2198,6 +2190,7 @@ function renderizarCarrinho() {
   const lista = document.getElementById("cartItems");
   if (!lista) return;
   const t = traducoes[idiomaAtual];
+  const regiao = idiomaAtual === "en-ZA" ? "other" : "mozambique";
   lista.innerHTML = "";
   document.getElementById("cartEmpty").hidden = carrinho.length > 0;
   document.getElementById("cartCheckout").disabled = carrinho.length === 0;
@@ -2208,10 +2201,12 @@ function renderizarCarrinho() {
     const titulo = document.createElement("strong");
     titulo.innerText =
       idiomaAtual === "en-ZA" ? product.tituloEn : product.titulo;
-    const precoUnitario = parseFloat(product.preco.replace(" MT", ""));
+    const precoBase = parseFloat(product.preco.replace(" MT", ""));
+    const precoUnitario =
+      regiao === "other" ? precoBase / TAXA_CAMBIO_ZAR : precoBase;
     const preco = document.createElement("span");
     preco.className = "cart-item-price";
-    preco.innerText = `${formatarTotal(precoUnitario * quantity)} (${quantity} × ${formatarTotal(precoUnitario)})`;
+    preco.innerText = `${formatarTotal(precoUnitario * quantity, regiao)} (${quantity} × ${formatarTotal(precoUnitario, regiao)})`;
 
     const quantidadeLabel = document.createElement("label");
     quantidadeLabel.innerText = t.quantidade;
@@ -2239,7 +2234,7 @@ function renderizarCarrinho() {
   });
 
   document.getElementById("cartTotal").innerText =
-    `${t.carrinhoTotal}: ${formatarTotal(obterTotalCarrinhoMZN())}`;
+    `${t.carrinhoTotal}: ${formatarTotal(obterTotalCarrinho(regiao), regiao)}`;
   atualizarResumoCheckout();
 }
 
