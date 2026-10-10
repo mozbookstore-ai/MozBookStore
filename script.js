@@ -34,8 +34,6 @@ const CAMINHOS_PDF = {
   11: "guias/patinagem-no-gelo.pdf",
   12: "guias/queda-de-braco.pdf",
   13: "guias/skate-para-iniciantes.pdf",
-  14: "O-Mundo-da-matematica-2-classe.pdf",
-  15:"Exercicios-de-Matematica-1a-classe-Apostila-de-500-Actividades-de-Matematica-Educacao-InfantilMozestuda.com.pdf",
 };
 
 const TAXA_CAMBIO_ZAR = 3.5;
@@ -1379,40 +1377,6 @@ const produtos = [
       "Learn how to choose the right skateboard, master balance, take your first safe rides, and learn how to brake and fall correctly.",
   },
 
-  {
-    id: 14,
-    titulo: "O mundo da matemática - 2a classe",
-    tituloEn: "The World of Mathematics - 2nd Grade",
-    autor: "Ministerio da Educação de Moçambique",
-    tituloEn: "The World of Mathematics - 2nd Grade",
-    autor: "Ministerio da Educação de Moçambique",
-    categoria: "educacao",
-    preco: "200 MT",
-    imagem:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1g6k5r7J8x3X2j4Z1Fq5z6y5z7y8x9y0z1A&usqp=CAU",
-    tipo: "PDF / Educação",
-    tipoEn: "PDF / Education",
-    introducao:
-      "Livro didático de matemática para a 2ª classe, cobrindo conceitos fundamentais e exercícios práticos.",
-    introducaoEn:
-      "Mathematics textbook for 2nd grade, covering fundamental concepts and practical exercises.",
-  },
-  {
-    id: 15,
-    titulo: "Exercicios de matemática - 2a classe",
-    tituloEn: "Math Exercises - 2nd Grade",
-    autor: "Ministerio da Educação de Moçambique",
-    categoria: "educacao",
-    preco: "250 MT",
-    imagem:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1g6k5r7J8x3X2j4Z1Fq5z6y5z7y8x9y0z1A&usqp=CAU",
-    tipo: "PDF / Educação",
-    tipoEn: "PDF / Education",
-    introducao:
-      "Livro didático de matemática para a 2ª classe, cobrindo conceitos fundamentais e exercícios práticos.",
-    introducaoEn:
-      "Mathematics textbook for 2nd grade, covering fundamental concepts and practical exercises.",
-  } 
 ];
 
 function renderizarCategoriasMultimedia() {
