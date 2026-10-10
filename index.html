@@ -55,11 +55,17 @@
       <div class="top-bar-container">
         <span class="top-bar-contact">
           <span class="wa-pill">💬 WhatsApp</span>
-          <a class="wa-link" href="https://wa.me/258867568918" target="_blank">+258 86 756 8918</a>
+          <a class="wa-link" href="https://wa.me/258867568918" target="_blank"
+            >+258 86 756 8918</a
+          >
           /
-          <a class="wa-link" href="https://wa.me/258820109316" target="_blank">+258 82 010 9316</a>
+          <a class="wa-link" href="https://wa.me/258820109316" target="_blank"
+            >+258 82 010 9316</a
+          >
           /
-          <a class="wa-link" href="https://wa.me/27636437259" target="_blank">+27 63 643 7259</a>
+          <a class="wa-link" href="https://wa.me/27636437259" target="_blank"
+            >+27 63 643 7259</a
+          >
         </span>
         <nav class="top-bar-socials" aria-label="Redes sociais da MozBookStore">
           <span id="topBarSocialTitle">Siga-nos para atualizações:</span>
@@ -69,9 +75,30 @@
             rel="noopener noreferrer"
             aria-label="Instagram MozBookStore"
           >
-            <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2" />
-              <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2" />
+            <svg
+              class="social-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <rect
+                x="3"
+                y="3"
+                width="18"
+                height="18"
+                rx="5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <circle
+                cx="12"
+                cy="12"
+                r="4"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              />
               <circle cx="17.5" cy="6.5" r="1.25" fill="currentColor" />
             </svg>
           </a>
@@ -81,41 +108,90 @@
             rel="noopener noreferrer"
             aria-label="Facebook MozBookStore"
           >
-            <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path fill="currentColor" d="M13.5 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.1H7.3V13h2.8v8h3.4Z" />
+            <svg
+              class="social-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                fill="currentColor"
+                d="M13.5 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.1H7.3V13h2.8v8h3.4Z"
+              />
             </svg>
           </a>
         </nav>
-        
-        <!-- Grupo de botões e ações -->
+        <!-- Grupo de botões com a dica de idioma -->
         <div class="top-bar-actions">
-          <span id="txtIdiomaLabel" class="language-label">🌐 Mudar idioma:</span>
-          <button id="btnTraduzir" class="btn-login-trigger btn-language" onclick="alternarIdioma()">
+          <span id="txtIdiomaLabel" class="language-label">
+            🌐 Mudar idioma:
+          </span>
+          <button
+            id="btnTraduzir"
+            class="btn-login-trigger btn-language"
+            onclick="alternarIdioma()"
+          >
             🇿🇦 English (SA)
           </button>
-          <button id="btnMedia" class="btn-login-trigger btn-media" type="button" onclick="mostrarMultimedia()">
+          <button
+            id="btnMedia"
+            class="btn-login-trigger btn-media"
+            type="button"
+            onclick="mostrarMultimedia()"
+          >
             <span class="btn-media-icon" aria-hidden="true">🎬</span>
             <span class="btn-media-copy">
               <span id="btnMediaTitle">Multimédia</span>
-              <span id="btnMediaSubtitle" class="btn-media-subtitle">GRÁTIS · AULAS · COMICS · PODCASTS · INFANTIL</span>
+              <span id="btnMediaSubtitle" class="btn-media-subtitle">
+                GRÁTIS · AULAS · COMICS · PODCASTS · INFANTIL
+              </span>
             </span>
           </button>
-          <button id="txtBtnLogin" class="btn-login-trigger" onclick="abrirModalLogin()">
+          <button
+            id="txtBtnLogin"
+            class="btn-login-trigger"
+            onclick="abrirModalLogin()"
+          >
             🔑 Entrar / Cadastrar
           </button>
-          <button id="btnBiblioteca" class="btn-login-trigger" onclick="mostrarBiblioteca()" hidden>
+          <button
+            id="btnBiblioteca"
+            class="btn-login-trigger"
+            onclick="mostrarBiblioteca()"
+            hidden
+          >
             🛒 Minhas compras
           </button>
-          <button id="btnVendas" class="btn-login-trigger" onclick="mostrarResumoVendas()" hidden>
+          <button
+            id="btnVendas"
+            class="btn-login-trigger"
+            onclick="mostrarResumoVendas()"
+            hidden
+          >
             📊 Vendas
           </button>
-          <button id="btnLixeira" class="btn-login-trigger" onclick="mostrarLixeira()" hidden>
+          <button
+            id="btnLixeira"
+            class="btn-login-trigger"
+            onclick="mostrarLixeira()"
+            hidden
+          >
             🗑️ Lixeira
           </button>
-          <button id="btnAdmin" class="btn-login-trigger" onclick="mostrarPainelAdmin()" hidden>
+          <button
+            id="btnAdmin"
+            class="btn-login-trigger"
+            onclick="mostrarPainelAdmin()"
+            hidden
+          >
             ⚙️ Administração
           </button>
-          <button id="btnLogout" class="btn-login-trigger" onclick="terminarSessao()" hidden>
+          <button
+            id="btnLogout"
+            class="btn-login-trigger"
+            onclick="terminarSessao()"
+            hidden
+          >
             Sair
           </button>
         </div>
@@ -134,9 +210,13 @@
             id="searchInput"
             placeholder="Pesquisar livros, exames, desporto, tecnologia..."
             aria-label="Pesquisar livros"
-            oninput="buscarLivro(); atualizarSugestoes();"
+            oninput="
+              buscarLivro();
+              atualizarSugestoes();
+            "
             autocomplete="off"
           />
+          <!-- Caixa de Sugestões / Hints -->
           <div id="searchSuggestions" class="suggestions-box"></div>
         </div>
       </div>
@@ -147,12 +227,25 @@
       <div class="hero-content">
         <h1 id="txtHeroTitulo">A sua central académica e literária digital</h1>
         <p id="txtHeroSub">
-          Não encontra o livro que procura? Peça-o no formulário abaixo e nós adicionamo-lo! 
-          Pagamento via M-Pesa, e-Mola ou banco/cartão sul-africano.
+          Não encontra o livro que procura? Peça-o no formulário abaixo e nós
+          adicionamo-lo! Pagamento via M-Pesa, e-Mola ou banco/cartão
+          sul-africano.
         </p>
         <div class="hero-actions">
-          <a class="hero-action-primary" href="#requestBookSection" id="btnIrPedido">📚 Pedir um livro</a>
-          <a class="hero-action-secondary" href="#feedbackSection" id="btnIrFeedback">💡 Enviar feedback</a>
+          <a
+            class="hero-action-primary"
+            href="#requestBookSection"
+            id="btnIrPedido"
+          >
+            📚 Pedir um livro
+          </a>
+          <a
+            class="hero-action-secondary"
+            href="#feedbackSection"
+            id="btnIrFeedback"
+          >
+            💡 Enviar feedback
+          </a>
         </div>
       </div>
     </section>
@@ -160,10 +253,14 @@
     <!-- Prova Social / Pedidos Recentes Atendidos -->
     <section class="recent-requests-banner">
       <div class="recent-container">
-        <span id="txtUltimosLivros">🔥 <b>Últimos livros adicionados a pedido:</b></span>
+        <span id="txtUltimosLivros"
+          >🔥 <b>Últimos livros adicionados a pedido:</b></span
+        >
         <div class="ticker-items">
           <span class="badge" id="badge1">✅ Natação para Iniciantes</span>
-          <span class="badge" id="badge2">✅ Treinamento de Força para Iniciantes</span>
+          <span class="badge" id="badge2"
+            >✅ Treinamento de Força para Iniciantes</span
+          >
           <span class="badge" id="badge3">✅ Futebol para Iniciantes</span>
         </div>
       </div>
@@ -175,59 +272,86 @@
         <div class="step-card">
           <span class="step-num">1</span>
           <h3 id="txtPasso1Tit">Peça ou escolha</h3>
-          <p id="txtPasso1Desc">Peça um livro no formulário ou escolha um do catálogo.</p>
+          <p id="txtPasso1Desc">
+            Peça um livro no formulário ou escolha um do catálogo.
+          </p>
         </div>
         <div class="step-card">
           <span class="step-num">2</span>
           <h3 id="txtPasso2Tit">Pague e anexe o comprovativo</h3>
-          <p id="txtPasso2Desc">Transfira via M-Pesa, e-Mola ou banco/cartão sul-africano e indique a referência.</p>
+          <p id="txtPasso2Desc">
+            Transfira via M-Pesa, e-Mola ou banco/cartão sul-africano e indique
+            a referência.
+          </p>
         </div>
         <div class="step-card">
           <span class="step-num">3</span>
           <h3 id="txtPasso3Tit">Descarregue o PDF</h3>
-          <p id="txtPasso3Desc">Após uma verificação rápida, poderá descarregar o seu documento.</p>
+          <p id="txtPasso3Desc">
+            Após uma verificação rápida, poderá descarregar o seu documento.
+          </p>
         </div>
       </div>
     </section>
 
     <!-- Menu de Categorias Dinâmico -->
     <nav class="categories-nav" id="categoriesNav">
-      <div class="categories-container" id="categoriesContainer"></div>
+      <div class="categories-container" id="categoriesContainer">
+        <!-- Carregado via JS -->
+      </div>
     </nav>
 
-    <!-- Vitrine de Produtos (Catálogo ligado ao Supabase via JS) -->
+    <!-- Vitrine de Produtos -->
     <main class="container" id="catalogMain">
-      <h2 id="txtCatalogoTit" class="section-title">Catálogo de livros disponíveis</h2>
+      <h2 id="txtCatalogoTit" class="section-title">
+        Catálogo de livros disponíveis
+      </h2>
       <p id="catalogHelp" class="section-help">
-        Pesquise ou escolha uma categoria; veja a sinopse, adicione ao carrinho e ajuste as quantidades antes de finalizar.
+        Pesquise ou escolha uma categoria; veja a sinopse, adicione ao carrinho
+        e ajuste as quantidades antes de finalizar.
       </p>
-
-      <section id="cartSection" class="cart-section" aria-labelledby="cartTitle">
+      <section
+        id="cartSection"
+        class="cart-section"
+        aria-labelledby="cartTitle"
+      >
         <h3 id="cartTitle">🛒 O seu carrinho</h3>
-        <p id="cartHelp" class="section-help">Confira os títulos, quantidades e total; pode alterar ou remover itens antes do checkout.</p>
+        <p id="cartHelp" class="section-help">
+          Confira os títulos, quantidades e total; pode alterar ou remover itens
+          antes do checkout.
+        </p>
         <p id="cartEmpty">Ainda não adicionou livros ao carrinho.</p>
         <div id="cartItems" class="cart-items"></div>
         <p id="cartTotal" class="cart-total">Total: 0 MT</p>
-        <button id="cartCheckout" type="button" class="btn-primary" onclick="iniciarCheckoutCarrinho()" disabled>
+        <button
+          id="cartCheckout"
+          type="button"
+          class="btn-primary"
+          onclick="iniciarCheckoutCarrinho()"
+          disabled
+        >
           Finalizar pedido
         </button>
         <div id="cartStatus" class="account-status" role="status"></div>
       </section>
-
-      <!-- É aqui que o carregarCatalogo() insere os produtos do Supabase -->
-      <section id="catalog" class="catalog-grid" id="catalogo-container">
-        <!-- Carregado via JS do Supabase -->
+      <section id="catalog" class="catalog-grid">
+        <!-- Carregado via JS -->
       </section>
       <div id="catalogStatus" class="account-status" role="status"></div>
     </main>
 
-    <!-- Secção de Multimédia -->
-    <section id="mediaSection" class="media-section container" aria-labelledby="mediaTitle" hidden>
+    <section
+      id="mediaSection"
+      class="media-section container"
+      aria-labelledby="mediaTitle"
+      hidden
+    >
       <header class="media-heading">
         <span class="media-eyebrow" id="mediaEyebrow">GRATUITO · APRENDER AO SEU RITMO</span>
         <h1 id="mediaTitle">Aprender também se ouve e se vê.</h1>
         <p id="mediaDescription" class="section-help">
-          Aulas, comics, podcasts e conteúdos para crianças, gratuitos.
+          Aulas, comics, podcasts e conteúdos para crianças, gratuitos. Algumas
+          secções estão ainda a ser preparadas.
         </p>
       </header>
 
@@ -239,23 +363,100 @@
           </div>
           <span class="media-count" id="mediaVideoCount"></span>
         </div>
-        <div id="mediaCategories" class="media-categories" role="tablist" aria-label="Categorias de vídeo"></div>
-        <div id="mediaVideoGrid" class="media-video-grid" role="tabpanel" tabindex="0" aria-live="polite"></div>
+        <div
+          id="mediaCategories"
+          class="media-categories"
+          role="tablist"
+          aria-label="Categorias de vídeo"
+        ></div>
+        <div
+          id="mediaVideoGrid"
+          class="media-video-grid"
+          role="tabpanel"
+          tabindex="0"
+          aria-live="polite"
+        ></div>
       </section>
 
-      <button id="mediaBackButton" class="btn-secondary media-back-button" type="button" onclick="voltarAoCatalogo()">
+      <section
+        id="mediaAudioSection"
+        class="media-audio-section"
+        aria-labelledby="mediaAudioTitle"
+        role="tabpanel"
+        tabindex="0"
+        hidden
+      >
+        <div class="media-audio-art" aria-hidden="true">
+          <span>♫</span>
+        </div>
+        <div class="media-audio-content">
+          <span class="media-eyebrow" id="mediaAudioEyebrow">OUVIR AGORA</span>
+          <h2 id="mediaAudioTitle">Podcasts e áudio</h2>
+          <p id="mediaAudioDescription" class="section-help">
+            Pratica inglês com este podcast enquanto preparamos histórias
+            assustadoras e vídeos educativos.
+          </p>
+          <div class="media-audio-meta">
+            <strong id="mediaAudioEpisode">How to be Indirect in Conversations</strong>
+            <span id="mediaAudioSource">Easy English · 17 min</span>
+          </div>
+          <audio
+            id="mediaAudioPlayer"
+            class="media-audio-player"
+            controls
+            preload="none"
+            aria-label="Leitor de podcast"
+          >
+            <source
+              src="https://aphid.fireside.fm/d/1437767933/19bb132e-6c09-446f-9d3b-0d2272d2779c/69bfb6f1-57bd-4905-b995-236e081d62ee.mp3"
+              type="audio/mpeg"
+            />
+          </audio>
+          <a
+            class="media-source-link"
+            href="https://www.easyenglish.fm/102"
+            target="_blank"
+            rel="noopener noreferrer"
+            id="mediaAudioLink"
+          >
+            Ver episódio e transcrição <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </section>
+      <p id="mediaCredits" class="media-credits">
+        Os vídeos e podcasts são incorporados a partir das plataformas e dos
+        criadores originais.
+      </p>
+      <button
+        id="mediaBackButton"
+        class="btn-secondary media-back-button"
+        type="button"
+        onclick="voltarAoCatalogo()"
+      >
         Voltar à loja
       </button>
     </section>
 
-    <!-- Secção de Atividade -->
-    <section id="activitySection" class="activity-section container" aria-labelledby="activityTitle">
+    <section
+      id="activitySection"
+      class="activity-section container"
+      aria-labelledby="activityTitle"
+    >
       <details class="activity-disclosure">
         <summary id="activityTitle">Registo de atividade</summary>
         <div class="activity-content">
           <div class="activity-toolbar">
-            <p id="activityDescription" class="section-help">As ações ficam guardadas apenas neste dispositivo.</p>
-            <button id="activityClearButton" class="btn-secondary activity-clear-button" type="button" onclick="limparHistoricoAtividades()" hidden>
+            <p id="activityDescription" class="section-help">
+              As ações ficam guardadas apenas neste dispositivo. Cada entrada
+              mostra a data e hora local, incluindo os segundos.
+            </p>
+            <button
+              id="activityClearButton"
+              class="btn-secondary activity-clear-button"
+              type="button"
+              onclick="limparHistoricoAtividades()"
+              hidden
+            >
               Apagar todas
             </button>
           </div>
@@ -265,166 +466,985 @@
       </details>
     </section>
 
-    <!-- Secção de Biblioteca (Minhas Compras) -->
     <section id="librarySection" class="account-section container" hidden>
       <div class="account-heading">
         <h2 id="libraryTitle">🛒 As Minhas compras</h2>
-        <button class="btn-secondary" onclick="voltarAoCatalogo()" id="libraryBackButton">Voltar ao catálogo</button>
+        <button
+          class="btn-secondary"
+          onclick="voltarAoCatalogo()"
+          id="libraryBackButton"
+        >
+          Voltar ao catálogo
+        </button>
       </div>
-      <p id="libraryHelp" class="section-help">Acompanhe as compras; os PDFs ficam disponíveis após a aprovação do pagamento.</p>
+      <p id="libraryHelp" class="section-help">
+        Acompanhe as compras; os PDFs ficam disponíveis após a aprovação do
+        pagamento.
+      </p>
       <div id="libraryStatus" class="account-status" role="status"></div>
       <div id="libraryBooks" class="account-list"></div>
     </section>
 
-    <!-- Navegação Administrativa -->
-    <nav id="adminWorkspaceNav" class="admin-workspace-nav container" aria-label="Navegação administrativa" hidden>
-      <button id="adminNavOrders" type="button" onclick="mostrarPainelAdmin()" aria-current="page">Encomendas</button>
-      <button id="adminNavSales" type="button" onclick="mostrarResumoVendas()">Vendas e receitas</button>
-      <button id="adminNavTrash" type="button" onclick="mostrarLixeira()">Lixeira</button>
+    <nav
+      id="adminWorkspaceNav"
+      class="admin-workspace-nav container"
+      aria-label="Navegação administrativa"
+      hidden
+    >
+      <button
+        id="adminNavOrders"
+        type="button"
+        onclick="mostrarPainelAdmin()"
+        aria-current="page"
+      >
+        Encomendas
+      </button>
+      <button
+        id="adminNavSales"
+        type="button"
+        onclick="mostrarResumoVendas()"
+      >
+        Vendas e receitas
+      </button>
+      <button
+        id="adminNavTrash"
+        type="button"
+        onclick="mostrarLixeira()"
+      >
+        Lixeira
+      </button>
     </nav>
 
-    <!-- Secção de Administração -->
     <section id="adminSection" class="account-section container" hidden>
       <header class="admin-page-header">
         <div>
           <p id="adminEyebrow" class="admin-eyebrow">CENTRO DE OPERAÇÕES</p>
           <h1 id="adminTitle">Painel de administração</h1>
-          <p id="adminHelp" class="section-help">Faça a gestão de pagamentos, encomendas e actividade da loja.</p>
+          <p id="adminHelp" class="section-help">
+            Faça a gestão de pagamentos, encomendas e actividade da loja.
+          </p>
         </div>
         <div class="admin-page-actions">
           <p id="adminLastUpdated" class="admin-last-updated"></p>
-          <button id="adminRefreshButton" class="btn-secondary" type="button" onclick="actualizarEncomendasAdmin()">Actualizar</button>
-          <button id="adminStoreButton" class="btn-secondary" type="button" onclick="voltarAoCatalogo()">Ver loja</button>
+          <button
+            id="adminRefreshButton"
+            class="btn-secondary"
+            type="button"
+            onclick="actualizarEncomendasAdmin()"
+          >
+            Actualizar encomendas
+          </button>
+          <button
+            id="adminStoreButton"
+            class="btn-secondary"
+            type="button"
+            onclick="voltarAoCatalogo()"
+          >
+            Ver loja
+          </button>
         </div>
       </header>
+      <div
+        id="adminStatsGrid"
+        class="admin-stats-grid"
+        aria-label="Resumo das encomendas"
+      >
+        <button
+          class="admin-stat-card"
+          type="button"
+          data-status-filter="all"
+          onclick="filtrarEncomendasAdmin('all')"
+        >
+          <span id="adminTotalLabel">Total de encomendas</span>
+          <strong id="adminTotalCount">—</strong>
+          <small id="adminTotalHint">Encomendas activas</small>
+        </button>
+        <button
+          class="admin-stat-card admin-stat-pending"
+          type="button"
+          data-status-filter="pending"
+          onclick="filtrarEncomendasAdmin('pending')"
+        >
+          <span id="adminPendingLabel">A aguardar revisão</span>
+          <strong id="adminPendingCount">—</strong>
+          <small id="adminPendingHint">Precisam da sua atenção</small>
+        </button>
+        <button
+          class="admin-stat-card admin-stat-approved"
+          type="button"
+          data-status-filter="approved"
+          onclick="filtrarEncomendasAdmin('approved')"
+        >
+          <span id="adminApprovedLabel">Aprovadas</span>
+          <strong id="adminApprovedCount">—</strong>
+          <small id="adminApprovedHint">Acesso libertado</small>
+        </button>
+        <button
+          class="admin-stat-card admin-stat-rejected"
+          type="button"
+          data-status-filter="rejected"
+          onclick="filtrarEncomendasAdmin('rejected')"
+        >
+          <span id="adminRejectedLabel">Rejeitadas</span>
+          <strong id="adminRejectedCount">—</strong>
+          <small id="adminRejectedHint">Requerem acompanhamento</small>
+        </button>
+      </div>
+      <div class="admin-orders-toolbar">
+        <div class="admin-order-search">
+          <label id="adminSearchLabel" for="adminOrderSearch"
+            >Pesquisar encomendas</label
+          >
+          <input
+            id="adminOrderSearch"
+            type="search"
+            placeholder="Cliente, livro, email ou referência"
+            oninput="filtrarEncomendasAdmin()"
+          />
+        </div>
+        <div class="admin-order-filter">
+          <label id="adminFilterLabel" for="adminOrderStatusFilter"
+            >Estado</label
+          >
+          <select
+            id="adminOrderStatusFilter"
+            onchange="filtrarEncomendasAdmin()"
+          >
+            <option id="adminFilterAll" value="all">Todos os estados</option>
+            <option id="adminFilterPending" value="pending">Pendentes</option>
+            <option id="adminFilterApproved" value="approved">Aprovadas</option>
+            <option id="adminFilterRejected" value="rejected">Rejeitadas</option>
+          </select>
+        </div>
+        <button
+          id="adminExportButton"
+          class="btn-secondary admin-export-button"
+          type="button"
+          onclick="exportarEncomendasAdmin()"
+        >
+          Exportar resultados
+        </button>
+      </div>
       <div id="adminStatus" class="account-status" role="status"></div>
       <div id="adminOrders" class="account-list" aria-live="polite"></div>
     </section>
 
-    <!-- Secção de Vendas -->
     <section id="salesSection" class="account-section container" hidden>
-      <div class="account-heading"><h2 id="salesTitle">📊 Vendas e receitas</h2></div>
+      <div class="account-heading">
+        <h2 id="salesTitle">📊 Vendas e receitas</h2>
+      </div>
+      <p id="salesHelp" class="section-help">
+        Resumo apenas de encomendas aprovadas. Os totais são apresentados
+        separadamente por moeda.
+      </p>
       <div id="salesStatus" class="account-status" role="status"></div>
+      <div class="sales-summary" aria-live="polite">
+        <article class="sales-card">
+          <h3 id="salesOrdersLabel">Vendas aprovadas</h3>
+          <p id="salesOrderCount">—</p>
+        </article>
+        <article class="sales-card">
+          <h3 id="salesBooksLabel">Exemplares vendidos</h3>
+          <p id="salesBookCount">—</p>
+        </article>
+        <article class="sales-card">
+          <h3 id="salesMznLabel">Receita aprovada (MZN)</h3>
+          <p id="salesRevenueMzn">—</p>
+        </article>
+        <article class="sales-card">
+          <h3 id="salesZarLabel">Receita aprovada (ZAR)</h3>
+          <p id="salesRevenueZar">—</p>
+        </article>
+      </div>
+      <p id="salesUpdated" class="sales-updated"></p>
     </section>
 
-    <!-- Secção de Lixeira -->
     <section id="trashSection" class="account-section container" hidden>
       <div class="account-heading">
         <h2 id="trashTitle">🗑️ Lixeira</h2>
-        <button id="trashBackButton" class="btn-secondary" onclick="voltarDaLixeira()">Voltar</button>
+        <button
+          id="trashBackButton"
+          class="btn-secondary"
+          onclick="voltarDaLixeira()"
+        >
+          Voltar
+        </button>
       </div>
+      <p id="trashHelp" class="section-help">
+        As compras apagadas ficam aqui por 30 dias. Pode restaurá-las durante
+        esse prazo; depois serão excluídas permanentemente.
+      </p>
       <div id="trashStatus" class="account-status" role="status"></div>
       <div id="trashOrders" class="account-list"></div>
     </section>
 
-    <!-- Secção: Pedir um Livro -->
-    <section class="request-book-section" id="requestBookSection" aria-labelledby="txtPedirTitulo">
-      <div class="request-container">
-        <h2 id="txtPedirTitulo">📑 Não encontrou o livro que procura? Peça-o e nós adicionamos!</h2>
-        <p id="txtPedirSub">Envie os detalhes do material pretendido. A nossa equipa recebe o pedido de imediato.</p>
-
-        <form id="formPedirLivro" onsubmit="enviarPedidoLivro(event)">
-          <div class="request-grid">
-            <input type="text" id="reqTitulo" placeholder="Nome do livro ou exame *" required />
-            <input type="text" id="reqAutor" placeholder="Autor / Categoria (Opcional)" />
-            <input type="text" id="reqContacto" placeholder="O seu nome *" autocomplete="name" required />
-            <div class="phone-field request-phone-field">
-              <select id="requestPhoneCode" aria-label="Código internacional" autocomplete="tel-country-code"></select>
-              <input type="tel" id="requestPhoneNumber" inputmode="tel" autocomplete="tel" maxlength="25" placeholder="Número de WhatsApp *" required />
-            </div>
-            <button type="submit" id="txtBtnPedir" class="btn-request">🚀 Pedir e Notificar a Equipa</button>
-          </div>
-        </form>
-        <div id="statusPedido" class="status-pedido"></div>
-      </div>
-    </section>
-
-    <!-- Secção: Feedback -->
-    <section class="feedback-section" id="feedbackSection" aria-labelledby="feedbackTitle">
-      <div class="feedback-container">
-        <h2 id="feedbackTitle">💡 Ajude-nos a melhorar</h2>
-        <form id="formFeedback" onsubmit="enviarFeedback(event)">
-          <input type="text" id="feedbackName" maxlength="100" placeholder="O seu nome (opcional)" />
-          <input type="email" id="feedbackEmail" maxlength="254" placeholder="O seu email (opcional)" />
-          <textarea id="feedbackMessage" rows="4" maxlength="2000" placeholder="Que melhoria gostaria de ver? *" required></textarea>
-          <button type="submit" id="feedbackSubmit" class="btn-request">Enviar feedback</button>
-        </form>
-        <p id="feedbackStatus" class="feedback-status" role="status" aria-live="polite"></p>
-      </div>
-    </section>
-
-    <!-- Modais (Checkout, Preview, Login) -->
+    <!-- Modal de Checkout Otimizado -->
     <div id="checkoutModal" class="modal">
       <div class="modal-content">
         <span class="close-btn" onclick="fecharModalCheckout()">&times;</span>
         <h3 id="checkoutTitulo">Pagar e receber o PDF</h3>
         <p id="checkoutPreco" class="checkout-price-highlight"></p>
+        <p id="checkoutHelp" class="section-help">
+          Confirme a região, siga os dados de pagamento, introduza a referência
+          e envie o resumo pelo WhatsApp.
+        </p>
+
         <form id="formCheckout" onsubmit="submeterConfirmacaoPagamento(event)">
           <div class="form-group">
             <label id="lblNome" for="clienteNome">Nome completo *</label>
-            <input type="text" id="clienteNome" readonly required />
+            <input
+              type="text"
+              id="clienteNome"
+              placeholder="Ex.: José da Silva"
+              readonly
+              required
+            />
           </div>
+
           <div class="form-group">
-            <label id="lblEmail" for="clienteEmail">O seu email *</label>
-            <input type="email" id="clienteEmail" readonly required />
+            <label id="lblEmail" for="clienteEmail"
+              >O seu email (para receber o PDF) *</label
+            >
+            <input
+              type="email"
+              id="clienteEmail"
+              placeholder="exemplo@gmail.com"
+              readonly
+              required
+            />
           </div>
-          <button type="submit" id="btnConfirmar" class="btn-primary btn-success btn-whatsapp">
+
+          <div class="form-group">
+            <label id="lblCheckoutPhone" for="checkoutPhoneNumber"
+              >Telefone / WhatsApp (opcional)</label
+            >
+            <div class="phone-field">
+              <select
+                id="checkoutPhoneCode"
+                aria-label="Código de chamada internacional"
+                autocomplete="tel-country-code"
+              ></select>
+              <input
+                type="tel"
+                id="checkoutPhoneNumber"
+                inputmode="tel"
+                autocomplete="tel-national"
+                maxlength="25"
+                pattern="[0-9+(). -]{4,25}"
+                placeholder="Número de telefone"
+              />
+              <input
+                type="text"
+                id="checkoutPhoneCustomCode"
+                class="phone-custom-code"
+                inputmode="tel"
+                maxlength="5"
+                placeholder="+ código"
+                aria-label="Código internacional personalizado"
+                hidden
+              />
+            </div>
+            <small id="checkoutPhoneHelp" class="field-help">
+              O número será incluído no resumo enviado pelo WhatsApp.
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label id="lblRegiao" for="regiaoPagamento">País / Região</label>
+            <select
+              id="regiaoPagamento"
+              onchange="atualizarOpcoesPagamento()"
+              required
+            >
+              <option value="mozambique" id="optionMozambique">
+                Moçambique
+              </option>
+              <option value="other" id="optionOther">
+                África do Sul / Outros países
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label id="lblMetodo" for="metodoPagamento"
+              >Forma de pagamento</label
+            >
+            <select
+              id="metodoPagamento"
+              onchange="atualizarInstrucoesPagamento()"
+              required
+            >
+              <option value="mpesa">M-Pesa (Vodacom)</option>
+              <option value="emola">e-Mola (Movitel)</option>
+              <option value="sa_bank" id="optionSaBank" hidden>
+  Banco/cartão sul-africano (ZAR)
+</option>
+            </select>
+          </div>
+
+          <div id="instrucoesPagamento" class="instructions-box"></div>
+
+          <div class="form-group">
+            <label id="lblRef" for="referenciaPagamento"
+              >Código / Referência da transacção *</label
+            >
+            <input
+              type="text"
+              id="referenciaPagamento"
+              maxlength="160"
+              placeholder="Ex.: PP240929.1830.A12345 / número de referência"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            id="btnConfirmar"
+            class="btn-primary btn-success btn-whatsapp"
+          >
             📱 Confirmar e enviar pelo WhatsApp
           </button>
         </form>
-        <div id="statusPagamento" class="payment-status account-status" role="status"></div>
+        <div
+          id="statusPagamento"
+          class="payment-status account-status"
+          role="status"
+        ></div>
       </div>
     </div>
 
-    <!-- Modal de Login / Registo -->
+    <!-- Modal de Preview / Introdução -->
+    <div id="previewModal" class="modal">
+      <div class="modal-content preview-content">
+        <span onclick="fecharModalPreview()" class="close-btn preview-close"
+          >&times;</span
+        >
+
+        <h2 id="previewTitulo" class="preview-title">Título do livro</h2>
+        <p id="previewAutor" class="preview-author"></p>
+
+        <div class="preview-synopsis">
+          <h4 id="txtSinopse">📌 Introdução / Sinopse</h4>
+          <p id="previewTexto" class="preview-text"></p>
+        </div>
+
+        <p id="txtAvisoPDF" class="preview-notice">
+          🔒 Para ler a obra completa em PDF, efectue o pagamento via M-Pesa,
+          e-Mola ou cartão sul-africano.
+        </p>
+
+        <div class="preview-actions">
+          <button
+            onclick="fecharModalPreview()"
+            id="btnFecharModal"
+            class="btn-preview-close"
+          >
+            Fechar
+          </button>
+          <button
+            onclick="irParaCheckoutDoPreview()"
+            id="btnComprarModal"
+            class="btn-preview-buy"
+          >
+            💳 Comprar agora
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Login -->
     <div id="loginModal" class="modal">
       <div class="modal-content">
         <span class="close-btn" onclick="fecharModalLogin()">&times;</span>
         <div class="modal-tabs">
-          <button class="tab-btn active" onclick="alternarAba('login')" id="tabLoginBtn">Entrar</button>
-          <button class="tab-btn" onclick="alternarAba('registro')" id="tabRegisterBtn">Registar</button>
+          <button
+            class="tab-btn active"
+            onclick="alternarAba('login')"
+            id="tabLoginBtn"
+          >
+            Entrar
+          </button>
+          <button
+            class="tab-btn"
+            onclick="alternarAba('registro')"
+            id="tabRegisterBtn"
+          >
+            Registar
+          </button>
         </div>
+        <p id="loginHelp" class="section-help">
+          Entre na sua conta ou crie uma para guardar compras e aceder aos PDFs
+          aprovados.
+        </p>
 
         <form id="formLogin" class="auth-form active">
           <h3 id="loginTitle">Bem-vindo de volta!</h3>
           <div class="form-group">
-            <label id="lblLoginEmail">Email</label>
-            <input type="email" id="loginEmail" autocomplete="email" placeholder="seu@email.com" required />
+            <label id="lblLoginEmail">Email ou utilizador</label>
+            <input
+              type="email"
+              id="loginEmail"
+              autocomplete="email"
+              placeholder="seu@email.com"
+              required
+            />
           </div>
           <div class="form-group">
             <label id="lblLoginPass" for="loginPassword">Palavra-passe</label>
-            <input type="password" id="loginPassword" autocomplete="current-password" placeholder="••••••••" required />
+            <div class="password-input">
+              <input
+                type="password"
+                id="loginPassword"
+                autocomplete="current-password"
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                data-password-target="loginPassword"
+                aria-label="Mostrar palavra-passe"
+                aria-controls="loginPassword"
+                aria-pressed="false"
+                onclick="alternarVisibilidadePassword(this)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path
+                    d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="3"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    class="password-toggle-slash"
+                    d="m4 4 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    hidden
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
-          <button type="submit" id="btnLoginSubmit" class="btn-primary">Iniciar sessão</button>
+          <button
+            type="button"
+            id="btnEsqueceuPassword"
+            class="auth-link"
+            onclick="solicitarRecuperacaoPassword()"
+          >
+            Esqueceu-se da palavra-passe?
+          </button>
+          <button type="submit" id="btnLoginSubmit" class="btn-primary">
+            Iniciar sessão
+          </button>
         </form>
 
         <form id="formRegistro" class="auth-form">
           <h3 id="regTitle">Crie a sua conta</h3>
           <div class="form-group">
             <label id="lblRegName">Nome completo</label>
-            <input type="text" id="regName" placeholder="O seu nome" autocomplete="name" required />
+            <input
+              type="text"
+              id="regName"
+              data-i18n-placeholder="nomeRegPh"
+              placeholder="O seu nome"
+              autocomplete="name"
+              required
+            />
           </div>
           <div class="form-group">
             <label id="lblRegEmail">Email</label>
-            <input type="email" id="regEmail" autocomplete="email" placeholder="seu@email.com" required />
+            <input
+              type="email"
+              id="regEmail"
+              autocomplete="email"
+              placeholder="seu@email.com"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label id="lblRegPhone" for="regPhoneNumber"
+              >Telefone / WhatsApp (opcional)</label
+            >
+            <div class="phone-field">
+              <select
+                id="regPhoneCode"
+                aria-label="Código de chamada internacional"
+                autocomplete="tel-country-code"
+              ></select>
+              <input
+                type="tel"
+                id="regPhoneNumber"
+                inputmode="tel"
+                autocomplete="tel-national"
+                maxlength="25"
+                pattern="[0-9+(). -]{4,25}"
+                placeholder="Número de telefone"
+              />
+              <input
+                type="text"
+                id="regPhoneCustomCode"
+                class="phone-custom-code"
+                inputmode="tel"
+                maxlength="5"
+                placeholder="+ código"
+                aria-label="Código internacional personalizado"
+                hidden
+              />
+            </div>
+            <small id="regPhoneHelp" class="field-help">
+              Pode adicionar ou actualizar o número mais tarde.
+            </small>
           </div>
           <div class="form-group">
             <label id="lblRegPass" for="regPassword">Palavra-passe</label>
-            <input type="password" id="regPassword" autocomplete="new-password" minlength="8" placeholder="••••••••" required />
+            <div class="password-input">
+              <input
+                type="password"
+                id="regPassword"
+                autocomplete="new-password"
+                minlength="8"
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                data-password-target="regPassword"
+                aria-label="Mostrar palavra-passe"
+                aria-controls="regPassword"
+                aria-pressed="false"
+                onclick="alternarVisibilidadePassword(this)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path
+                    d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="3"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    class="password-toggle-slash"
+                    d="m4 4 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    hidden
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
-          <button type="submit" id="btnRegSubmit" class="btn-primary">Criar conta</button>
+          <button type="submit" id="btnRegSubmit" class="btn-primary">
+            Criar conta
+          </button>
+        </form>
+        <form id="formNovaPassword" class="auth-form">
+          <h3 id="novaPasswordTitle">Definir nova palavra-passe</h3>
+          <div class="form-group">
+            <label id="lblNovaPassword" for="novaPassword"
+              >Nova palavra-passe</label
+            >
+            <div class="password-input">
+              <input
+                type="password"
+                id="novaPassword"
+                autocomplete="new-password"
+                minlength="8"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                data-password-target="novaPassword"
+                aria-label="Mostrar palavra-passe"
+                aria-controls="novaPassword"
+                aria-pressed="false"
+                onclick="alternarVisibilidadePassword(this)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path
+                    d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="3"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    class="password-toggle-slash"
+                    d="m4 4 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    hidden
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label id="lblConfirmarPassword" for="confirmarPassword"
+              >Confirmar palavra-passe</label
+            >
+            <div class="password-input">
+              <input
+                type="password"
+                id="confirmarPassword"
+                autocomplete="new-password"
+                minlength="8"
+                required
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                data-password-target="confirmarPassword"
+                aria-label="Mostrar palavra-passe"
+                aria-controls="confirmarPassword"
+                aria-pressed="false"
+                onclick="alternarVisibilidadePassword(this)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path
+                    d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="3"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    class="password-toggle-slash"
+                    d="m4 4 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    hidden
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <button type="submit" id="btnGuardarPassword" class="btn-primary">
+            Guardar nova palavra-passe
+          </button>
         </form>
         <div id="authStatus" class="account-status" role="status"></div>
       </div>
     </div>
 
+    <!-- Secção: Pedir um Livro -->
+    <section
+      class="request-book-section"
+      id="requestBookSection"
+      aria-labelledby="txtPedirTitulo"
+    >
+      <div class="request-container">
+        <h2 id="txtPedirTitulo">
+          📑 Não encontrou o livro que procura? Peça-o e nós adicionamos!
+        </h2>
+        <p id="txtPedirSub">
+          Envie os detalhes do material pretendido. A nossa equipa recebe o
+          pedido de imediato.
+        </p>
+
+        <form id="formPedirLivro" onsubmit="enviarPedidoLivro(event)">
+          <div class="request-grid">
+            <input
+              type="text"
+              id="reqTitulo"
+              placeholder="Nome do livro ou exame *"
+              required
+            />
+            <input
+              type="text"
+              id="reqAutor"
+              placeholder="Autor / Categoria (Opcional)"
+            />
+            <input
+              type="text"
+              id="reqContacto"
+              placeholder="O seu nome *"
+              autocomplete="name"
+              required
+            />
+            <div class="phone-field request-phone-field">
+              <select
+                id="requestPhoneCode"
+                aria-label="Código de chamada internacional"
+                autocomplete="tel-country-code"
+              ></select>
+              <input
+                type="tel"
+                id="requestPhoneNumber"
+                inputmode="tel"
+                autocomplete="tel"
+                maxlength="25"
+                pattern="[0-9+(). -]{4,25}"
+                placeholder="Número de WhatsApp *"
+                aria-label="Número de WhatsApp"
+                required
+              />
+              <input
+                type="text"
+                id="requestPhoneCustomCode"
+                class="phone-custom-code"
+                inputmode="tel"
+                maxlength="5"
+                placeholder="+ código"
+                aria-label="Código internacional personalizado"
+                hidden
+              />
+            </div>
+            <small id="requestPhoneHelp" class="field-help">
+              Escolha o país e introduza o número sem repetir o prefixo.
+            </small>
+            <button type="submit" id="txtBtnPedir" class="btn-request">
+              🚀 Pedir e Notificar a Equipa
+            </button>
+          </div>
+        </form>
+        <div id="statusPedido" class="status-pedido"></div>
+      </div>
+    </section>
+
+    <!-- Secção: Feedback dos Utilizadores -->
+    <section
+      class="feedback-section"
+      id="feedbackSection"
+      aria-labelledby="feedbackTitle"
+    >
+      <div class="feedback-container">
+        <h2 id="feedbackTitle">💡 Ajude-nos a melhorar</h2>
+        <p id="feedbackDescription">
+          Partilhe sugestões ou ideias para futuras melhorias da MozBookStore.
+        </p>
+        <form id="formFeedback" onsubmit="enviarFeedback(event)">
+          <input
+            type="text"
+            id="feedbackName"
+            maxlength="100"
+            placeholder="O seu nome (opcional)"
+            aria-label="O seu nome (opcional)"
+          />
+          <input
+            type="email"
+            id="feedbackEmail"
+            maxlength="254"
+            placeholder="O seu email (opcional)"
+            aria-label="O seu email (opcional)"
+          />
+          <textarea
+            id="feedbackMessage"
+            rows="4"
+            maxlength="2000"
+            placeholder="Que melhoria gostaria de ver? *"
+            aria-label="Que melhoria gostaria de ver?"
+            required
+          ></textarea>
+          <button type="submit" id="feedbackSubmit" class="btn-request">
+            Enviar feedback
+          </button>
+        </form>
+        <p
+          id="feedbackStatus"
+          class="feedback-status"
+          role="status"
+          aria-live="polite"
+        ></p>
+      </div>
+    </section>
+
+    <button id="quizTrigger" class="quiz-trigger" type="button">
+      🧠 Fazer quiz
+    </button>
+
+    <div id="quizModal" class="modal" aria-hidden="true">
+      <div class="modal-content quiz-modal-content">
+        <button
+          type="button"
+          class="close-btn"
+          data-close-quiz
+          aria-label="Fechar quiz"
+        >
+          ×
+        </button>
+
+        <div class="quiz-header">
+          <p id="quizKicker" class="quiz-kicker">🧠 Interactividade</p>
+          <h2 id="quizTitle">Descobre o teu perfil de leitor</h2>
+          <p id="quizHelp" class="section-help">
+            Responde a cinco perguntas rápidas sobre os teus gostos e recebe
+            sugestões de leitura.
+          </p>
+        </div>
+
+        <div class="quiz-card">
+          <p id="quizProgress" class="quiz-progress" aria-live="polite"></p>
+          <div id="quizQuestion" class="quiz-question">
+            Qual das opções descreve melhor a tua forma de aprender?
+          </div>
+
+          <div id="quizOptions" class="quiz-options" aria-live="polite"></div>
+
+          <div class="quiz-actions">
+            <button
+              type="button"
+              id="quizPrev"
+              class="btn-quiz btn-quiz-secondary"
+              hidden
+            >
+              Anterior
+            </button>
+            <button
+              type="button"
+              id="quizNext"
+              class="btn-quiz btn-quiz-primary"
+            >
+              Próxima
+            </button>
+          </div>
+
+          <div id="quizResult" class="quiz-result" hidden></div>
+        </div>
+      </div>
+    </div>
+
+    <aside
+      id="pwaInstallBanner"
+      class="pwa-install-banner"
+      role="region"
+      aria-live="polite"
+      aria-labelledby="pwaInstallTitle"
+      hidden
+    >
+      <span class="pwa-install-icon" aria-hidden="true">📚</span>
+      <div class="pwa-install-copy">
+        <strong id="pwaInstallTitle"></strong>
+        <p id="pwaInstallMessage"></p>
+      </div>
+      <button
+        id="pwaInstallAction"
+        class="pwa-install-action"
+        type="button"
+      ></button>
+      <button
+        id="pwaInstallDismiss"
+        class="pwa-install-dismiss"
+        type="button"
+        aria-label="Fechar sugestão de instalação"
+      >
+        &times;
+      </button>
+    </aside>
+
+    <dialog
+      id="pwaInstallDialog"
+      class="pwa-install-dialog"
+      aria-labelledby="pwaInstallDialogTitle"
+    >
+      <h2 id="pwaInstallDialogTitle"></h2>
+      <p id="pwaInstallDialogMessage"></p>
+      <button
+        id="pwaInstallDialogClose"
+        class="pwa-install-action"
+        type="button"
+      ></button>
+    </dialog>
+
     <!-- Rodapé -->
     <footer>
-      <p id="footerCopy">&copy; 2026 MozBookStore - Todos os direitos reservados.</p>
-      <div class="footer-contacts" id="footerContacts"></div>
+      <p id="footerCopy">
+        &copy; 2026 MozBookStore - Todos os direitos reservados.
+      </p>
+      <div class="footer-contacts" id="footerContacts">
+        <!-- Preenchido via JS -->
+      </div>
+      <div class="footer-socials">
+        <p id="footerSocialTitle">Siga-nos</p>
+        <a
+          href="https://www.instagram.com/mozbookstore_?stkn=eWp0NHVuMXJkNzRw&amp;utm_source=qr"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram MozBookStore"
+        >
+          <svg
+            class="social-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <rect
+              x="3"
+              y="3"
+              width="18"
+              height="18"
+              rx="5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+            <circle
+              cx="12"
+              cy="12"
+              r="4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+            <circle cx="17.5" cy="6.5" r="1.25" fill="currentColor" />
+          </svg>
+        </a>
+        <a
+          href="https://www.facebook.com/share/1EjEcr8PCt/?mibextid=wwXIfr"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Facebook MozBookStore"
+        >
+          <svg
+            class="social-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              fill="currentColor"
+              d="M13.5 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.1H7.3V13h2.8v8h3.4Z"
+            />
+          </svg>
+        </a>
+      </div>
     </footer>
 
-    <!-- Script Principal -->
     <script src="script.js"></script>
   </body>
 </html>

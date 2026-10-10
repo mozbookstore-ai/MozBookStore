@@ -1164,166 +1164,254 @@ const categoriasLista = [
     emptyKey: categoria.catalogEmptyKey,
     })),
 ];
-// Exemplo de como carregar os livros do Supabase para exibir no site/PWA
-async function carregarLivrosDaLoja(supabase) {
-  try {
-    // 1. Faz a requisição à tabela 'products' no Supabase
-    const { data: produtosDoSupabase, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false }); // Do mais recente para o mais antigo
 
-    if (error) throw error;
+// --- CATÁLOGO DE PRODUTOS & SINOPSES BILÍNGUES ---
+const produtos = [
+  {
+    id: 10,
+    titulo: "Natação para Iniciantes",
+    tituloEn: "Swimming for Beginners",
+    autor: "MozBookStore",
+    categoria: "desporto",
+    preco: "250 MT",
+    imagem:
+      "https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&q=80&w=800",
+    tipo: "PDF / Desporto & Saúde",
+    tipoEn: "PDF / Sports & Health",
+    introducao:
+      "Guia prático do zero aos primeiros 30 dias para desenvolver conforto na água, controle da respiração, flutuação, propulsão e segurança na piscina.",
+    introducaoEn:
+      "Practical guide from scratch to the first 30 days to develop water comfort, breathing control, buoyancy, propulsion, and pool safety.",
+  },
+  {
+    id: 9,
+    titulo: "Musculação para Iniciantes",
+    tituloEn: "Weight Training for Beginners",
+    autor: "MozBookStore",
+    categoria: "desporto",
+    preco: "300 MT",
+    imagem:
+      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800",
+    tipo: "PDF / Desporto & Saúde",
+    tipoEn: "PDF / Sports & Health",
+    introducao:
+      "Aprenda os fundamentos, monte seus primeiros treinos e evolua com técnica, consistência e segurança através de um roteiro prático de 30 dias.",
+    introducaoEn:
+      "Learn the fundamentals, set up your first workouts, and evolve with technique, consistency, and safety through a practical 30-day roadmap.",
+  },
+  {
+    id: 7,
+    titulo: "Futebol para Iniciantes",
+    tituloEn: "Football for Beginners",
+    autor: "MozBookStore",
+    categoria: "desporto",
+    preco: "250 MT",
+    imagem:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU_6n_ouvaR15zDwA2aWm1YZFRNChbb9Qy_48kRLUf5yTf2SBaeEClruw&s=10",
+    tipo: "PDF / Desporto & Saúde",
+    tipoEn: "PDF / Sports & Health",
+    introducao:
+      "Guia prático do zero aos primeiros 30 dias para transformar a bola num instrumento previsível: receber, conduzir, passar, finalizar e tomar decisões simples.",
+    introducaoEn:
+      "Practical guide from scratch to the first 30 days to turn the ball into a predictable instrument: receiving, driving, passing, finishing, and making simple decisions.",
+  },
+  {
+    id: 4,
+    titulo: "CrossFit para Iniciantes",
+    tituloEn: "CrossFit for Beginners",
+    autor: "MozBookStore",
+    categoria: "desporto",
+    preco: "300 MT",
+    imagem:
+      "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800",
+    tipo: "PDF / Desporto & Saúde",
+    tipoEn: "PDF / Sports & Health",
+    introducao:
+      "Comece do zero, aprenda os movimentos fundamentais, domine o escalonamento e construa consistência com segurança e intensidade relativa.",
+    introducaoEn:
+      "Start from scratch, learn fundamental movements, master scaling, and build consistency safely with relative intensity.",
+  },
+  {
+    id: 2,
+    titulo: "Ciclismo para Iniciantes",
+    tituloEn: "Cycling for Beginners",
+    autor: "MozBookStore",
+    categoria: "desporto",
+    preco: "280 MT",
+    imagem:
+      "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80&w=800",
+    tipo: "PDF / Desporto & Saúde",
+    tipoEn: "PDF / Sports & Health",
+    introducao:
+      "Guia prático do zero aos primeiros 30 dias para aprender a escolher, ajustar, dominar o equilíbrio e pedalar com segurança na cidade ou na estrada.",
+    introducaoEn:
+      "Practical guide from scratch to the first 30 days to learn how to choose, adjust, master balance, and cycle safely in the city or on the road.",
+  },
+  {
+    id: 8,
+    titulo: "Ginástica para Iniciante",
+    tituloEn: "Gymnastics for Beginners",
+    autor: "MozBookStore",
+    categoria: "desporto",
+    preco: "270 MT",
+    imagem:
+      "https://images.unsplash.com/photo-1566241142559-40e1dab266c6?auto=format&fit=crop&q=80&w=800",
+    tipo: "PDF / Desporto & Saúde",
+    tipoEn: "PDF / Sports & Health",
+    introducao:
+      "Guia prático para desenvolver flexibilidade, força corporal básica, equilíbrio e coordenação através de movimentos gímnicos fundamentais.",
+    introducaoEn:
+      "Practical guide to develop flexibility, basic body strength, balance, and coordination through fundamental gymnastic movements.",
+  },
+  {
+    id: 6,
+    titulo: "Escalada para Iniciantes",
+    tituloEn: "Climbing for Beginners",
+    autor: "MozBookStore",
+    categoria: "desporto",
+    preco: "300 MT",
+    imagem:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRaJDGAPp9cWJjPqXTHtM1TZeDoRllfR_EnKqFzdXyqyqHz42yS57yK5QDL&s=10",
+    tipo: "PDF / Desporto & Saúde",
+    tipoEn: "PDF / Sports & Health",
+    introducao:
+      "Aprenda técnicas de aderência, nós essenciais, leitura de vias e os princípios de segurança para dar os primeiros passos na escalada com confiança.",
+    introducaoEn:
+      "Learn grip techniques, essential knots, route reading, and safety principles to take your first steps in climbing with confidence.",
+  },
+  {
+    id: 3,
+    titulo: "Corrida para Iniciantes",
+    tituloEn: "Running for Beginners",
+    autor: "MozBookStore",
+    categoria: "desporto",
+    preco: "250 MT",
+    imagem:
+      "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&q=80&w=800",
+    tipo: "PDF / Desporto & Saúde",
+    tipoEn: "PDF / Sports & Health",
+    introducao:
+      "Um programa progressivo do zero aos primeiros quilómetros contínuos, focando na postura, respiração correta e prevenção de lesões.",
+    introducaoEn:
+      "A progressive program from scratch to your first continuous kilometers, focusing on posture, correct breathing, and injury prevention.",
+  },
+  {
+    id: 5,
+    titulo: "Culinária para Iniciantes",
+    tituloEn: "Cooking for Beginners",
+    autor: "MozBookStore",
+    categoria: "estilo-de-vida",
+    preco: "250 MT",
+    imagem:
+      "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80&w=800",
+    tipo: "PDF / Estilo de Vida & Culinária",
+    tipoEn: "PDF / Lifestyle & Cooking",
+    introducao:
+      "Técnicas básicas de cozinha, uso correto de utensílios, temperos essenciais e receitas fáceis para dominar o fogão sem complicações.",
+    introducaoEn:
+      "Basic kitchen techniques, proper use of utensils, essential seasonings, and easy recipes to master cooking without complications.",
+  },
+  {
+    id: 12,
+    titulo: "Queda de Braço para Iniciantes",
+    tituloEn: "Arm Wrestling for Beginners",
+    autor: "MozBookStore",
+    categoria: "desporto",
+    preco: "220 MT",
+    imagem:
+      "https://sme.goiania.go.gov.br/conexaoescola/wp-content/uploads/2024/10/ARM-2.png",
+    tipo: "PDF / Desporto & Saúde",
+    tipoEn: "PDF / Sports & Health",
+    introducao:
+      "Conheça os ângulos de força, técnicas de pulso, posicionamento corporal e cuidados de prevenção de lesões específicos para a queda de braço.",
+    introducaoEn:
+      "Learn strength angles, wrist techniques, body positioning, and specific injury prevention care for arm wrestling.",
+  },
+  {
+    id: 1,
+    titulo: "Calistenia para Iniciantes",
+    tituloEn: "Calisthenics for Beginners",
+    autor: "MozBookStore",
+    categoria: "desporto",
+    preco: "280 MT",
+    imagem:
+      "https://media.glamour.mx/photos/66831a93778fded3931a4663/master/w_1600%2Cc_limit/calistenia-que-es.jpg",
+    tipo: "PDF / Desporto & Saúde",
+    tipoEn: "PDF / Sports & Health",
+    introducao:
+      "Treine usando apenas o peso do corpo. Aprenda progressões para flexões, agachamentos, barras e abdominais para construir força funcional em qualquer lugar.",
+    introducaoEn:
+      "Train using only your body weight. Learn progressions for push-ups, squats, pull-ups, and core exercises to build functional strength anywhere.",
+  },
+  {
+    id: 11,
+    titulo: "Patinagem no Gelo para Iniciantes",
+    tituloEn: "Ice Skating for Beginners",
+    autor: "MozBookStore",
+    categoria: "desporto",
+    preco: "300 MT",
+    imagem:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE675nd-RqgBOdW7wO-oaUlFBeejWBfJ-a6xZ4lA2Na3JnWsyPQ5Jycvs&s=10",
+    tipo: "PDF / Desporto & Saúde",
+    tipoEn: "PDF / Sports & Health",
+    introducao:
+      "Descubra como ajustar os patins, dominar o equilíbrio no gelo, dar as primeiras passadas com segurança e aprender a travar e cair corretamente.",
+    introducaoEn:
+      "Discover how to adjust skates, master balance on ice, take your first safe glides, and learn how to brake and fall correctly.",
+  },
 
-    // 2. Aqui você recebe os dados no mesmo formato que o AddBookForm envia:
-    // Cada item terá: title, price_mzn, synopsis, cover_url, pdf_url, etc.
-    
-    // 3. Renderize os produtos na sua interface (substituindo o array antigo)
-    renderizarProdutosNaTela(produtosDoSupabase);
+  {
+    id: 13,
+    titulo: "Skate para Iniciantes",
+    tituloEn: "Skate for Beginners",
+    autor: "MozBookStore",
+    categoria: "desporto",
+    preco: "320 MT",
+    imagem:
+      "https://img.redbull.com/images/c_crop,x_1638,y_0,h_2560,w_2048/c_fill,w_800,h_889/q_auto:low,f_auto/redbullcom/tv/FO-1YSE763FN5N11/abc-of-skateboarding-kickflip-skatepark",
+    tipo: "PDF / Desporto & Saúde",
+    tipoEn: "PDF / Sports & Health",
+    introducao:
+      "Aprenda a escolher o skate certo, dominar o equilíbrio, dar as primeiras voltas com segurança e aprender a travar e cair corretamente.",
+    introducaoEn:
+      "Learn how to choose the right skateboard, master balance, take your first safe rides, and learn how to brake and fall correctly.",
+  },
 
-  } catch (error) {
-    console.error("Erro ao carregar livros:", error.message);
-  }
-}
-// Exemplo de como buscar os livros salvos pelo AddBookForm
-async function carregarCatalogo(supabase) {
-  try {
-    // 1. Pede os produtos à tabela 'products' do Supabase
-    const { data: produtosDoSupabase, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false }); // Mostra os mais recentes primeiro
-
-    if (error) throw error;
-
-    // 2. Seleciona o elemento HTML onde os produtos aparecem na sua página
-    const containerCatalogo = document.getElementById("catalogo-container"); // Substitua pelo ID real do seu HTML
-    if (!containerCatalogo) return;
-
-    containerCatalogo.innerHTML = ""; // Limpa o catálogo antes de preencher
-
-    // 3. Percorre os livros vindos do Supabase e desenha-os no site
-    produtosDoSupabase.forEach((livro) => {
-      const card = document.createElement("div");
-      card.className = "produto-card"; // Use a classe CSS que já tem no seu projeto
-
-      // Note que o AddBookForm guarda as colunas como: title, price_mzn, synopsis, cover_url, pdf_url
-      card.innerHTML = `
-        <img src="${livro.cover_url}" alt="${livro.title}" class="produto-img" />
-        <h3>${livro.title}</h3>
-        <p class="preco">${livro.price_mzn} MZN</p>
-        <p class="sinopse">${livro.synopsis}</p>
-        <a href="${livro.pdf_url}" target="_blank" class="btn-baixar">Ler / Descarregar PDF</a>
-      `;
-
-      containerCatalogo.appendChild(card);
-    });
-
-  } catch (erro) {
-    console.error("Erro ao carregar o catálogo do Supabase:", erro.message);
-  }
-}
-import AddBookForm from './AddBookForm';
-
-export default function AdminPage({ supabase }) {
-  return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Área de Gestão</h1>
-      {/* O formulário vai aparecer aqui com todos os campos de título, preço, sinopse e upload */}
-      <AddBookForm supabase={supabase} />
-    </div>
-  );
-}
-async function carregarCatalogo(supabase) {
-  const container = document.getElementById("catalogo-container");
-  if (!container) return;
-
-  try {
-    // 1. Busca todos os livros cadastrados no Supabase
-    const { data: produtos, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-
-    container.innerHTML = "";
-
-    if (!produtos || produtos.length === 0) {
-      container.innerHTML = "<p>Nenhum livro disponível no momento.</p>";
-      return;
-    }
-
-    // 2. Desenha cada livro na página
-    produtos.forEach((livro) => {
-      const card = document.createElement("div");
-      card.className = "produto-card"; // Utilize a sua classe CSS existente
-
-      card.innerHTML = `
-        <img src="${livro.cover_url}" alt="${livro.title}" class="produto-img" />
-        <div class="produto-info">
-          <h3>${livro.title}</h3>
-          <p class="preco">${livro.price_mzn} MZN</p>
-          <p class="sinopse">${livro.synopsis}</p>
-          <div class="produto-acoes">
-            <button onclick="abrirPreview('${livro.id}')" class="btn-secondary">Sinopse</button>
-            <button onclick="iniciarCheckout('${livro.id}', '${livro.title}', ${livro.price_mzn})" class="btn-primary">
-              💳 Comprar
-            </button>
-          </div>
-        </div>
-      `;
-      container.appendChild(card);
-    });
-  } catch (err) {
-    console.error("Erro ao carregar o catálogo:", err.message);
-  }
-}
-async function carregarMinhasCompras(supabase, userEmail) {
-  const container = document.getElementById("libraryBooks");
-  if (!container) return;
-
-  // Busca encomendas aprovadas do cliente
-  const { data: compras, error } = await supabase
-    .from("orders")
-    .select("*, products(title, pdf_url)")
-    .eq("client_email", userEmail)
-    .eq("status", "approved");
-
-  if (error || !compras) return;
-
-  container.innerHTML = compras.map(item => `
-    <div class="compra-item">
-      <h4>${item.products.title}</h4>
-      <p class="status-badge aprovado">✅ Pagamento Confirmado</p>
-      
-      <!-- Link direto para o PDF guardado no Supabase Storage -->
-      <a 
-        href="${item.products.pdf_url}" 
-        target="_blank" 
-        download="${item.products.title}.pdf"
-        class="btn-primary"
-      >
-        📥 Transferir / Baixar PDF
-      </a>
-    </div>
-  `).join("");
-}
-function descarregarPdfAutomatico(pdfUrl, nomeLivro) {
-  const link = document.createElement("a");
-  link.href = pdfUrl;
-  link.target = "_blank";
-  link.download = `${nomeLivro}.pdf`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-
-// Exemplo: Assim que a página carregar
-document.addEventListener("DOMContentLoaded", () => {
-  // 'supabase' deve ser a sua constante de conexão já inicializada no projeto
-  carregarCatalogo(supabase);
-});
+  {
+    id: 14,
+    titulo: "O mundo da matemática - 2a classe",
+    tituloEn: "The World of Mathematics - 2nd Grade",
+    autor: "Ministerio da Educação de Moçambique",
+    tituloEn: "The World of Mathematics - 2nd Grade",
+    autor: "Ministerio da Educação de Moçambique",
+    categoria: "educacao",
+    preco: "200 MT",
+    imagem:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1g6k5r7J8x3X2j4Z1Fq5z6y5z7y8x9y0z1A&usqp=CAU",
+    tipo: "PDF / Educação",
+    tipoEn: "PDF / Education",
+    introducao:
+      "Livro didático de matemática para a 2ª classe, cobrindo conceitos fundamentais e exercícios práticos.",
+    introducaoEn:
+      "Mathematics textbook for 2nd grade, covering fundamental concepts and practical exercises.",
+  },
+  {
+    id: 15,
+    titulo: "Exercicios de matemática - 2a classe",
+    tituloEn: "Math Exercises - 2nd Grade",
+    autor: "Ministerio da Educação de Moçambique",
+    categoria: "educacao",
+    preco: "250 MT",
+    imagem:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1g6k5r7J8x3X2j4Z1Fq5z6y5z7y8x9y0z1A&usqp=CAU",
+    tipo: "PDF / Educação",
+    tipoEn: "PDF / Education",
+    introducao:
+      "Livro didático de matemática para a 2ª classe, cobrindo conceitos fundamentais e exercícios práticos.",
+    introducaoEn:
+      "Mathematics textbook for 2nd grade, covering fundamental concepts and practical exercises.",
+  } 
+];
 
 function renderizarCategoriasMultimedia() {
   const container = document.getElementById("mediaCategories");
