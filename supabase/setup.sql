@@ -17,6 +17,22 @@ create table if not exists public.products (
   pdf_path text not null
 );
 
+create sequence if not exists public.products_id_seq;
+alter sequence public.products_id_seq owned by public.products.id;
+alter table public.products
+  alter column id set default nextval('public.products_id_seq');
+select setval(
+  'public.products_id_seq',
+  coalesce(max(id), 1),
+  max(id) is not null
+)
+from public.products;
+
+alter table public.products
+  add column if not exists synopsis text not null default '',
+  add column if not exists cover_url text,
+  add column if not exists pdf_url text;
+
 do $$
 begin
   if not exists (
@@ -474,6 +490,11 @@ create policy "Products are visible to everyone"
   on public.products for select to anon, authenticated
   using (true);
 
+drop policy if exists "Admins can add products" on public.products;
+create policy "Admins can add products"
+  on public.products for insert to authenticated
+  with check (public.is_admin());
+
 drop policy if exists "Users can read their orders and admins can read all" on public.orders;
 create policy "Users can read their orders and admins can read all"
   on public.orders for select to authenticated
@@ -531,6 +552,36 @@ on conflict (id) do update set
   file_size_limit = excluded.file_size_limit,
   allowed_mime_types = excluded.allowed_mime_types;
 
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values
+  ('covers', 'covers', true, 10485760, array['image/jpeg', 'image/png', 'image/webp', 'image/gif']),
+  ('books-pdf', 'books-pdf', true, 52428800, array['application/pdf'])
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "Book files are publicly readable" on storage.objects;
+create policy "Book files are publicly readable"
+  on storage.objects for select to anon, authenticated
+  using (bucket_id in ('covers', 'books-pdf'));
+
+drop policy if exists "Admins can upload book files" on storage.objects;
+create policy "Admins can upload book files"
+  on storage.objects for insert to authenticated
+  with check (bucket_id in ('covers', 'books-pdf') and public.is_admin());
+
+drop policy if exists "Admins can update book files" on storage.objects;
+create policy "Admins can update book files"
+  on storage.objects for update to authenticated
+  using (bucket_id in ('covers', 'books-pdf') and public.is_admin())
+  with check (bucket_id in ('covers', 'books-pdf') and public.is_admin());
+
+drop policy if exists "Admins can delete book files" on storage.objects;
+create policy "Admins can delete book files"
+  on storage.objects for delete to authenticated
+  using (bucket_id in ('covers', 'books-pdf') and public.is_admin());
+
 drop policy if exists "Approved customers and admins can download ebooks" on storage.objects;
 create policy "Approved customers and admins can download ebooks"
   on storage.objects for select to authenticated
@@ -568,6 +619,8 @@ create policy "Admins can delete ebooks"
 
 grant usage on schema public to anon, authenticated;
 grant select on public.products to anon, authenticated;
+grant insert on public.products to authenticated;
+grant usage, select on sequence public.products_id_seq to authenticated;
 grant select on public.profiles to authenticated;
 grant select, insert, update on public.orders to authenticated;
 revoke delete on public.orders from anon, public;

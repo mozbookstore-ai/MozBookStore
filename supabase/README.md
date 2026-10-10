@@ -50,6 +50,13 @@ estes passos:
    qualquer nome, actualize ambos e volte a executar `setup.sql`. O bucket é
    privado: os links assinados permitem o download apenas ao administrador e
    a clientes com encomenda aprovada.
+7. Para usar o formulário React `AddBookForm.jsx`, volte a executar `setup.sql`
+   para criar as colunas da sinopse e dos links públicos, os buckets públicos
+   `covers` e `books-pdf`, e as permissões de upload exclusivas para
+   administradores. O componente recebe uma instância autenticada do Supabase
+   pela propriedade `supabase` (por exemplo, `<AddBookForm supabase={client} />`)
+   e usa as classes Tailwind; o site estático deste repositório não inicializa
+   React nem Tailwind.
 
 ## Funcionamento
 
