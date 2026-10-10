@@ -34,6 +34,8 @@ const CAMINHOS_PDF = {
   11: "guias/patinagem-no-gelo.pdf",
   12: "guias/queda-de-braco.pdf",
   13: "guias/skate-para-iniciantes.pdf",
+  14: "O-Mundo-da-matematica-2-classe.pdf",
+  15:"Exercicios-de-Matematica-1a-classe-Apostila-de-500-Actividades-de-Matematica-Educacao-InfantilMozestuda.com.pdf",
 };
 
 const TAXA_CAMBIO_ZAR = 3.5;
