@@ -2962,7 +2962,7 @@ async function ordenarProdutosPeloSupabase() {
   produtos.forEach((produto) => {
     const precoMzn = precosPorId.get(produto.id);
     if (precoMzn !== undefined) {
-      produto.preco = `${precoMzn} MT`;
+      produto.price_mzn = `${precoMzn} MT`;
     }
   });
   produtos.sort((a, b) => a.id - b.id);
