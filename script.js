@@ -34,6 +34,8 @@ const CAMINHOS_PDF = {
   11: "guias/patinagem-no-gelo.pdf",
   12: "guias/queda-de-braco.pdf",
   13: "guias/skate-para-iniciantes.pdf",
+  14: "guias/exercicios-matematica-1a.pdf",
+  15: "guias/matematica-2a.pdf",
 };
 
 const TAXA_CAMBIO_ZAR = 3.5;
@@ -1376,6 +1378,34 @@ const produtos = [
     introducaoEn:
       "Learn how to choose the right skateboard, master balance, take your first safe rides, and learn how to brake and fall correctly.",
   },
+
+  {
+    id: 14,
+    titulo:"Exercicios de Matematica 1a classe",
+    tituloEn:"Math Exercises for 1st Grade",
+    autor:"Alcance Editores",
+    categoria:"educacao",
+    preco:"250 MT",
+    imagem:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcQMX4Yqv_VdAAwXtXYaOuBP4P7JWmmjqMvgBta8vc1A&s=10",
+    tipo:"PDF / Educação",
+    tipoEn:"PDF / Education",
+    introducao:"Exercícios de matemática para alunos da 1ª classe, cobrindo adição, subtração, contagem e reconhecimento de números.",
+    introducaoEn:"Math exercises for 1st-grade students, covering addition, subtraction, counting, and number recognition.",
+  },
+
+  {
+    id:15,
+    titulo:"Matematica 2a classe",
+    tituloEn:"Math for 2nd Grade",
+    autor:"Alcance Editores",
+    categoria:"educacao",
+    preco:"300 MT",
+    imagem:"https://imgv2-2-f.scribdassets.com/img/document/756048936/original/b132691f54/1?v=1",
+    tipo:"PDF / Educação",
+    tipoEn:"PDF / Education",
+    introducao:"Livro de matemática para alunos da 2ª classe, abordando conceitos de adição, subtração, multiplicação e divisão.",
+    introducaoEn:"Math book for 2nd-grade students, covering concepts of addition, subtraction, multiplication, and division.",
+  }
 
 ];
 
