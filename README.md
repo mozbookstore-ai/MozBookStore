@@ -1,55 +1,50 @@
-📚 MozBookStore — Central Académica e Literária Digital
+# 📚 MozBookStore — Biblioteca & Central Académica Digital
 
-Sua biblioteca digital dedicada a estudantes e leitores em Moçambique 🇲🇿 e África do Sul 🇿🇦.
+> Plataforma digital acessível e intuitiva dedicada a estudantes em Moçambique e na África do Sul, facilitando o acesso a livros, manuais escolares, recursos académicos e literatura.
 
-O MozBookStore é uma plataforma digital acessível, leve e intuitiva que permite aos utilizadores encontrar, solicitar e comprar recursos académicos, livros digitais em PDF, áudios e vídeos informativos, além de aceder a conteúdos multimédia gratuitos.
+---
 
-🌟 Funcionalidades Principais
+## ✨ Principais Funcionalidades
 
-📖 Catálogo Diversificado de Livros: Explore livros em PDF divididos por categorias como Desporto & Saúde, Exames & Aulas, Entretenimento e Espaço Infantil.
+### 📖 Navegação & Leitura de Livros
+* **Filtros por Categoria:** Navegação rápida entre categorias como *Enfermaria, Ciências Académicas, Literatura Portuguesa, Desenvolvimento Pessoal, Economia*, entre outros.
+* **Pesquisa Inteligente:** Barra de busca em tempo real para localizar títulos, autores ou tópicos específicos.
+* **Catálogo Organizado:** Pré-visualização de capas, autores, sinopses detalhadas e leituras recomendadas.
 
-🛒 Carrinho de Compras e Checkout: Adicione obras ao carrinho, ajuste a quantidade de exemplares desejada e finalize o pedido de forma rápida.
+### 🛒 Carrinho de Compras & Encomendas Dinâmicas
+* **Carrinho Interativo:** Adição/remoção de itens com cálculo automático do total.
+* **Aviso de Frete Grátis:** Indicador visual para atingir a meta de entrega gratuita.
+* **Checkout Direto via WhatsApp:** Processamento simples e rápido que envia o resumo da encomenda diretamente para o suporte no WhatsApp.
 
-🌐 Suporte Bilingue (Português & Inglês): Alternância simples de idioma no topo da página para atender a estudantes de língua portuguesa e inglesa.
+### 📑 Pedido Personalizado de Livros
+* Formulário integrado para solicitar títulos ou manuais académicos que ainda não estejam presentes no catálogo.
+* Notificação automática por e-mail e encaminhamento via WhatsApp para confirmação do pedido.
 
-🧩 Quiz Interativo do Leitor: Quiz dinâmico em 5 perguntas para ajudar o utilizador a descobrir o seu perfil de leitor e receber recomendações personalizadas.
+### 🎯 Quiz Académico Interativo
+* Teste de conhecimento integrado com perguntas de escolha múltipla para estudantes.
+* Feedback imediato com pontuação e explicações detalhadas para cada resposta.
 
-📩 Pedido Personalizado de Livros: Formulário direto para solicitar livros ou exames que ainda não estejam presentes no catálogo principal, enviando os detalhes para a equipa via WhatsApp.
+### 🎬 Área Multimédia & Conteúdos
+* Secção de conteúdos interativos e multimédia com dicas de estudo e recursos complementares.
 
-📺 Área Multimédia Gratuita: Acesso a recursos em vídeo e áudio (aulas de programação, tutoriais de UI/UX no Figma, podcasts e materiais educativos).
+### 💬 Atendimento Multicanal & Suporte
+* Suporte multilinha no WhatsApp com atendimento direto para utilizadores em **Moçambique (`+258`)** e na **África do Sul (`+27`)**.
+* Navegação acessível e suporte a múltiplos idiomas.
 
-📱 Integração Direta com WhatsApp: Suporte rápido ao cliente e notificação imediata de compras e sugestões através de contactos diretos de WhatsApp (+258 e +27).
+---
 
-🔐 Autenticação de Utilizador: Sistema de registo e início de sessão com suporte a seleção de prefixo internacional (Moçambique, África do Sul, Angola, etc.).
+## 🛠️ Tecnologias Utilizadas
 
-💳 Métodos de Pagamento Suportados
+* **Frontend:** HTML5, CSS3, JavaScript (ES6+)
+* **PWA (Progressive Web App):** Service Workers (`sw.js`) e Web App Manifest (`manifest.json`) para suporte offline e instalação no ecrã principal.
+* **Autenticação & Backend:** Supabase Integration
+* **Notificações:** EmailJS
+* **Acessibilidade & SEO:** Open Graph Protocol, Schema.org (JSON-LD), ARIA Labels
 
-Para facilitar o acesso a todos os estudantes da região, a plataforma suporta métodos de pagamento locais rápidos e acessíveis:
+---
 
-Moçambique 🇲🇿: M-Pesa e e-Mola
+## 🚀 Como Executar o Projeto Localmente
 
-África do Sul 🇿🇦: Transferência Bancária / Cartão Sul-Africano (FNB)
-
-🛠️ Tecnologias Utilizadas
-
-Frontend: HTML5, CSS3, JavaScript (ES6+)
-
-Design & Layout: PWA / Design Totalmente Responsivo Otimizado para Mobile
-
-Integrações: WhatsApp Web API, YouTube Embeds, Google Fonts & SVG Icons
-
-Hospedagem: GitHub Pages
-
-📞 Contactos e Redes Sociais
-
-WhatsApp Apoio:
-
-🇲🇿 +258 86 756 8918 / +258 82 010 9316
-
-🇿🇦 +27 63 643 7259
-
-Instagram: @mozbookstore_
-
-Facebook: MozBookStore
-
-© 2026 MozBookStore — Todos os direitos reservados.
+1. **Clonar o repositório:**
+   ```bash
+   git clone [https://github.com/mozbookstore-ai/MozBookStore.git](https://github.com/mozbookstore-ai/MozBookStore.git)
