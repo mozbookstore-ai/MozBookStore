@@ -36,6 +36,12 @@ const CAMINHOS_PDF = {
   13: "guias/skate-para-iniciantes.pdf",
   14: "guias/exercicios-matematica-1a.pdf",
   15: "guias/matematica-2a.pdf",
+  16: "guias/guia-completo_canva_do_zero_MozBookStore.pdf",
+  17: "guias/guia-excel-do-Zero-MozBookStore.pdf",
+  18: "guias/guia-PowerPoint-do-zero-MozBookStore.pdf",
+  19: "guias/Ebook-VSCode-35-Paginas.pdf",
+  20: "guias/guia-Microsoft-Word-do-zero-MozBookStore.pdf",
+  21: "guias/guia-Photoshop-MozBookStore.pdf",
 };
 
 const TAXA_CAMBIO_ZAR = 3.5;
@@ -1405,7 +1411,91 @@ const produtos = [
     tipoEn:"PDF / Education",
     introducao:"Livro de matemática para alunos da 2ª classe, abordando conceitos de adição, subtração, multiplicação e divisão.",
     introducaoEn:"Math book for 2nd-grade students, covering concepts of addition, subtraction, multiplication, and division.",
-  }
+  },
+
+  {
+    id:16,
+    titulo:"Aulas de Canvas para inciantes",
+    tituloEn:"Canvas Lessons for Beginners",
+    autor:"MozBookStore",
+    categoria:"educacao",
+    preco:"350 MT",
+    imagem:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdUwRQJ7lKMNRIpeEZGxWnE4H3rw3A6w-H1e10QGdPQw&s=10",
+    tipo:"PDF / Educação",
+    tipoEn:"PDF / Education",
+    introducao:"Aprenda a usar o Canvas, uma plataforma de aprendizado online, com instruções passo a passo para iniciantes.",
+    introducaoEn:"Learn how to use Canvas, an online learning platform, with step-by-step instructions for beginners.",
+  },
+
+  {
+    id:17,
+    titulo:"Aulas de Excel do Zero",
+    tituloEn:"Excel Lessons from Scratch",
+    autor:"MozBookStore",
+    categoria:"educacao",
+    preco:"400 MT",
+    imagem:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGXLQbZ-jKk3CfVybeiHs3TSkw1hO9LxgPh3M8Q6kSjQ&s=10",
+    tipo:"PDF / Educação",
+    tipoEn:"PDF / Education",
+    introducao:"Curso completo de Excel para iniciantes, cobrindo fórmulas básicas, formatação de células e criação de gráficos.",
+    introducaoEn:"Complete Excel course for beginners, covering basic formulas, cell formatting, and chart creation.",
+  },
+
+  {
+    id:18,
+    titulo:"Aulas de PowerPoint do Zero",
+    tituloEn:"PowerPoint Lessons from Scratch",
+    autor:"MozBookStore",
+    categoria:"educacao",
+    preco:"400 MT",
+    imagem:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCOdqPtsf6ket1w6qaqB6P-C9GppDDAVGArw1RuZAbSjNEOmoLU4FgOXw&s=10",
+    tipo:"PDF / Educação",
+    tipoEn:"PDF / Education",
+    introducao:"Curso completo de PowerPoint para iniciantes, abordando criação de apresentações, design de slides e animações.",
+    introducaoEn:"Complete PowerPoint course for beginners, covering presentation creation, slide design, and animations.",
+  },
+
+  {
+    id:19,
+    titulo:"Aulas de Vs Code",
+    tituloEn:"VS Code Lessons",
+    autor:"MozBookStore",
+    categoria:"educacao",
+    preco:"400 MT",
+    imagem:"https://boluda.com/files/curso-visual-studio-code.gif",
+    tipo:"PDF / Educação",
+    tipoEn:"PDF / Education",
+    introducao:"Curso completo de VS Code para iniciantes, abordando instalação, configuração e uso de extensões.",
+    introducaoEn:"Complete VS Code course for beginners, covering installation, configuration, and extension usage.",
+  },
+
+  {
+    id:20,
+    titulo:"Aulas de Microsoft Word do Zero",
+    tituloEn:"Microsoft Word Lessons from Scratch",
+    autor:"MozBookStore",
+    categoria:"educacao",
+    preco:"400 MT",
+    imagem:"https://www.bitedu.shop/cdn/shop/files/word_7cd0107f-95fe-425b-982c-93bca65b37a0_1080x.png?v=1782765088",
+    tipo:"PDF / Educação",
+    tipoEn:"PDF / Education",
+    introducao:"Curso completo de Microsoft Word para iniciantes, abordando conceitos básicos, formatação e criação de documentos.",
+    introducaoEn:"Complete Microsoft Word course for beginners, covering basic concepts, formatting, and document creation.",
+  },
+
+  {
+    id:21,
+    titulo:"Aulas de PhotoShop do Zero",
+    tituloEn:"PhotoShop Lessons from Scratch",
+    autor:"MozBookStore",
+    categoria:"educacao",
+    preco:"400 MT",
+    imagem:"https://boluda.com/files/curso-photoshop.gif",
+    tipo:"PDF / Educação",
+    tipoEn:"PDF / Education",
+    introducao:"Curso completo de PhotoShop para iniciantes, abordando ferramentas básicas, edição de imagens e criação de gráficos.",
+    introducaoEn:"Complete PhotoShop course for beginners, covering basic tools, image editing, and graphic creation.",
+  },
 
 ];
 
