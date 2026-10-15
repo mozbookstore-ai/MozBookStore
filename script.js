@@ -428,15 +428,16 @@ const categoriasMultimedia = [
     pt: "Exames & Aulas",
     en: "Exams & Lessons",
     emptyKey: "mediaEmptyCategory",
-    catalogCategories: ["desporto", "estilo-de-vida"],
+    catalogCategories: ["Educação, Aulas, Exames,tecnologia"],
     catalogEmptyKey: "catalogEmptyCategory",
   },
+
   {
     id: "entertainment",
     pt: "Entretenimento",
     en: "Entertainment",
     emptyKey: "mediaEmptyEntertainment",
-    catalogCategories: [],
+    catalogCategories: ["Banda Desenhada", "Histórias de Entretenimento","Romance"],
     catalogEmptyKey: "catalogEmptyEntertainment",
   },
   {
@@ -452,9 +453,10 @@ const categoriasMultimedia = [
     pt: "Espaço Infantil",
     en: "Kids' Corner",
     emptyKey: "mediaEmptyKids",
-    catalogCategories: [],
+    catalogCategories: ["Educação Infantil", "Histórias Infantis", "Atividades para Crianças"],
     catalogEmptyKey: "catalogEmptyKids",
   },
+
 ];
 
 const videosMultimedia = [
