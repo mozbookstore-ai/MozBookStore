@@ -2158,6 +2158,19 @@ function inicializarSugestaoInstalacaoPwa() {
 
 inicializarSugestaoInstalacaoPwa();
 
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => {
+    const entities = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    };
+    return entities[character];
+  });
+}
+
 // Renderizar Categorias Dinamicamente com Tradução
 function renderizarCategorias() {
   const container = document.getElementById("categoriesContainer");
@@ -2233,13 +2246,13 @@ function carregarProdutos(lista) {
 
     card.innerHTML = `
       <div>
-        <img src="${item.imagem}" alt="${tituloExibido}">
-        <span class="type-tag">${tipoExibido}</span>
-        <h3>${tituloExibido}</h3>
-        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px;">${item.autor}</p>
+        <img src="${escapeHtml(item.imagem)}" alt="${escapeHtml(tituloExibido)}">
+        <span class="type-tag">${escapeHtml(tipoExibido)}</span>
+        <h3>${escapeHtml(tituloExibido)}</h3>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px;">${escapeHtml(item.autor)}</p>
       </div>
       <div class="card-purchase">
-        <div class="price">${precoExibido}</div>
+        <div class="price">${escapeHtml(precoExibido)}</div>
       <div class="card-actions">
         <button type="button" title="${t.previewHelp}" onclick="abrirModalPreview(${item.id})" class="btn-synopsis">
             ${t.btnIntro}
@@ -2257,6 +2270,31 @@ function carregarProdutos(lista) {
   });
 }
 
+function atualizarEstadoModal(id, aberto, foco = ".close-btn") {
+  const modal = document.getElementById(id);
+  if (!modal) return;
+
+  modal.setAttribute("aria-hidden", String(!aberto));
+  if (aberto) {
+    modal.querySelector(foco)?.focus();
+  }
+}
+
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+
+  const modaisAbertos = [
+    ["checkoutModal", fecharModalCheckout],
+    ["previewModal", fecharModalPreview],
+    ["loginModal", fecharModalLogin],
+    ["quizModal", fecharQuizModal],
+  ];
+  const modalAberto = modaisAbertos.find(
+    ([id]) => document.getElementById(id)?.style.display === "flex",
+  );
+  modalAberto?.[1]();
+});
+
 function abrirModalPreview(id) {
   const produto = produtos.find((p) => p.id === id);
   if (!produto) return;
@@ -2272,11 +2310,13 @@ function abrirModalPreview(id) {
     `${idiomaAtual === "pt" ? "Por" : "By"}: ${produto.autor}`;
   document.getElementById("previewTexto").innerText = introExibida;
   document.getElementById("previewModal").style.display = "flex";
+  atualizarEstadoModal("previewModal", true);
   registarAtividade("activityPreview", { book: tituloExibido });
 }
 
 function fecharModalPreview() {
   document.getElementById("previewModal").style.display = "none";
+  atualizarEstadoModal("previewModal", false);
 }
 
 function irParaCheckoutDoPreview() {
@@ -2539,6 +2579,7 @@ function abrirCheckout() {
   atualizarOpcoesPagamento();
 
   document.getElementById("checkoutModal").style.display = "flex";
+  atualizarEstadoModal("checkoutModal", true);
 }
 
 function atualizarOpcoesPagamento() {
@@ -2708,6 +2749,7 @@ async function submeterConfirmacaoPagamento(event) {
 
 function fecharModalCheckout() {
   document.getElementById("checkoutModal").style.display = "none";
+  atualizarEstadoModal("checkoutModal", false);
 }
 
 function filtrarCategoria(categoria) {
@@ -2786,14 +2828,19 @@ function atualizarSugestoes() {
     const tituloExibido =
       idiomaAtual === "en-ZA" ? livro.tituloEn : livro.titulo;
     html += `
-      <div class="suggestion-item" onclick="selecionarSugestao('${tituloExibido.replace(/'/g, "\\'")}')">
-        <strong style="color: #1e293b; display: block; font-size: 0.95rem;">${tituloExibido}</strong>
-        <span style="color: #64748b; font-size: 0.8rem;">${idiomaAtual === "pt" ? "Por" : "By"} ${livro.autor}</span>
-      </div>
+      <button type="button" class="suggestion-item" data-title="${escapeHtml(tituloExibido)}">
+        <strong style="color: #1e293b; display: block; font-size: 0.95rem;">${escapeHtml(tituloExibido)}</strong>
+        <span style="color: #64748b; font-size: 0.8rem;">${idiomaAtual === "pt" ? "Por" : "By"} ${escapeHtml(livro.autor)}</span>
+      </button>
     `;
   });
 
   suggestionsBox.innerHTML = html;
+  suggestionsBox.querySelectorAll("[data-title]").forEach((suggestion) => {
+    suggestion.addEventListener("click", () => {
+      selecionarSugestao(suggestion.dataset.title);
+    });
+  });
   suggestionsBox.style.display = "block";
 }
 
@@ -3162,6 +3209,7 @@ function mostrarFormularioNovaPassword() {
   document.getElementById("formRegistro").classList.remove("active");
   document.getElementById("formNovaPassword").classList.add("active");
   document.getElementById("loginModal").style.display = "flex";
+  atualizarEstadoModal("loginModal", true);
   document.getElementById("authStatus").innerText = "";
   document.getElementById("novaPassword").focus();
 }
@@ -4487,10 +4535,12 @@ function abrirModalLogin() {
     mostrarEstadoAutenticacao(traducoes[idiomaAtual].authNotConfigured, true);
   }
   document.getElementById("loginModal").style.display = "flex";
+  atualizarEstadoModal("loginModal", true);
 }
 
 function fecharModalLogin() {
   document.getElementById("loginModal").style.display = "none";
+  atualizarEstadoModal("loginModal", false);
 }
 
 function alternarVisibilidadePassword(botao) {

@@ -96,15 +96,15 @@
       <div class="top-bar-container">
         <span class="top-bar-contact">
           <span class="wa-pill">💬 WhatsApp</span>
-          <a class="wa-link" href="https://wa.me/258867568918" target="_blank"
+          <a class="wa-link" href="https://wa.me/258867568918" target="_blank" rel="noopener noreferrer"
             >+258 86 756 8918</a
           >
           /
-          <a class="wa-link" href="https://wa.me/258820109316" target="_blank"
+          <a class="wa-link" href="https://wa.me/258820109316" target="_blank" rel="noopener noreferrer"
             >+258 82 010 9316</a
           >
           /
-          <a class="wa-link" href="https://wa.me/27636437259" target="_blank"
+          <a class="wa-link" href="https://wa.me/27636437259" target="_blank" rel="noopener noreferrer"
             >+27 63 643 7259</a
           >
         </span>
@@ -720,9 +720,9 @@
     </section>
 
     <!-- Modal de Checkout Otimizado -->
-    <div id="checkoutModal" class="modal">
+    <div id="checkoutModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="checkoutTitulo">
       <div class="modal-content">
-        <span class="close-btn" onclick="fecharModalCheckout()">&times;</span>
+        <button type="button" class="close-btn" onclick="fecharModalCheckout()" aria-label="Fechar janela">&times;</button>
         <h3 id="checkoutTitulo">Pagar e receber o PDF</h3>
         <p id="checkoutPreco" class="checkout-price-highlight"></p>
         <p id="checkoutHelp" class="section-help">
@@ -855,11 +855,11 @@
     </div>
 
     <!-- Modal de Preview / Introdução -->
-    <div id="previewModal" class="modal">
+    <div id="previewModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="previewTitulo">
       <div class="modal-content preview-content">
-        <span onclick="fecharModalPreview()" class="close-btn preview-close"
-          >&times;</span
-        >
+        <button type="button" onclick="fecharModalPreview()" class="close-btn preview-close" aria-label="Fechar janela">
+          &times;
+        </button>
 
         <h2 id="previewTitulo" class="preview-title">Título do livro</h2>
         <p id="previewAutor" class="preview-author"></p>
@@ -894,9 +894,9 @@
     </div>
 
     <!-- Modal de Login -->
-    <div id="loginModal" class="modal">
+    <div id="loginModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="loginTitle">
       <div class="modal-content">
-        <span class="close-btn" onclick="fecharModalLogin()">&times;</span>
+        <button type="button" class="close-btn" onclick="fecharModalLogin()" aria-label="Fechar janela">&times;</button>
         <div class="modal-tabs">
           <button
             class="tab-btn active"
@@ -921,7 +921,7 @@
         <form id="formLogin" class="auth-form active">
           <h3 id="loginTitle">Bem-vindo de volta!</h3>
           <div class="form-group">
-            <label id="lblLoginEmail">Email ou utilizador</label>
+            <label id="lblLoginEmail" for="loginEmail">Email ou utilizador</label>
             <input
               type="email"
               id="loginEmail"
@@ -992,7 +992,7 @@
         <form id="formRegistro" class="auth-form">
           <h3 id="regTitle">Crie a sua conta</h3>
           <div class="form-group">
-            <label id="lblRegName">Nome completo</label>
+            <label id="lblRegName" for="regName">Nome completo</label>
             <input
               type="text"
               id="regName"
@@ -1003,7 +1003,7 @@
             />
           </div>
           <div class="form-group">
-            <label id="lblRegEmail">Email</label>
+            <label id="lblRegEmail" for="regEmail">Email</label>
             <input
               type="email"
               id="regEmail"
@@ -1329,7 +1329,7 @@
       🧠 Fazer quiz
     </button>
 
-    <div id="quizModal" class="modal" aria-hidden="true">
+    <div id="quizModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="quizTitle">
       <div class="modal-content quiz-modal-content">
         <button
           type="button"
