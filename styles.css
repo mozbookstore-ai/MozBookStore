@@ -291,6 +291,27 @@ body {
   border-bottom: none;
 }
 
+.suggestions-empty {
+  padding: 12px 16px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.suggestion-title,
+.suggestion-author {
+  display: block;
+}
+
+.suggestion-title {
+  color: #1e293b;
+  font-size: 0.95rem;
+}
+
+.suggestion-author {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
 /* Banner Hero */
 .hero-banner {
   background:
@@ -1522,6 +1543,12 @@ body {
   line-height: 1.4;
   margin: 10px 0;
   color: var(--dark);
+}
+
+.card-author {
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
 }
 
 .price {

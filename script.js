@@ -1382,7 +1382,7 @@ const produtos = [
   },
   {
     id: 16,
-    titulo: "Aulas de Canvas para inciantes",
+    titulo: "Aulas de Canvas para Iniciantes",
     tituloEn: "Canvas Lessons for Beginners",
     autor: "MozBookStore",
     categoria: "Educação & Tecnologia",
@@ -1421,7 +1421,7 @@ const produtos = [
   },
   {
     id: 19,
-    titulo: "Aulas de Vs Code",
+    titulo: "Aulas de VS Code",
     tituloEn: "VS Code Lessons",
     autor: "MozBookStore",
     categoria: "Educação & Tecnologia",
@@ -1447,18 +1447,18 @@ const produtos = [
   },
   {
     id: 21,
-    titulo: "Aulas de PhotoShop do Zero",
-    tituloEn: "PhotoShop Lessons from Scratch",
+    titulo: "Aulas de Photoshop do Zero",
+    tituloEn: "Photoshop Lessons from Scratch",
     autor: "MozBookStore",
     categoria: "Educação & Tecnologia",
     preco: "400 MT",
     imagem: "https://boluda.com/files/curso-photoshop.gif",
     tipo: "PDF / Educação & tecnologia",
     tipoEn: "PDF / Education",
-    introducao: "Curso completo de PhotoShop para iniciantes, abordando ferramentas básicas, edição de imagens e criação de gráficos.",
+    introducao: "Curso completo de Photoshop para iniciantes, abordando ferramentas básicas, edição de imagens e criação de gráficos.",
     introducaoEn: "Complete Photoshop course for beginners, covering basic tools, image editing, and graphic creation.",
   },
-];
+].sort((a, b) => a.id - b.id);
 
 function renderizarCategoriasMultimedia() {
   const container = document.getElementById("mediaCategories");
@@ -2249,7 +2249,7 @@ function carregarProdutos(lista) {
         <img src="${escapeHtml(item.imagem)}" alt="${escapeHtml(tituloExibido)}">
         <span class="type-tag">${escapeHtml(tipoExibido)}</span>
         <h3>${escapeHtml(tituloExibido)}</h3>
-        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px;">${escapeHtml(item.autor)}</p>
+        <p class="card-author">${escapeHtml(item.autor)}</p>
       </div>
       <div class="card-purchase">
         <div class="price">${escapeHtml(precoExibido)}</div>
@@ -2818,7 +2818,7 @@ function atualizarSugestoes() {
   });
 
   if (resultados.length === 0) {
-    suggestionsBox.innerHTML = `<div style="padding: 12px 16px; color: #64748b; font-size: 0.9rem;">${idiomaAtual === "pt" ? "Nenhum livro encontrado" : "No books found"}</div>`;
+    suggestionsBox.innerHTML = `<div class="suggestions-empty">${idiomaAtual === "pt" ? "Nenhum livro encontrado" : "No books found"}</div>`;
     suggestionsBox.style.display = "block";
     return;
   }
@@ -2829,8 +2829,8 @@ function atualizarSugestoes() {
       idiomaAtual === "en-ZA" ? livro.tituloEn : livro.titulo;
     html += `
       <button type="button" class="suggestion-item" data-title="${escapeHtml(tituloExibido)}">
-        <strong style="color: #1e293b; display: block; font-size: 0.95rem;">${escapeHtml(tituloExibido)}</strong>
-        <span style="color: #64748b; font-size: 0.8rem;">${idiomaAtual === "pt" ? "Por" : "By"} ${escapeHtml(livro.autor)}</span>
+        <strong class="suggestion-title">${escapeHtml(tituloExibido)}</strong>
+        <span class="suggestion-author">${idiomaAtual === "pt" ? "Por" : "By"} ${escapeHtml(livro.autor)}</span>
       </button>
     `;
   });

@@ -47,4 +47,16 @@
 
 1. **Clonar o repositório:**
    ```bash
-   git clone [https://github.com/mozbookstore-ai/MozBookStore.git](https://github.com/mozbookstore-ai/MozBookStore.git)
+   git clone https://github.com/mozbookstore-ai/MozBookStore.git
+   cd MozBookStore
+   ```
+
+2. **Executar localmente:**
+
+   Use um servidor HTTP local para que o Service Worker e os módulos externos funcionem corretamente:
+
+   ```bash
+   python3 -m http.server 8000
+   ```
+
+   Depois abra `http://localhost:8000` no navegador.
